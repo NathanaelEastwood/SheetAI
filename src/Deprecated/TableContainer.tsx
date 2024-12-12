@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import MainTable from "./MainTable";
 
 interface TableContainerProps
@@ -13,28 +13,32 @@ const TableContainer: React.FC<TableContainerProps> = ({ initialWidth, initialHe
     const [currentHeight, setCurrentHeight] = useState<number>(initialHeight);
 
     const [data, setData] = useState<any[][]>(() => CreateData([[]], initialHeight, initialWidth));
-    const [columnNames, setColumnNames] = useState<string[]>(() => CreateColumns(20, [], 0));
+    const [columnNames, setColumnNames] = useState<string[]>(() => CreateColumns(20, []));
 
-    let vertical_buffer = useState<any[][]>([[]])
-    let [horizontalBuffer, setHorizontalBuffer] = useState<string[]>(() => CreateColumnRange(20, 100))
+    let vertical_buffer = useState<any[][]>(() => Array.from({length: 20}, (_, rowIndex) =>
+        Array(currentWidth).fill(null).map((_, colIndex) => (colIndex === 0 ? rowIndex : null))));
+
+    let [horizontalBuffer, setHorizontalBuffer] = useState<string[]>(() => CreateColumnRange(20, 120))
+
     let bufferStartIndex = 20;
 
     const handleScroll = (event: React.UIEvent<HTMLDivElement, UIEvent>): void => {
         if (event.currentTarget.scrollWidth - 20 <= event.currentTarget.scrollLeft + event.currentTarget.clientWidth) {
-            console.log(columnNames);
-
+            console.log(horizontalBuffer[horizontalBuffer.length - 1]);
+            console.log(horizontalBuffer.length)
+            let step_size = 5
             setCurrentWidth((prevWidth) => {
-                const newWidth = prevWidth + 5;
-
-                // Update horizontal buffer
-                setHorizontalBuffer((prevBuffer) => {
-                    const newBuffer = prevBuffer.slice(6).concat(CreateColumnRange(prevWidth + 80, prevWidth + 85));
-                    return newBuffer
-                });
+                const newWidth = prevWidth + step_size;
 
                 // Update column names
                 setColumnNames((prevColumns) => {
-                    return [...CreateColumns(newWidth, horizontalBuffer, bufferStartIndex, prevColumns)];
+                    return [...CreateColumns(newWidth, horizontalBuffer, prevColumns)];
+                });
+
+                // Update horizontal buffer
+                setHorizontalBuffer((prevBuffer) => {
+                    const newBuffer = prevBuffer.slice(step_size).concat(CreateColumnRange(prevWidth + 121, prevWidth + 125));
+                    return newBuffer
                 });
 
                 // Update data
@@ -94,7 +98,6 @@ function CreateData(intake: any[][], height: number, width: number): any[][] {
 }
 
 function CreateColumnRange(columnStart: number, columnFinish: number){
-    console.log(`Creating column tops: ${columnStart}, ${columnFinish}`);
     let result = []
     for (let i = columnStart; i < columnFinish + 1; i++) {
         result.push(generateColumnLetterFromNumber(i))
@@ -102,17 +105,18 @@ function CreateColumnRange(columnStart: number, columnFinish: number){
     return result;
 }
 
-function CreateColumns(columnNumber: number, buffer: string[], buffer_start_index: number, oldColumns: string[] = []): Array<string>{
+function CreateColumns(columnNumber: number, buffer: string[], oldColumns: string[] = []): Array<string>{
     if (oldColumns.length > 0) {
         let new_columns_needed = columnNumber - oldColumns.length;
         let first_new_column_position = oldColumns.length + 1;
-        let first_buffer_element_required = first_new_column_position - buffer_start_index;
         let result = oldColumns;
 
         for (let i = 0; i < new_columns_needed; i++) {
-            if (first_buffer_element_required + i < buffer.length) {
-                result.push(buffer[first_buffer_element_required + i])
+            if (i < buffer.length) {
+                // if the value that is needed is in the buffer
+                result.push(buffer[i])
             } else {
+                // if the value that is needed in the buffer is somehow not there.
                 result.push(generateColumnLetterFromNumber(i + oldColumns.length))
             }
         }

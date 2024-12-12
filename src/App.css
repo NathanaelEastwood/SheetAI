@@ -11,9 +11,9 @@
   padding: 0;
   border: #888888;
   display: flex;
-  overflow-y: auto; /* Changed from scroll to auto */
-  overflow-x: auto; /* Changed from scroll to auto */
-  max-height: 70vh; /* or whatever value works for your layout */
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 70vh;
   max-width: 100%;
 }
 
@@ -67,8 +67,7 @@ td {
 thead{
   position: sticky;
   top: 0;
-  backgroundColor: "#f1f1f1";
-  zIndex: 1;
+  z-index: 1;
 }
 
 html {
@@ -77,15 +76,30 @@ html {
 }
 
 table {
-  border: 1px solid slategrey;
+  border: 1px solid slategrey !important;
   width: 100%;
   max-height: 50vh; /* Example value */
   overflow: auto; /* Ensure table scrolls properly */
-  border-collapse: collapse;
+}
+
+tr {
+  border: 1px solid slategrey !important;
+}
+
+th {
+  border: 1px solid slategrey !important;
+  position: sticky;
+  top: 0;box-shadow: 0 1px;
+}
+
+td {
+  border: 1px solid slategrey !important;
 }
 
 tbody {
-  border-bottom: 1px solid lightgray;
+  display: block;
+  padding-top: 21px;
+  border-bottom: 1px solid lightgray !important;
 }
 
 th {
