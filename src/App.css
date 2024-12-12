@@ -86,6 +86,24 @@ tr {
   border: 1px solid slategrey !important;
 }
 
+th:after,
+th:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+th:before {
+  top: 0;
+  border-top: 2px solid slategrey;
+}
+
+th:after {
+  bottom: 0;
+  border-bottom: 2px solid slategrey;
+}
+
 th {
   border: 1px solid slategrey !important;
   position: sticky;
