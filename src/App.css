@@ -64,7 +64,91 @@ td {
   color: #888;
 }
 
-thead{
+/* NEW STYLES FOR TABLE HERE */
+html {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ddd !important;
+  max-height: 50vh;
+  overflow-y: auto; /* Enables vertical scrolling */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+tr:first-child {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: table;
+  width: 100%;
+  table-layout: fixed; /* Match layout with body rows */
+}
+
+tr:first-child th {
+  padding: 10px;
+  border: 1px solid #ddd;
+  font-weight: bold;
+  text-align: left;
+  color: #333;
+}
+
+tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(odd):not(:first-child) {
+  background-color: #f8f8f8;
+}
+
+tr:hover:not(:first-child) {
+  background-color: #f1f1f1;
+}
+
+td {
+  padding: 10px;
+  border: 1px solid #ddd !important;
+  color: #555;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+tfoot {
+  display: table;
+  width: 100%;
+  background-color: #f9f9f9;
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+tfoot th {
+  padding: 8px;
+  font-weight: normal;
+}
+
+/* Added explicit border styles for the table */
+tr:first-child th, td {
+  border: 1px solid #ddd;
+}
+
+.cell_contents{
+  margin: 0;
+}
+
+/* OLD STYLES FOR TABLE HERE */
+/*thead{
   position: sticky;
   top: 0;
   z-index: 1;
@@ -78,8 +162,8 @@ html {
 table {
   border: 1px solid slategrey !important;
   width: 100%;
-  max-height: 50vh; /* Example value */
-  overflow: auto; /* Ensure table scrolls properly */
+  max-height: 50vh; !* Example value *!
+  overflow: auto; !* Ensure table scrolls properly *!
 }
 
 tr {
@@ -132,7 +216,7 @@ tfoot {
 
 tfoot th {
   font-weight: normal;
-}
+}*/
 
 html, body, #root {
   height: 100%; /* Ensure full height for the root container */

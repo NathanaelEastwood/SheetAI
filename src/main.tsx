@@ -4,7 +4,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure you import Bootstrap CSS-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Table from "./Components/Table";
+import TableContainer from "./Components/TableContainer";
 
 const App: React.FC = () => (
     <div className="vh-100 vw-100">
@@ -12,9 +12,7 @@ const App: React.FC = () => (
             <h1>Tool Bar Space</h1>
         </Row>
         <Row className = "h-75">
-            <Col xs={12} md={8} style={{overflowX: "scroll", overflowY: "scroll", height: '100%', width: '66%'}} >
-                <Table width={100} height={100}/>
-            </Col>
+            <TableContainer/>
             <Col xs={12} md={4}> {/* Updated breakpoint sizes */}
                 <div className="interaction-space">
                     INTERACTION WORKSPACE

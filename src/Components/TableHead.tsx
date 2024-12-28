@@ -1,4 +1,3 @@
-import Cell from "./Cell";
 import HeadCell from "./HeadCell";
 
 interface RowProperties {
@@ -10,7 +9,7 @@ const TableHead: React.FC<RowProperties> = ({width, wholeCellOffset}) => {
     let column_heads = CreateColumnRange(wholeCellOffset, width + wholeCellOffset)
     return (
         <tr style={{position: 'sticky', top: '0px', right: '0px'}}>
-            {Array.from({length: width}, (_, i) => <HeadCell is_index_cell={false} cellId={`${-1}_${i}`} internalValue={undefined}
+            {Array.from({length: width}, (_, i) => <HeadCell key={i} is_index_cell={false} cellId={`${-1}_${i}`} internalValue={undefined}
                                                          visibleValue = {i == 0 ? "" : column_heads[i]}/>)}
         </tr>
     )
