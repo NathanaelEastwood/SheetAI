@@ -1,4 +1,4 @@
-import Cell from "./Cell";
+import Cell from "../Components/Cell";
 
 interface RowProperties {
     rowNumber: number;

@@ -1,24 +1,12 @@
-import TableRow from "./TableRow";
-import TableHead from "./TableHead";
 import TableProperties from "../Entities/TableProperties";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import TableHead from "../Deprecated/TableHead";
+import TableRow from "../Deprecated/TableRow";
 
-
-const Table: React.FC<TableProperties> = ({coordinates, height, width}) => {
+const Table: React.FC = () => {
     return (
-        <Col>
-            <Row style={{height:coordinates.topWhiteSpace}}>
-            </Row>
-            <Row>
-                <table style={{position: 'relative'}}>
-                    <TableHead width={width} wholeCellOffset={0}></TableHead>
-                    {Array.from({ length: height }, (_, i) => <TableRow key={i} rowNumber={i} width={width} />)}
-                </table>
-            </Row>
-            <Row style={{height:coordinates.bottomWhiteSpace}}>
-            </Row>
-        </Col>
+        <canvas width={1950} height={500}></canvas>
     )
 }
 

@@ -11,7 +11,7 @@ const App: React.FC = () => (
         <Row className = "h-25">
             <h1>Tool Bar Space</h1>
         </Row>
-        <Row className = "h-75">
+        <Row className="h-75" style={{ paddingLeft: 0 }}>
             <TableContainer/>
             <Col xs={12} md={4}> {/* Updated breakpoint sizes */}
                 <div className="interaction-space">

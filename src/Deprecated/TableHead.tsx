@@ -1,4 +1,4 @@
-import HeadCell from "./HeadCell";
+import HeadCell from "../Components/HeadCell";
 
 interface RowProperties {
     wholeCellOffset: number;

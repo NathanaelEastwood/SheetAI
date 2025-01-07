@@ -1,86 +1,49 @@
-import React, { useRef, useState } from "react";
-import Col from "react-bootstrap/Col";
-import Table from "./Table";
-
-interface TableCoordinates {
-    topWhiteSpace: number;
-    bottomWhiteSpace: number;
-    leftWhiteSpace: number;
-    rightWhiteSpace: number;
-    firstColumnNumber: number;
-    firstRowNumber: number;
-}
+import React, { useEffect, useRef } from "react";
+import Table from "../Components/Table";
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 
 const TableContainer: React.FC = () => {
-    const [width, setWidth] = useState<number>(24);
-    const [height, setHeight] = useState<number>(30);
-    const [currentYOffset, setCurrentYOffset] = useState(0);
-    const [currentXOffset, setCurrentXOffset] = useState(0);
-    const yMovementSinceRegenerate = useRef(0);
-    const tablePosition = useRef<TableCoordinates>({
-        topWhiteSpace: 0,
-        bottomWhiteSpace: 0,
-        leftWhiteSpace: 0,
-        rightWhiteSpace: 0,
-        firstColumnNumber: 0,
-        firstRowNumber: 0,
-    });
+    const containerRef = useRef<HTMLDivElement>(null);
+    const tableRef = useRef<HTMLDivElement>(null);
 
-    const isUpdating = useRef(false);
+    useEffect(() => {
+        if (containerRef.current && tableRef.current) {
+            const container = containerRef.current;
+            const table = tableRef.current;
 
-    const handleScroll = (event: React.UIEvent<HTMLDivElement, UIEvent>) => {
-        if (isUpdating.current) return; // Avoid feedback loop
+            // Dynamically size and center the Table
+            const sidebarWidth = 200; // Adjust this value to match Sidebar width
+            const topbarHeight = 50; // Adjust this value to match Topbar height
 
-        const scrollTop = event.currentTarget.scrollTop;
-        const scrollHeight = event.currentTarget.scrollHeight;
-        const clientHeight = event.currentTarget.clientHeight;
-        const scrollBottom = scrollHeight - scrollTop - clientHeight;
+            const availableWidth = container.offsetWidth - sidebarWidth;
+            const availableHeight = container.offsetHeight - topbarHeight;
 
-        const yMovement = scrollTop - currentYOffset;
-
-        if (Math.abs(yMovement) < 10) {
-            yMovementSinceRegenerate.current += yMovement;
-        } else {
-            yMovementSinceRegenerate.current = 0;
-
-            // Avoid unnecessary updates
-            if (scrollBottom < clientHeight / 2 || scrollTop < clientHeight / 2) {
-                isUpdating.current = true;
-
-                if (yMovement > 0) {
-                    tablePosition.current.firstRowNumber -= yMovement / 10;
-                    tablePosition.current.bottomWhiteSpace -= yMovement;
-                    tablePosition.current.topWhiteSpace += yMovement;
-                } else {
-                    tablePosition.current.firstRowNumber += yMovement / 10;
-                    tablePosition.current.topWhiteSpace -= yMovement;
-                    tablePosition.current.bottomWhiteSpace += yMovement;
-                }
-
-                // Simulate async state update
-                setTimeout(() => {
-                    isUpdating.current = false;
-                }, 10);
-            }
+            table.style.width = `${availableWidth * 0.6}px`; // Adjust Table width to 60% of available space
+            table.style.height = `${availableHeight * 0.6}px`; // Adjust Table height to 60% of available space
+            table.style.position = "absolute";
+            table.style.left = `${(availableWidth - table.offsetWidth) / 2}px`;
+            table.style.top = `${(availableHeight - table.offsetHeight) / 2 + topbarHeight}px`;
         }
-
-        setCurrentYOffset(scrollTop);
-    };
+    }, []);
 
     return (
-        <Col
-            xs={12}
-            md={8}
+        <div
+            className="canvasContainer"
             style={{
-                overflowX: "scroll",
-                overflowY: "scroll",
-                height: "100%",
-                width: "66%",
+                position: "relative",
+                width: "100vw",
+                height: "100vh",
+                paddingLeft: 0,
             }}
-            onScroll={handleScroll}
+            ref={containerRef}
         >
-            <Table coordinates={tablePosition.current} width={width} height={height} />
-        </Col>
+            <Topbar />
+            <Sidebar />
+            <div ref={tableRef}>
+                <Table />
+            </div>
+        </div>
     );
 };
 
