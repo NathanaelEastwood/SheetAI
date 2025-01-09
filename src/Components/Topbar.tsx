@@ -1,6 +1,10 @@
 import {useEffect, useRef, useState} from "react";
 
-const Topbar: React.FC = () => {
+interface TopbarProps {
+    style?: React.CSSProperties;
+}
+
+const Topbar: React.FC<TopbarProps> = (style) => {
     const [width, setWidth] = useState<number>(24);
     const [startingLetter, setStartingLetter] = useState<number>(0);
     const [columnHeadings, setColumnHeadings] = useState<string[]>(() => generateLetterList(width, startingLetter));
@@ -17,32 +21,32 @@ const Topbar: React.FC = () => {
                 canvas.height = 100;
 
                 // Set font and styling for text
-                ctx.font = "20px serif";
+                ctx.font = "15px serif";
                 ctx.fillStyle = "black";
 
                 ctx.beginPath();
                 const x = 80 * -1 + 50; // Calculate x-coordinate for each letter
                 const y = 50; // Fixed y-coordinate
-                ctx.lineWidth = 0.25
+                ctx.lineWidth = 1
                 // draw vertical line preceding the letter.
                 ctx.moveTo(0, 30);
                 ctx.lineTo(0, 60)
                 ctx.stroke();
 
                 // draw horizontal bottom line
-                ctx.lineTo(95, 60)
+                ctx.lineTo(100, 60)
                 ctx.stroke()
 
                 // draw horizontal top line
                 ctx.moveTo(0, 30)
-                ctx.lineTo(95, 30)
+                ctx.lineTo(100, 30)
 
                 ctx.stroke()
 
                 // Draw the letters on the canvas
                 columnHeadings.forEach((letter, index) => {
                     ctx.beginPath();
-                    const x = 80 * index + 50; // Calculate x-coordinate for each letter
+                    const x = 80 * index + 55; // Calculate x-coordinate for each letter
                     const y = 50; // Fixed y-coordinate
 
                     // draw vertical line preceding the letter.
