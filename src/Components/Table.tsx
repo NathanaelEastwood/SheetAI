@@ -6,7 +6,7 @@ import TableRow from "../Deprecated/TableRow";
 
 const Table: React.FC = () => {
     return (
-        <canvas width={1950} height={500}></canvas>
+        <canvas width={1950} height={1000}></canvas>
     )
 }
 

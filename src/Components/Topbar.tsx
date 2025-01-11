@@ -18,16 +18,14 @@ const Topbar: React.FC<TopbarProps> = (style) => {
             if (ctx) {
                 // Set canvas dimensions (optional, adjust as needed)
                 canvas.width = 2000;
-                canvas.height = 100;
+                canvas.height = 60;
 
                 // Set font and styling for text
                 ctx.font = "15px serif";
                 ctx.fillStyle = "black";
 
                 ctx.beginPath();
-                const x = 80 * -1 + 50; // Calculate x-coordinate for each letter
-                const y = 50; // Fixed y-coordinate
-                ctx.lineWidth = 1
+                ctx.lineWidth = 1;
                 // draw vertical line preceding the letter.
                 ctx.moveTo(0, 30);
                 ctx.lineTo(0, 60)
@@ -46,6 +44,7 @@ const Topbar: React.FC<TopbarProps> = (style) => {
                 // Draw the letters on the canvas
                 columnHeadings.forEach((letter, index) => {
                     ctx.beginPath();
+                    ctx.lineWidth = 1;
                     const x = 80 * index + 55; // Calculate x-coordinate for each letter
                     const y = 50; // Fixed y-coordinate
 

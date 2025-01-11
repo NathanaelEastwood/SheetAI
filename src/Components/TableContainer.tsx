@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Table from "../Components/Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
@@ -6,6 +6,8 @@ import Topbar from "./Topbar";
 const TableContainer: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLDivElement>(null);
+    const tableHeight = useState(1000)
+    const tableWidth = useState(2000)
 
     useEffect(() => {
         if (containerRef.current && tableRef.current) {
@@ -30,48 +32,53 @@ const TableContainer: React.FC = () => {
     }, []);
 
     return (
-        <div
-            className="canvasContainer"
-            style={{
-                position: "absolute",
-                width: "100vw",
-                height: "100vh", // Ensure full viewport height
-                margin: 0, // Remove any default margin
-                padding: 0, // Remove any padding
-                boxSizing: "border-box", // Include padding and border in dimensions
-            }}
-            ref={containerRef}
-        >
-            {/* Topbar positioned at the very top */}
-            <Topbar
+
+            <div
+                className="canvasContainer"
                 style={{
                     position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "50px", // Matches topbarHeight
-                    zIndex: 1,
+                    width: "100vw",
+                    height: "77vh", // Ensure full viewport height
+                    margin: 0, // Remove any default margin
+                    padding: 0, // Remove any padding
+                    boxSizing: "border-box", // Include padding and border in dimensions
+                    overflow: "scroll"
                 }}
-            />
+                ref={containerRef}
+            >
 
-            {/* Sidebar positioned on the right */}
-            <Sidebar
-                style={{
-                    position: "absolute",
-                    top: "50px", // Below Topbar
-                    left: 0,
-                    width: "100px", // Matches sidebarWidth
-                    height: "calc(100vh - 50px)", // Full height minus Topbar
-                    zIndex: 1,
-                }}
-            />
+                {/* Topbar positioned at the very top */}
+                <Topbar
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "50px", // Matches topbarHeight
+                        zIndex: 1,
+                    }}
+                />
 
-            {/* Table dynamically sized and centered */}
-            <div ref={tableRef}>
+                {/* Sidebar positioned on the right */}
+                <Sidebar
+                    style={{
+                        position: "absolute",
+                        top: "50px", // Below Topbar
+                        left: 0,
+                        width: "100px", // Matches sidebarWidth
+                        height: "calc(100vh - 50px)", // Full height minus Topbar
+                        zIndex: 1,
+                    }}
+                />
+
+                {/* Table dynamically sized and centered */}
+                {/*<div ref={tableRef}>
+                    <Table />
+                </div>*/}
                 <Table />
             </div>
-        </div>
     );
 };
 
 export default TableContainer;
+
