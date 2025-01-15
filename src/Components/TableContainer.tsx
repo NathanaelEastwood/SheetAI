@@ -2,43 +2,68 @@ import React, {useEffect, useRef, useState} from "react";
 import Table from "../Components/Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import sidebar from "./Sidebar";
 
 const TableContainer: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const tableRef = useRef<HTMLDivElement>(null);
-    const tableHeight = useState(1000)
-    const tableWidth = useState(2000)
+    const tableRef = useRef<HTMLCanvasElement>(null);
+    const topRef = useRef<HTMLCanvasElement>(null);
+    const sideRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
-        if (containerRef.current && tableRef.current) {
-            const container = containerRef.current;
-            const table = tableRef.current;
+        const handleScroll = (event: Event) => {
+            const target = event.target as HTMLDivElement;
+            const scrollX = target.scrollLeft; // Horizontal scroll position
+            const scrollY = target.scrollTop;  // Vertical scroll position
+            const containerLeft = containerRef.current.offsetLeft || 0;
+            const containerTop = containerRef.current.offsetTop || 0;
 
-            // Dimensions for Topbar and Sidebar
-            const sidebarWidth = 200; // Adjust to match Sidebar width
-            const topbarHeight = 50; // Adjust to match Topbar height
+            console.log(containerLeft, containerTop);
 
-            // Calculate available space for the Table
-            const availableWidth = container.offsetWidth - sidebarWidth;
-            const availableHeight = container.offsetHeight - topbarHeight;
+            // TODO: Fix the issue where scrolling both X and Y directions, causes one scroll bar to snap back.
 
-            // Resize and center the Table dynamically
-            table.style.width = `${availableWidth * 0.6}px`; // 60% of available width
-            table.style.height = `${availableHeight * 0.6}px`; // 60% of available height
-            table.style.position = "absolute";
-            table.style.left = `${(availableWidth - table.offsetWidth) / 2}px`;
-            table.style.top = `${(availableHeight - table.offsetHeight) / 2 + topbarHeight}px`;
+            if (scrollY !== 0 && topRef.current) {
+                topRef.current.style.position = "fixed";
+                topRef.current.style.left = `${containerLeft}px`;  // Added 'px'
+                topRef.current.style.top = `${containerTop}px`;    // Added 'px'
+            } else if (topRef.current) {
+                topRef.current.style.position = "absolute";
+                topRef.current.style.left = "0px";  // Reset left
+                topRef.current.style.top = "0px";   // Reset top
+
+            }
+
+            if (scrollX !== 0 && sideRef.current) {
+                sideRef.current.style.position = "fixed";
+                sideRef.current.style.left = `${containerLeft}px`;  // Added 'px'
+                sideRef.current.style.top = `${containerTop + 30}px`;    // Added 'px'
+            } else if (sideRef.current) {
+                sideRef.current.style.position = "absolute";
+                sideRef.current.style.left = "0px";  // Reset left
+                sideRef.current.style.top = "30px";   // Reset top
+            }
+        };
+
+        const container = containerRef.current;
+        if (container) {
+            container.addEventListener("scroll", handleScroll);
         }
+
+        return () => {
+            if (container) {
+                container.removeEventListener("scroll", handleScroll);
+            }
+        };
     }, []);
 
-    return (
 
+    return (
             <div
                 className="canvasContainer"
                 style={{
                     position: "absolute",
                     width: "100vw",
-                    height: "77vh", // Ensure full viewport height
+                    height: "78vh", // Ensure full viewport height
                     margin: 0, // Remove any default margin
                     padding: 0, // Remove any padding
                     boxSizing: "border-box", // Include padding and border in dimensions
@@ -53,29 +78,36 @@ const TableContainer: React.FC = () => {
                         position: "absolute",
                         top: 0,
                         left: 0,
-                        width: "100%",
-                        height: "50px", // Matches topbarHeight
+                        height: "30px", // Matches topbarHeight
                         zIndex: 1,
                     }}
+                    ref = {topRef}
                 />
 
-                {/* Sidebar positioned on the right */}
+                {/* Sidebar positioned on the left */}
                 <Sidebar
                     style={{
                         position: "absolute",
-                        top: "50px", // Below Topbar
+                        top: "30px", // Below Topbar
                         left: 0,
                         width: "100px", // Matches sidebarWidth
-                        height: "calc(100vh - 50px)", // Full height minus Topbar
                         zIndex: 1,
                     }}
+                    ref = {sideRef}
                 />
 
                 {/* Table dynamically sized and centered */}
                 {/*<div ref={tableRef}>
                     <Table />
                 </div>*/}
-                <Table />
+                <Table
+                    style={{
+                        height: "1000px",
+                        width: "1950px",
+                        top: "0",
+                        left: "0"
+                    }}
+                    ref={tableRef} width={24} height={30} />
             </div>
     );
 };
