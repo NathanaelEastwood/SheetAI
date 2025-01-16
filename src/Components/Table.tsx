@@ -12,9 +12,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
+            canvas.width = tableProperties.width * 80;
+            canvas.height = tableProperties.height * 30;
             if (ctx) {
                 // Draw table cells
-                for (let i = 2; i < tableProperties.height + 2; i++) {
+                for (let i = 0; i < tableProperties.height; i++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
@@ -23,19 +25,19 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     ctx.stroke();
                 }
 
-                for (let j = 2; j < tableProperties.width + 2; j++) {
+                for (let j = 0; j < tableProperties.width; j++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
-                    ctx.moveTo(80 * j + 20, 0);
-                    ctx.lineTo(80 * j + 20, canvas.height); // Correct logic for cell lines
+                    ctx.moveTo(80 * j, 0);
+                    ctx.lineTo(80 * j, canvas.height); // Correct logic for cell lines
                     ctx.stroke();
                 }
             }
         }
     }, [tableProperties, ref]);
 
-    return <canvas ref={ref || localCanvasRef} width={1950} height={1000} style={tableProperties.style}></canvas>;
+    return <canvas ref={ref || localCanvasRef} height={1000} style={tableProperties.style}></canvas>;
 });
 
 export default Table;

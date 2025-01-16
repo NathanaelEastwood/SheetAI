@@ -1,17 +1,24 @@
-import React, {forwardRef, useEffect, useRef, useState} from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 interface SidebarProps {
+    startingNumber: number;
+    height: number;
     style?: React.CSSProperties;
 }
 
-const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>((props, ref) => {
-    const { style } = props;
+const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [height, setWidth] = useState<number>(50);
-    const [startingNumber, setStartingLetter] = useState<number>(1);
-    const [rowHeadings, setRowHeadings] = useState<number[]>(() => generateRowHeadings(startingNumber, height));
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // Recalculate rowHeadings when height or startingNumber changes
+    const [rowHeadings, setRowHeadings] = useState<number[]>(() =>
+        generateRowHeadings(height, startingNumber)
+    );
+
+    useEffect(() => {
+        setRowHeadings(generateRowHeadings(height, startingNumber));
+    }, [height, startingNumber]);
+
+    // Effect to handle canvas drawing and state updates
     useEffect(() => {
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
@@ -20,18 +27,21 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>((props, ref) => {
             if (ctx) {
                 // Get the dynamic height value using window.innerHeight for 100vh
                 let calculatedHeight: number = window.innerHeight - 50;
-                let calculatedWidth: number = style?.width ? parseInt(style.width.toString(), 10) : 100; // 50px adjustment (same as '50px' in the calc)
-                // Default to 100 if no width is given
+                let calculatedWidth: number = style?.width ? parseInt(style.width.toString(), 10) : 100; // Default to 100 if no width is given
                 // Set canvas width and height dynamically
-                canvas.width = calculatedWidth
-                canvas.height = calculatedHeight;
+                canvas.width = calculatedWidth;
+                canvas.height = height * 30;
+
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, 100, height * 30);
+
                 ctx.beginPath();
                 // Set up the drawing context
                 ctx.font = "15px serif";
                 ctx.fillStyle = "black";
                 ctx.lineWidth = 1;
-                ctx.moveTo(100, 0)
-                ctx.lineTo(100, calculatedHeight)
+                ctx.moveTo(100, 0);
+                ctx.lineTo(100, height * 30);
 
                 rowHeadings.forEach((value: number, index: number) => {
                     ctx.moveTo(0, 30 * index + 30);
@@ -44,14 +54,14 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>((props, ref) => {
                 });
             }
         }
-    }, [rowHeadings, style]); // Add style to the dependencies array
+    }, [height, startingNumber, style]); // Redraw when height, startingNumber, or style change
 
-    return <canvas ref={ref || localCanvasRef} style={style}></canvas>; // Apply the style prop to canvas
+    return <canvas ref={ref || localCanvasRef} style={style}></canvas>;
 });
 
-export default Sidebar;
+export default React.memo(Sidebar);
 
-function generateRowHeadings(startingNumber: number, numRows: number): number[] {
+function generateRowHeadings(numRows: number, startingNumber: number): number[] {
     let result = [];
     for (let i = startingNumber; i < numRows; i++) {
         result.push(i);

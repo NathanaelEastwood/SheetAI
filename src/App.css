@@ -262,7 +262,6 @@ html, body, #root {
   overflow: auto;
   padding: 0 10px;
 }
-/*       ScrollBar 1        */
 
 ::-webkit-scrollbar {
   width: 10px;

@@ -2,90 +2,79 @@ import React, { useEffect, useRef, useState, forwardRef } from "react";
 
 interface TopbarProps {
     style?: React.CSSProperties;
+    startingLetter: number;
+    width: number;
 }
 
-const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>((props, ref) => {
-    const { style } = props;
+const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
-    const [width, setWidth] = useState<number>(24);
-    const [startingLetter, setStartingLetter] = useState<number>(0);
     const [columnHeadings, setColumnHeadings] = useState<string[]>(() =>
         generateLetterList(width, startingLetter)
     );
+
+    useEffect(() => {
+        setColumnHeadings(generateLetterList(width, startingLetter));
+    }, [width, startingLetter]);
 
     useEffect(() => {
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
             if (ctx) {
-                canvas.width = 2000;
+                canvas.width = width * 80;
                 canvas.height = 30;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, 30);
 
                 ctx.font = "15px serif";
                 ctx.fillStyle = "black";
-
-                ctx.beginPath();
                 ctx.lineWidth = 1;
 
+                // Draw initial border lines
+                ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(0, 30);
                 ctx.stroke();
-
-                ctx.lineTo(100, 30);
-                ctx.stroke();
-
                 ctx.moveTo(0, 0);
-                ctx.lineTo(100, 0);
+                ctx.lineTo(canvas.width, 0);
+                ctx.stroke();
+                ctx.moveTo(0, 30)
+                ctx.lineTo(canvas.width, 30);
                 ctx.stroke();
 
                 columnHeadings.forEach((letter, index) => {
-                    ctx.beginPath();
-                    ctx.lineWidth = 1;
-                    const x = 80 * index + 55;
+                    const x = 80 * index;
                     const y = 20;
 
-                    ctx.moveTo(x + 45, 0);
-                    ctx.lineTo(x + 45, 30);
+                    ctx.beginPath();
+                    ctx.moveTo(x + 100, 0);
+                    ctx.lineTo(x + 100, 30);
                     ctx.stroke();
 
-                    ctx.lineTo(x + 125, 30);
-                    ctx.stroke();
-
-                    ctx.moveTo(x + 45, 0);
-                    ctx.lineTo(x + 125, 0);
-                    ctx.stroke();
-
-                    ctx.fillText(letter, x, y);
+                    ctx.fillText(letter, x + 50, y);
                 });
             }
         }
-    }, [columnHeadings]);
+    }, [columnHeadings, width]);
 
     return <canvas ref={ref || localCanvasRef} style={style}></canvas>;
 });
 
-export default Topbar;
+export default React.memo(Topbar);
 
 function generateLetterList(width: number, startingLetter: number): string[] {
-    let result = [];
-    for (let i = startingLetter; i < startingLetter + width; i++) {
-        result.push(getLetterFromNumber(i));
-    }
-    return result;
+    return Array.from({ length: width }, (_, i) => getLetterFromNumber(startingLetter + i));
 }
 
 function getLetterFromNumber(number: number): string {
     let result = "";
     while (number > 0) {
-        let rem = number % 26;
-        if (rem === 0) {
-            result += "Z";
-            number = Math.floor(number / 26) - 1;
-        } else {
-            result += String.fromCharCode(number - 1 + "A".charCodeAt(0));
-            number = Math.floor(number / 26);
-        }
+        let rem = (number - 1) % 26;
+        result = String.fromCharCode("A".charCodeAt(0) + rem) + result;
+        number = Math.floor((number - 1) / 26);
     }
-    return result.split("").reverse().join("");
+    return result;
 }
