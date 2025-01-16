@@ -25,11 +25,8 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             const ctx = canvas.getContext("2d");
 
             if (ctx) {
-                // Get the dynamic height value using window.innerHeight for 100vh
-                let calculatedHeight: number = window.innerHeight - 50;
-                let calculatedWidth: number = style?.width ? parseInt(style.width.toString(), 10) : 100; // Default to 100 if no width is given
                 // Set canvas width and height dynamically
-                canvas.width = calculatedWidth;
+                canvas.width = 100;
                 canvas.height = height * 30;
 
                 ctx.fillStyle = "white";
@@ -42,11 +39,16 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 ctx.lineWidth = 1;
                 ctx.moveTo(100, 0);
                 ctx.lineTo(100, height * 30);
+                ctx.stroke();
 
                 rowHeadings.forEach((value: number, index: number) => {
+
+                    // TODO: Fix line thickness issue from pixel scaling.
+
+                    ctx.beginPath();
+                    ctx.lineWidth = 1;
                     ctx.moveTo(0, 30 * index + 30);
                     ctx.lineTo(100, 30 * index + 30);
-
                     ctx.stroke();
                     const y = 30 * index + 20; // Calculate y-coordinate for each number
                     const x = 45; // Fixed x-coordinate
