@@ -18,7 +18,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; }>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0 });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
-
+    let columnRef = useRef(highlightData.columnNumber);
+    let rowRef = useRef(highlightData.rowNumber);
     // table data
     const [tableData, setTableData] = useState<TableData>(tableProperties.data);
 
@@ -94,6 +95,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         // Always highlight the cell immediately
         setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber });
+        columnRef.current = columnNumber;
+        rowRef.current = rowNumber;
         setIsHighlightEditing(false);
 
         if (event.detail === 1) {
@@ -120,19 +123,30 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1})
+        columnRef.current = columnNumber
+        rowRef.current = rowNumber
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
 
+        // TODO: Refactor this event handler because it is poo poo
+
         if (event.key == "Enter" && !isHighlightEditing)
         {
             setIsHighlightEditing(true);
+            return
+        }
+
+        if (event.key == "Delete")
+        {
+            console.log(`${columnRef.current} ${rowRef.current}`)
+            setTableData(tableData.setCellValue(['', ''], columnRef.current, rowRef.current))
         }
 
         setHighlightData((prevData) => {
             let newRow = prevData.rowNumber;
             let newCol = prevData.columnNumber;
-
+            // TODO: Make window scroll when selected cell reaches the edge.
             switch (event.key) {
                 case "ArrowDown":
                     event.preventDefault();
@@ -153,6 +167,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 default:
                     return prevData; // No change, exit early
             }
+
+            columnRef.current = newCol;
+            rowRef.current = newRow;
 
             return {
                 top: newRow * 30,

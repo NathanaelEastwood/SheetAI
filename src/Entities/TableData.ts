@@ -38,7 +38,7 @@ class TableData {
         const width = this._data[0].length
         const fillerArray: [string, string][] = Array.from({ length: width }, () => ['', '']);
         for (let i = 0; i < distance; i++){
-            this._data.push(fillerArray);
+            this._data.push({...fillerArray});
         }
 
         return this;

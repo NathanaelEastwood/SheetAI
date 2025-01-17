@@ -25,6 +25,7 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates: 
     const cellHeight = highlightCoordinates.bottom - highlightCoordinates.top;
 
     const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        // TODO: Put current cell contents into the input box
         if (event.key === 'Enter') {
             highlightCoordinates.onInputChange(
                 [inputRef.current?.value || '', inputRef.current?.value || ''],
@@ -51,7 +52,7 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates: 
                 height: `${cellHeight}px`,
                 border: "2px solid",
                 borderRadius: "2px",
-                borderColor: highlightCoordinates.isEditing ? "#FF4500" : "#6495ED", // Orange border when editing
+                borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8", // Orange border when editing
                 pointerEvents: "none",
             }}
             onKeyDown={handleInput}
