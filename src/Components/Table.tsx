@@ -1,4 +1,4 @@
-import React, {forwardRef, MouseEventHandler, useEffect, useRef, useState} from "react";
+import React, { forwardRef, MouseEventHandler, useEffect, useRef, useState } from "react";
 import CellHighlighter from "./CellHighlighter";
 
 interface TableProperties {
@@ -13,7 +13,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
-    const [highlightPosition, setHighlightPosition] = useState<{top: number, left: number}>({top: 0, left: 0});
+
+    // Use state for highlighting position and editing state
+    const [highlightPosition, setHighlightPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
 
     // Update the refs whenever scrollX or scrollY changes
     useEffect(() => {
@@ -35,8 +38,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
-                    ctx.moveTo(0, (30 * i));
-                    ctx.lineTo(canvas.width, (30 * i));
+                    ctx.moveTo(0, 30 * i);
+                    ctx.lineTo(canvas.width, 30 * i);
                     ctx.stroke();
                 }
 
@@ -62,13 +65,13 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
-        const xSnappingCoordinate = ((columnNumber - 1) * 80);
-        const ySnappingCoordinate = (rowNumber * 30);
+        const xSnappingCoordinate = (columnNumber - 1) * 80;
+        const ySnappingCoordinate = rowNumber * 30;
 
         // Always highlight the cell immediately
         setHighlightPosition({ top: ySnappingCoordinate, left: xSnappingCoordinate });
+        setIsHighlightEditing(false);
 
-        console.log(event.detail)
         if (event.detail === 1) {
             // Single click detected
             if (clickTimeout.current) {
@@ -76,24 +79,28 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             }
 
             clickTimeout.current = window.setTimeout(() => {
-                // Additional single-click logic (if needed)
                 clickTimeout.current = null;
             }, 200); // Short delay for double-click detection
         }
         if (event.detail === 2) {
             // Double-click detected
-            console.log(`Editing cell: Col: ${columnNumber} x ${rowNumber}`);
+            setIsHighlightEditing(true);
             // Add more double-click behavior here if needed
         }
     };
 
-
     return (
         <>
             <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick}></canvas>
-            <CellHighlighter left={highlightPosition?.left} right={highlightPosition?.left + 80} top={highlightPosition?.top} bottom={highlightPosition.top + 30}/>
+            <CellHighlighter
+                left={highlightPosition.left}
+                right={highlightPosition.left + 80}
+                top={highlightPosition.top}
+                bottom={highlightPosition.top + 30}
+                isEditing={isHighlightEditing}
+            />
         </>
-    )
+    );
 });
 
 export default Table;
