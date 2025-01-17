@@ -18,7 +18,8 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (highlightCoordinates: H
             width: `${cellWidth}px`,
             height: `${cellHeight}px`,
             border: "2px solid",
-            borderColor: "#6495ED"
+            borderColor: "#6495ED",
+            pointerEvents: "none"
         }}>
         </div>
     )

@@ -52,39 +52,61 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         }
     }, [tableProperties.width, tableProperties.height, ref]);
 
-    const selectCell: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const clickTimeout = useRef<number | null>(null);
+
+    const handleCellClick: MouseEventHandler<HTMLCanvasElement> = (event) => {
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
-        if (canvas) {
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
+        if (!canvas) return;
 
-            const tableX = mouseX + scrollXRef.current - 20;
-            const tableY = mouseY + scrollYRef.current - 230;
+        const cellCoords = findTableCell(event, tableProperties.scrollX, tableProperties.scrollY);
+        const columnNumber = cellCoords[0];
+        const rowNumber = cellCoords[1];
 
-            const columnNumber = Math.floor(tableX / 80);
-            const rowNumber = Math.floor(tableY / 30);
+        const xSnappingCoordinate = ((columnNumber - 1) * 80);
+        const ySnappingCoordinate = (rowNumber * 30);
 
-            // The xSnapping value is the X value (-) the offset to arrive at the nearest cell left hand boundary
-            // The ySnapping value is the Y value (-) the offset to arrive at the nearest cell bottom boundary
+        // Always highlight the cell immediately
+        setHighlightPosition({ top: ySnappingCoordinate, left: xSnappingCoordinate });
 
-            const currentXScrollOffset = scrollXRef.current % 80;
-            const currentYScrollOffset = scrollYRef.current % 30;
+        console.log(event.detail)
+        if (event.detail === 1) {
+            // Single click detected
+            if (clickTimeout.current) {
+                clearTimeout(clickTimeout.current);
+            }
 
-            const xSnappingCoordinate = ((columnNumber - 1) * 80) - currentXScrollOffset;
-            const ySnappingCoordinate  = (rowNumber * 30) - currentYScrollOffset;
-
-            console.log(`ColumnNumber: ${columnNumber}, RowNumber: ${rowNumber}`)
-
-            setHighlightPosition({top: ySnappingCoordinate, left: xSnappingCoordinate})
+            clickTimeout.current = window.setTimeout(() => {
+                // Additional single-click logic (if needed)
+                clickTimeout.current = null;
+            }, 200); // Short delay for double-click detection
+        }
+        if (event.detail === 2) {
+            // Double-click detected
+            console.log(`Editing cell: Col: ${columnNumber} x ${rowNumber}`);
+            // Add more double-click behavior here if needed
         }
     };
 
+
     return (
         <>
-            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onClick={selectCell}></canvas>
-            <CellHighlighter left={highlightPosition?.left} right={highlightPosition?.left + 80} top={highlightPosition?.top} bottom={highlightPosition.top + 30} />
+            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick}></canvas>
+            <CellHighlighter left={highlightPosition?.left} right={highlightPosition?.left + 80} top={highlightPosition?.top} bottom={highlightPosition.top + 30}/>
         </>
     )
 });
 
 export default Table;
+
+function findTableCell(event: React.MouseEvent, scrollX: number, scrollY: number) {
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    const tableX = mouseX + scrollX - 20;
+    const tableY = mouseY + scrollY - 230;
+
+    const columnNumber = Math.floor(tableX / 80);
+    const rowNumber = Math.floor(tableY / 30);
+
+    return [columnNumber, rowNumber];
+}
