@@ -1,5 +1,6 @@
 import React, { forwardRef, MouseEventHandler, useEffect, useRef, useState } from "react";
 import CellHighlighter from "./CellHighlighter";
+import TableData from "../Entities/TableData";
 
 interface TableProperties {
     style?: React.CSSProperties;
@@ -7,16 +8,19 @@ interface TableProperties {
     height: number;
     scrollX: number;
     scrollY: number;
+    data: TableData;
 }
 
 const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, ref) => {
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
-
     // Use state for highlighting position and editing state
-    const [highlightPosition, setHighlightPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; }>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0 });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
+
+    // table data
+    const [tableData, setTableData] = useState<TableData>(tableProperties.data);
 
     // Update the refs whenever scrollX or scrollY changes
     useEffect(() => {
@@ -51,9 +55,29 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     ctx.lineTo(80 * j, canvas.height);
                     ctx.stroke();
                 }
+
+                ctx.font = "15px serif";
+                ctx.fillStyle = "black";
+                for (let x = 0; x < tableProperties.width; x++){
+                    for (let y = 0; y < tableProperties.height; y++)
+                    {
+                        if (tableData.getCellValue(x, y)[0] != '')
+                        {
+                            ctx.fillText(tableData.getCellValue(x, y)[0], (x * 80) + 35, (y * 30) - 10);
+                        }
+                    }
+                }
             }
         }
-    }, [tableProperties.width, tableProperties.height, ref]);
+    }, [tableProperties.width, tableProperties.height, ref, tableData]);
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleGlobalKeypress);
+
+        return () => {
+            window.removeEventListener("keydown", handleGlobalKeypress);
+        };
+    }, []);
 
     const clickTimeout = useRef<number | null>(null);
 
@@ -65,11 +89,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
-        const xSnappingCoordinate = (columnNumber - 1) * 80;
+        const xSnappingCoordinate = columnNumber * 80;
         const ySnappingCoordinate = rowNumber * 30;
 
         // Always highlight the cell immediately
-        setHighlightPosition({ top: ySnappingCoordinate, left: xSnappingCoordinate });
+        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber });
         setIsHighlightEditing(false);
 
         if (event.detail === 1) {
@@ -89,15 +113,69 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         }
     };
 
+    const handleCellEntry = (value: [string, string], columnNumber: number, rowNumber: number) => {
+        // TODO: Implement a partial re-draw perhaps?
+        console.log("Setting value")
+        setTableData(tableData.setCellValue(value, columnNumber, rowNumber))
+        const xSnappingCoordinate = (columnNumber) * 80;
+        const ySnappingCoordinate = (rowNumber + 1) * 30;
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1})
+    }
+
+    const handleGlobalKeypress = (event: KeyboardEvent) => {
+
+        if (event.key == "Enter" && !isHighlightEditing)
+        {
+            setIsHighlightEditing(true);
+        }
+
+        setHighlightData((prevData) => {
+            let newRow = prevData.rowNumber;
+            let newCol = prevData.columnNumber;
+
+            switch (event.key) {
+                case "ArrowDown":
+                    event.preventDefault();
+                    newRow = Math.max(newRow + 1, 1);
+                    break;
+                case "ArrowUp":
+                    event.preventDefault();
+                    newRow = Math.max(newRow - 1, 1);
+                    break;
+                case "ArrowLeft":
+                    event.preventDefault();
+                    newCol = Math.max(newCol - 1, 0);
+                    break;
+                case "ArrowRight":
+                    event.preventDefault();
+                    newCol = Math.max(newCol + 1, 0);
+                    break;
+                default:
+                    return prevData; // No change, exit early
+            }
+
+            return {
+                top: newRow * 30,
+                left: newCol * 80,
+                rowNumber: newRow,
+                columnNumber: newCol,
+            };
+        });
+    };
+
+
     return (
         <>
             <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick}></canvas>
             <CellHighlighter
-                left={highlightPosition.left}
-                right={highlightPosition.left + 80}
-                top={highlightPosition.top}
-                bottom={highlightPosition.top + 30}
+                left={highlightData.left}
+                right={highlightData.left + 80}
+                top={highlightData.top}
+                bottom={highlightData.top + 30}
+                rowNumber={highlightData.rowNumber}
+                columnNumber={highlightData.columnNumber}
                 isEditing={isHighlightEditing}
+                onInputChange={handleCellEntry}
             />
         </>
     );
@@ -115,5 +193,5 @@ function findTableCell(event: React.MouseEvent, scrollX: number, scrollY: number
     const columnNumber = Math.floor(tableX / 80);
     const rowNumber = Math.floor(tableY / 30);
 
-    return [columnNumber, rowNumber];
+    return [columnNumber - 1, rowNumber + 1];
 }

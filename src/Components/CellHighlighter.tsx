@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect, EventHandler, MouseEventHandler, useRef} from "react";
 
 interface HighlightCoordinates {
     left: number;
     right: number;
     top: number;
     bottom: number;
+    columnNumber: number;
+    rowNumber: number;
     isEditing: boolean;
+    onInputChange: (value: [string, string], columnNumber: number, rowNumber: number) => void;
 }
 
-const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates) => {
+const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates: HighlightCoordinates) => {
     // Initialize state with props
     const [highlightCoordinates, setHighlightCoordinates] = useState<HighlightCoordinates>(_highlightCoordinates);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Update state when props change
     useEffect(() => {
@@ -20,11 +24,28 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates) 
     const cellWidth = highlightCoordinates.right - highlightCoordinates.left;
     const cellHeight = highlightCoordinates.bottom - highlightCoordinates.top;
 
+    const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            highlightCoordinates.onInputChange(
+                [inputRef.current?.value || '', inputRef.current?.value || ''],
+                highlightCoordinates.columnNumber,
+                highlightCoordinates.rowNumber
+            );
+
+            // Create a new object instead of mutating the old one
+            setHighlightCoordinates({
+                ...highlightCoordinates,
+                isEditing: false
+            });
+        }
+    };
+
+
     return (
         <div
             style={{
                 position: "absolute",
-                top: `${highlightCoordinates.top}px`,
+                top: `${highlightCoordinates.top - 30}px`,
                 left: `${highlightCoordinates.left}px`,
                 width: `${cellWidth}px`,
                 height: `${cellHeight}px`,
@@ -33,6 +54,7 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates) 
                 borderColor: highlightCoordinates.isEditing ? "#FF4500" : "#6495ED", // Orange border when editing
                 pointerEvents: "none",
             }}
+            onKeyDown={handleInput}
         >
             {highlightCoordinates.isEditing && (
                 <input
@@ -52,6 +74,7 @@ const CellHighlighter: React.FC<HighlightCoordinates> = (_highlightCoordinates) 
                         cursor: "text",
                         pointerEvents: "auto"
                     }}
+                    ref = {inputRef}
                     autoFocus
                 />
             )}

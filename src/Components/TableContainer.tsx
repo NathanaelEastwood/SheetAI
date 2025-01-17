@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Table from "../Components/Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import generateEmptyTable from "../Entities/generateEmptyTable";
 
 const TableContainer: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -16,11 +17,14 @@ const TableContainer: React.FC = () => {
     let readyToUpdateXAxis = true;
 
     // sidebar values
-    const [startingNumber, setStartingNumber] = useState(0);
+    const [startingNumber, setStartingNumber] = useState(1);
     const [sideBarHeight, setSideBarHeight] = useState(100);
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
     let readyToUpdateYAxis = true;
+
+    // data values
+    const [tableData, setTableData] = useState(generateEmptyTable(sideBarHeight, topBarWidth))
 
     useEffect(() => {
         const handleScroll = (event: Event) => {
@@ -50,6 +54,7 @@ const TableContainer: React.FC = () => {
             // handle expanding the canvas
             if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.25 && readyToUpdateXAxis) {
                 setTopBarWidth(prevWidth => prevWidth + 10);
+                setTableData(tableData.extendXDirection(10))
                 readyToUpdateXAxis = false;
             } else if (!readyToUpdateXAxis && target.scrollLeft < (target.scrollWidth - target.clientWidth) / 1.25) {
                 readyToUpdateXAxis = true;
@@ -57,6 +62,7 @@ const TableContainer: React.FC = () => {
 
             if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
                 setSideBarHeight(prevWidth => prevWidth + 10);
+                setTableData(tableData.extendYDirection(10))
                 readyToUpdateYAxis = false;
             } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
                 readyToUpdateYAxis = true;
@@ -136,6 +142,7 @@ const TableContainer: React.FC = () => {
                         left: "0"
                     }}
                     ref={tableRef} width={topBarWidth} height={sideBarHeight} scrollX={scrollX} scrollY={scrollY}
+                    data={tableData}
                 />
             </div>
         </div>
