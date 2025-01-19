@@ -12,26 +12,21 @@ interface CellHighlightParameters {
     onInputChange: (value: [string, string], columnNumber: number, rowNumber: number) => void;
 }
 
-const CellHighlighter: React.FC<CellHighlightParameters> = (_highlightCoordinates: CellHighlightParameters) => {
+const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParameters: CellHighlightParameters) => {
     // Initialize state with props
-    const [highlightCoordinates, setHighlightCoordinates] = useState<CellHighlightParameters>(_highlightCoordinates);
+    const [highlightCoordinates, setHighlightCoordinates] = useState<CellHighlightParameters>(cellHighlightParameters);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Update state when props change
     useEffect(() => {
-        setHighlightCoordinates(_highlightCoordinates);
-    }, [_highlightCoordinates]);
+        setHighlightCoordinates(cellHighlightParameters);
+    }, [cellHighlightParameters]);
 
     const selectionWidth = highlightCoordinates.right - highlightCoordinates.left;
     const selectionHeight = highlightCoordinates.bottom - highlightCoordinates.top;
 
     const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        // TODO: Put current cell contents into the input box
         if (event.key === 'Enter') {
-            if (inputRef.current) {
-                inputRef.current.textContent = highlightCoordinates.currentValue[1];
-            }
-
             highlightCoordinates.onInputChange(
                 [inputRef.current?.value || '', inputRef.current?.value || ''],
                 highlightCoordinates.columnNumber,
@@ -65,20 +60,20 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (_highlightCoordinate
             {highlightCoordinates.isEditing && (
                 <input
                     type="text"
+                    defaultValue={highlightCoordinates.currentValue[0]}
                     style={{
                         position: "absolute",
                         top: "0px",
                         left: "0px",
-                        paddingBottom: "5px",
-                        width: `${selectionWidth}px`,
-                        height: `${selectionHeight}px`,
-                        backgroundColor: "transparent",
+                        width: `${selectionWidth - 5}px`,
+                        height: `${selectionHeight - 5}px`,
+                        backgroundColor: "rgba(255, 255, 255, 100)",
                         border: "none",
                         textAlign: "left",
                         fontSize: "14px",
                         outline: "none",
                         cursor: "text",
-                        pointerEvents: "auto"
+                        pointerEvents: "auto",
                     }}
                     ref = {inputRef}
                     autoFocus
