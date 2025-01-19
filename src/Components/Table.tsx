@@ -15,13 +15,19 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
+
     // Use state for highlighting position and editing state
-    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; }>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0 });
+    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; }>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80});
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
     let columnRef = useRef(highlightData.columnNumber);
     let rowRef = useRef(highlightData.rowNumber);
+
     // table data
     const [tableData, setTableData] = useState<TableData>(tableProperties.data);
+
+    // Mouse state for evaluating a drag select
+    let isDragging = useRef(false);
+    let dragStartCellCoordinates = useRef([0, 0])
 
     // Update the refs whenever scrollX or scrollY changes
     useEffect(() => {
@@ -90,11 +96,15 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
+        // Initialize the dragging and where the drag started (if drag is less than a certain distance we will ignore in the other event handlers, but we cannot know that in advance)
+        dragStartCellCoordinates.current = cellCoords;
+        isDragging.current = true;
+
         const xSnappingCoordinate = columnNumber * 80;
         const ySnappingCoordinate = rowNumber * 30;
 
         // Always highlight the cell immediately
-        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber });
+        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80 });
         columnRef.current = columnNumber;
         rowRef.current = rowNumber;
         setIsHighlightEditing(false);
@@ -117,12 +127,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     };
 
     const handleCellEntry = (value: [string, string], columnNumber: number, rowNumber: number) => {
-        // TODO: Implement a partial re-draw perhaps?
-        console.log("Setting value")
+        // TODO: Implement a partial re-draw perhaps if performance becomes an issue?
         setTableData(tableData.setCellValue(value, columnNumber, rowNumber))
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
-        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1})
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80})
         columnRef.current = columnNumber
         rowRef.current = rowNumber
     }
@@ -139,8 +148,14 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Delete")
         {
-            console.log(`${columnRef.current} ${rowRef.current}`)
             setTableData(tableData.setCellValue(['', ''], columnRef.current, rowRef.current))
+            setIsHighlightEditing(false);
+            return
+        }
+
+        if (event.key == "Escape"){
+            setIsHighlightEditing(false);
+            return
         }
 
         setHighlightData((prevData) => {
@@ -176,23 +191,44 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 left: newCol * 80,
                 rowNumber: newRow,
                 columnNumber: newCol,
+                bottom: (newRow * 30) + 30,
+                right: (newCol * 80) + 80
             };
         });
     };
 
+    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const endingCellCoords = findTableCell(event, scrollXRef.current, scrollYRef.current);
+        const dX = Math.abs(endingCellCoords[0] - dragStartCellCoordinates.current[0]);
+        const dY = Math.abs(endingCellCoords[1] - dragStartCellCoordinates.current[1]);
+        if (isDragging.current && (dX > 0 || dY > 0)){
+            setHighlightData((prevData) => {
+                return {
+                    top: prevData.top,
+                    left: prevData.left,
+                    right: (endingCellCoords[0] * 80) + 80,
+                    bottom: (endingCellCoords[1] * 30) + 30,
+                    columnNumber: prevData.columnNumber,
+                    rowNumber: prevData.rowNumber
+                }
+            })
+        }
+    }
+
 
     return (
         <>
-            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick}></canvas>
+            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick} onMouseUp={handleMouseUp}></canvas>
             <CellHighlighter
                 left={highlightData.left}
-                right={highlightData.left + 80}
+                right={highlightData.right}
                 top={highlightData.top}
-                bottom={highlightData.top + 30}
+                bottom={highlightData.bottom}
                 rowNumber={highlightData.rowNumber}
                 columnNumber={highlightData.columnNumber}
                 isEditing={isHighlightEditing}
                 onInputChange={handleCellEntry}
+                currentValue={tableData.data[highlightData.rowNumber][highlightData.columnNumber]}
             />
         </>
     );
