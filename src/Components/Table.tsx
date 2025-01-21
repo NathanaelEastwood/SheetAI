@@ -198,16 +198,42 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     };
 
     const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        isDragging.current = false;
+    }
+
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
         const endingCellCoords = findTableCell(event, scrollXRef.current, scrollYRef.current);
-        const dX = Math.abs(endingCellCoords[0] - dragStartCellCoordinates.current[0]);
-        const dY = Math.abs(endingCellCoords[1] - dragStartCellCoordinates.current[1]);
-        if (isDragging.current && (dX > 0 || dY > 0)){
+        const dX = endingCellCoords[0] - dragStartCellCoordinates.current[0];
+        const dY = endingCellCoords[1] - dragStartCellCoordinates.current[1];
+        if (isDragging.current && !isHighlightEditing && (Math.abs(dX) > 0 || Math.abs(dY) > 0)) {
+
             setHighlightData((prevData) => {
+                let topCell;
+                let bottomCell;
+                let rightCell;
+                let leftCell;
+
+                if (dY < 0) {
+                    topCell = (endingCellCoords[1] * 30);
+                    bottomCell = dragStartCellCoordinates.current[1] * 30;
+                } else {
+                    topCell = prevData.top;
+                    bottomCell = (endingCellCoords[1] * 30) + 30;
+                }
+
+                if (dX < 0) {
+                    rightCell = dragStartCellCoordinates.current[0] * 80;
+                    leftCell = (endingCellCoords[0] * 80);
+                } else {
+                    rightCell = (endingCellCoords[0] * 80) + 80;
+                    leftCell = prevData.left;
+                }
+
                 return {
-                    top: prevData.top,
-                    left: prevData.left,
-                    right: (endingCellCoords[0] * 80) + 80,
-                    bottom: (endingCellCoords[1] * 30) + 30,
+                    top: topCell,
+                    left: leftCell,
+                    right: rightCell,
+                    bottom: bottomCell,
                     columnNumber: prevData.columnNumber,
                     rowNumber: prevData.rowNumber
                 }
@@ -218,7 +244,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     return (
         <>
-            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick} onMouseUp={handleMouseUp}></canvas>
+            <canvas ref={ref || localCanvasRef} style={tableProperties.style} onMouseDown={handleCellClick} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}></canvas>
             <CellHighlighter
                 left={highlightData.left}
                 right={highlightData.right}

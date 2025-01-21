@@ -52,7 +52,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                 height: `${selectionHeight}px`,
                 border: "2px solid",
                 borderRadius: "2px",
-                borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8", // Orange border when editing
+                borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8",
                 pointerEvents: "none",
             }}
             onKeyDown={handleInput}
