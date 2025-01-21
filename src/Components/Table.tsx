@@ -17,7 +17,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     const scrollYRef = useRef<number>(tableProperties.scrollY);
 
     // Use state for highlighting position and editing state
-    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; }>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80});
+    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
     let columnRef = useRef(highlightData.columnNumber);
     let rowRef = useRef(highlightData.rowNumber);
@@ -104,7 +104,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const ySnappingCoordinate = rowNumber * 30;
 
         // Always highlight the cell immediately
-        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80 });
+        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false });
         columnRef.current = columnNumber;
         rowRef.current = rowNumber;
         setIsHighlightEditing(false);
@@ -131,7 +131,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         setTableData(tableData.setCellValue(value, columnNumber, rowNumber))
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
-        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80})
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
         columnRef.current = columnNumber
         rowRef.current = rowNumber
     }
@@ -192,7 +192,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 rowNumber: newRow,
                 columnNumber: newCol,
                 bottom: (newRow * 30) + 30,
-                right: (newCol * 80) + 80
+                right: (newCol * 80) + 80,
+                isMultiSelect: false
             };
         });
     };
@@ -235,7 +236,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     right: rightCell,
                     bottom: bottomCell,
                     columnNumber: prevData.columnNumber,
-                    rowNumber: prevData.rowNumber
+                    rowNumber: prevData.rowNumber,
+                    isMultiSelect: true
                 }
             })
         }
@@ -254,6 +256,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 columnNumber={highlightData.columnNumber}
                 isEditing={isHighlightEditing}
                 onInputChange={handleCellEntry}
+                isMultiSelect={highlightData.isMultiSelect}
                 currentValue={tableData.data[highlightData.rowNumber][highlightData.columnNumber]}
             />
         </>
