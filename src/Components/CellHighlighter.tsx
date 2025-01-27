@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface CellHighlightParameters {
     left: number;
@@ -9,27 +9,37 @@ interface CellHighlightParameters {
     rowNumber: number;
     isEditing: boolean;
     isMultiSelect: boolean;
-    currentValue: [string, string]
+    currentValue: [string, string];
+    visible?: boolean; // Added visible property with a default of true
+    isCopyHighlighter?: boolean;
     onInputChange: (value: [string, string], columnNumber: number, rowNumber: number) => void;
 }
 
 const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParameters: CellHighlightParameters) => {
     // Initialize state with props
-    const [highlightCoordinates, setHighlightCoordinates] = useState<CellHighlightParameters>(cellHighlightParameters);
+    const [highlightCoordinates, setHighlightCoordinates] = useState<CellHighlightParameters>({
+        ...cellHighlightParameters,
+        visible: cellHighlightParameters.visible ?? true, // Default to true if undefined
+        isCopyHighlighter: cellHighlightParameters.isCopyHighlighter ?? false // Default to false if undefined
+    });
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Update state when props change
     useEffect(() => {
-        setHighlightCoordinates(cellHighlightParameters);
+        setHighlightCoordinates({
+            ...cellHighlightParameters,
+            visible: cellHighlightParameters.visible ?? true, // Ensure the default is applied if not provided
+        });
     }, [cellHighlightParameters]);
 
     const selectionWidth = highlightCoordinates.right - highlightCoordinates.left;
     const selectionHeight = highlightCoordinates.bottom - highlightCoordinates.top;
 
     const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
             highlightCoordinates.onInputChange(
-                [inputRef.current?.value || '', inputRef.current?.value || ''],
+                [inputRef.current?.value || "", inputRef.current?.value || ""],
                 highlightCoordinates.columnNumber,
                 highlightCoordinates.rowNumber
             );
@@ -37,11 +47,15 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
             // Create a new object instead of mutating the old one
             setHighlightCoordinates({
                 ...highlightCoordinates,
-                isEditing: false
+                isEditing: false,
             });
         }
     };
 
+    // Render only if visible
+    if (!highlightCoordinates.visible) {
+        return null;
+    }
 
     return (
         <div
@@ -51,8 +65,10 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                 left: `${highlightCoordinates.left}px`,
                 width: `${selectionWidth}px`,
                 height: `${selectionHeight}px`,
-                backgroundColor: highlightCoordinates.isMultiSelect ? "rgba(38, 0, 255, 0.09)" : "rgba(255, 255, 255, 0)",
-                border: "2px solid",
+                backgroundColor: highlightCoordinates.isMultiSelect && !highlightCoordinates.isCopyHighlighter
+                    ? "rgba(38, 0, 255, 0.09)"
+                    : "rgba(255, 255, 255, 0)",
+                border: highlightCoordinates.isCopyHighlighter ? "2px dashed": "2px solid",
                 borderRadius: "2px",
                 borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8",
                 pointerEvents: "none",
@@ -77,7 +93,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                         cursor: "text",
                         pointerEvents: "auto",
                     }}
-                    ref = {inputRef}
+                    ref={inputRef}
                     autoFocus
                 />
             )}

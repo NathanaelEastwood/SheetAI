@@ -19,11 +19,17 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
+
+
+    // position and visibility of copy location highlighter
+    const [copyOriginHighlightData, setCopyOriginHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean, isVisible: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false, isVisible: false });
+    const [isCopyOriginHighlightingVisible, setIsCopyOriginHighlightingVisible] = useState<boolean>(false);
+
+    // Selection state and reference variables
     let selectionStartColumnRef = useRef(highlightData.columnNumber);
     selectionStartColumnRef.current = highlightData.columnNumber;
     let selectionStartRowRef = useRef(highlightData.rowNumber);
     selectionStartRowRef.current = highlightData.rowNumber;
-
     let selectionEndColumnRef = useRef(0);
     let selectionEndRowRef = useRef(0);
 
@@ -151,9 +157,18 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.ctrlKey) {
             if (event.key == "c") {
-                console.log(`Copying at ${selectionStartColumnRef.current} to ${selectionEndColumnRef.current} and ${selectionStartRowRef.current} to ${selectionEndRowRef.current}`)
+
+                const top = selectionStartRowRef.current < selectionEndRowRef.current ? selectionStartRowRef.current * 30 : selectionEndRowRef.current * 30;
+                const left = selectionStartColumnRef.current < selectionEndColumnRef.current ? selectionStartColumnRef.current * 80 : selectionEndColumnRef.current * 80;
+                const bottom = (selectionStartRowRef.current > selectionEndRowRef.current ? selectionStartRowRef.current * 30 : selectionEndRowRef.current * 30) + 30;
+                const right = (selectionStartColumnRef.current > selectionEndColumnRef.current ? selectionStartColumnRef.current * 80 : selectionEndColumnRef.current * 80) + 80;
+                const columnNumber = selectionStartColumnRef.current < selectionEndColumnRef.current ? selectionStartColumnRef.current : selectionEndColumnRef.current;
+                const rowNumber = selectionStartRowRef.current < selectionEndRowRef.current ? selectionStartRowRef.current : selectionEndRowRef.current;
+
+                setCopyOriginHighlightData({top: top, columnNumber: columnNumber, rowNumber: rowNumber, left: left, bottom: bottom, right: right, isMultiSelect: true, isVisible: true})
+                setIsCopyOriginHighlightingVisible(true);
                 copiedData.current = tableData.copy(selectionStartColumnRef.current, selectionEndColumnRef.current, selectionStartRowRef.current, selectionEndRowRef.current);
-            } else if (event.key == "v" && copiedData.current) {
+            } else if (event.key == "v" && copiedData.current.data.length > 0) {
                 const updatedTableData = tableData.paste(
                     copiedData.current,
                     selectionStartColumnRef.current,
@@ -162,7 +177,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
                 // Create a new instance of the TableData to trigger re-render
                 setTableData(new TableData(updatedTableData));
-                console.log("Pasting");
             }
         }
 
@@ -181,6 +195,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Escape"){
             setIsHighlightEditing(false);
+            setIsCopyOriginHighlightingVisible(false);
             return
         }
 
@@ -227,47 +242,49 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     }
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        const endingCellCoords = findTableCell(event, scrollXRef.current, scrollYRef.current);
+        if (isDragging.current){
+            const endingCellCoords = findTableCell(event, scrollXRef.current, scrollYRef.current);
 
-        selectionEndColumnRef.current = endingCellCoords[0]
-        selectionEndRowRef.current = endingCellCoords[1]
+            selectionEndColumnRef.current = endingCellCoords[0]
+            selectionEndRowRef.current = endingCellCoords[1]
 
-        const dX = endingCellCoords[0] - dragStartCellCoordinates.current[0];
-        const dY = endingCellCoords[1] - dragStartCellCoordinates.current[1];
-        if (isDragging.current && !isHighlightEditing && (Math.abs(dX) > 0 || Math.abs(dY) > 0)) {
+            const dX = endingCellCoords[0] - dragStartCellCoordinates.current[0];
+            const dY = endingCellCoords[1] - dragStartCellCoordinates.current[1];
+            if (!isHighlightEditing && (Math.abs(dX) > 0 || Math.abs(dY) > 0)) {
 
-            setHighlightData((prevData) => {
-                let topCell;
-                let bottomCell;
-                let rightCell;
-                let leftCell;
+                setHighlightData((prevData) => {
+                    let topCell;
+                    let bottomCell;
+                    let rightCell;
+                    let leftCell;
 
-                if (dY < 0) {
-                    topCell = (endingCellCoords[1] * 30);
-                    bottomCell = dragStartCellCoordinates.current[1] * 30;
-                } else {
-                    topCell = prevData.top;
-                    bottomCell = (endingCellCoords[1] * 30) + 30;
-                }
+                    if (dY < 0) {
+                        topCell = (endingCellCoords[1] * 30);
+                        bottomCell = dragStartCellCoordinates.current[1] * 30;
+                    } else {
+                        topCell = prevData.top;
+                        bottomCell = (endingCellCoords[1] * 30) + 30;
+                    }
 
-                if (dX < 0) {
-                    rightCell = dragStartCellCoordinates.current[0] * 80;
-                    leftCell = (endingCellCoords[0] * 80);
-                } else {
-                    rightCell = (endingCellCoords[0] * 80) + 80;
-                    leftCell = prevData.left;
-                }
+                    if (dX < 0) {
+                        rightCell = dragStartCellCoordinates.current[0] * 80;
+                        leftCell = (endingCellCoords[0] * 80);
+                    } else {
+                        rightCell = (endingCellCoords[0] * 80) + 80;
+                        leftCell = prevData.left;
+                    }
 
-                return {
-                    top: topCell,
-                    left: leftCell,
-                    right: rightCell,
-                    bottom: bottomCell,
-                    columnNumber: prevData.columnNumber,
-                    rowNumber: prevData.rowNumber,
-                    isMultiSelect: true
-                }
-            })
+                    return {
+                        top: topCell,
+                        left: leftCell,
+                        right: rightCell,
+                        bottom: bottomCell,
+                        columnNumber: prevData.columnNumber,
+                        rowNumber: prevData.rowNumber,
+                        isMultiSelect: true
+                    }
+                })
+            }
         }
     }
 
@@ -286,6 +303,20 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 onInputChange={handleCellEntry}
                 isMultiSelect={highlightData.isMultiSelect}
                 currentValue={tableData.data[highlightData.rowNumber][highlightData.columnNumber]}
+            />
+            <CellHighlighter
+                left={copyOriginHighlightData.left}
+                right={copyOriginHighlightData.right}
+                top={copyOriginHighlightData.top}
+                bottom={copyOriginHighlightData.bottom}
+                rowNumber={copyOriginHighlightData.rowNumber}
+                columnNumber={copyOriginHighlightData.columnNumber}
+                isEditing={false}
+                onInputChange={handleCellEntry}
+                isMultiSelect={copyOriginHighlightData.isMultiSelect}
+                currentValue={["", ""]}
+                visible={isCopyOriginHighlightingVisible}
+                isCopyHighlighter={true}
             />
         </>
     );
