@@ -51,7 +51,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                 left: `${highlightCoordinates.left}px`,
                 width: `${selectionWidth}px`,
                 height: `${selectionHeight}px`,
-                backgroundColor: highlightCoordinates.isMultiSelect ? "rgba(38, 0, 255, 0.09)" : "rgba(255, 255, 255, 100)",
+                backgroundColor: highlightCoordinates.isMultiSelect ? "rgba(38, 0, 255, 0.09)" : "rgba(255, 255, 255, 0)",
                 border: "2px solid",
                 borderRadius: "2px",
                 borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8",

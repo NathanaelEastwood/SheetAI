@@ -19,11 +19,17 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
-    let columnRef = useRef(highlightData.columnNumber);
-    let rowRef = useRef(highlightData.rowNumber);
+    let selectionStartColumnRef = useRef(highlightData.columnNumber);
+    selectionStartColumnRef.current = highlightData.columnNumber;
+    let selectionStartRowRef = useRef(highlightData.rowNumber);
+    selectionStartRowRef.current = highlightData.rowNumber;
+
+    let selectionEndColumnRef = useRef(0);
+    let selectionEndRowRef = useRef(0);
 
     // table data
     const [tableData, setTableData] = useState<TableData>(tableProperties.data);
+    const copiedData = useRef(new TableData([]))
 
     // Mouse state for evaluating a drag select
     let isDragging = useRef(false);
@@ -41,6 +47,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
+
+            // TODO: Hardcoded multiplier values which won't work once cells are expandable
+
             canvas.width = tableProperties.width * 80;
             canvas.height = tableProperties.height * 30;
             if (ctx) {
@@ -68,9 +77,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 for (let x = 0; x < tableProperties.width; x++){
                     for (let y = 0; y < tableProperties.height; y++)
                     {
-                        if (tableData.getCellValue(x, y)[0] != '')
+                        let cellValue = tableData.getCellValue(x, y)
+                        if (cellValue[0] != '')
                         {
-                            ctx.fillText(tableData.getCellValue(x, y)[0], (x * 80) + 35, (y * 30) - 10);
+                            ctx.fillText(cellValue[0], (x * 80) + 35, (y * 30) - 10);
                         }
                     }
                 }
@@ -96,6 +106,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
+        selectionEndRowRef.current = rowNumber;
+        selectionEndColumnRef.current = columnNumber;
+
         // Initialize the dragging and where the drag started (if drag is less than a certain distance we will ignore in the other event handlers, but we cannot know that in advance)
         dragStartCellCoordinates.current = cellCoords;
         isDragging.current = true;
@@ -105,8 +118,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         // Always highlight the cell immediately
         setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false });
-        columnRef.current = columnNumber;
-        rowRef.current = rowNumber;
         setIsHighlightEditing(false);
 
         if (event.detail === 1) {
@@ -132,13 +143,28 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
-        columnRef.current = columnNumber
-        rowRef.current = rowNumber
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
 
         // TODO: Refactor this event handler because it is poo poo
+
+        if (event.ctrlKey) {
+            if (event.key == "c") {
+                console.log(`Copying at ${selectionStartColumnRef.current} to ${selectionEndColumnRef.current} and ${selectionStartRowRef.current} to ${selectionEndRowRef.current}`)
+                copiedData.current = tableData.copy(selectionStartColumnRef.current, selectionEndColumnRef.current, selectionStartRowRef.current, selectionEndRowRef.current);
+            } else if (event.key == "v" && copiedData.current) {
+                const updatedTableData = tableData.paste(
+                    copiedData.current,
+                    selectionStartColumnRef.current,
+                    selectionStartRowRef.current
+                );
+
+                // Create a new instance of the TableData to trigger re-render
+                setTableData(new TableData(updatedTableData));
+                console.log("Pasting");
+            }
+        }
 
         if (event.key == "Enter" && !isHighlightEditing)
         {
@@ -148,7 +174,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Delete")
         {
-            setTableData(tableData.setCellValue(['', ''], columnRef.current, rowRef.current))
+            setTableData(tableData.setCellValue(['', ''], selectionStartColumnRef.current, selectionStartRowRef.current))
             setIsHighlightEditing(false);
             return
         }
@@ -183,8 +209,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     return prevData; // No change, exit early
             }
 
-            columnRef.current = newCol;
-            rowRef.current = newRow;
 
             return {
                 top: newRow * 30,
@@ -204,6 +228,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
         const endingCellCoords = findTableCell(event, scrollXRef.current, scrollYRef.current);
+
+        selectionEndColumnRef.current = endingCellCoords[0]
+        selectionEndRowRef.current = endingCellCoords[1]
+
         const dX = endingCellCoords[0] - dragStartCellCoordinates.current[0];
         const dY = endingCellCoords[1] - dragStartCellCoordinates.current[1];
         if (isDragging.current && !isHighlightEditing && (Math.abs(dX) > 0 || Math.abs(dY) > 0)) {
