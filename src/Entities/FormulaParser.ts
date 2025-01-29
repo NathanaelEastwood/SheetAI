@@ -1,17 +1,18 @@
 import TableData from "./TableData";
 import tableData from "./TableData";
+import Cell from "./Cell";
 
 let globalTableData : tableData;
 
-function parse(intakeCell: [string, string], table: TableData): [string, string] {
+function parse(intakeCell: Cell, table: TableData): Cell {
 
     globalTableData = table
-    const tokenizedInput = tokenizeInput(intakeCell[1])
+    const tokenizedInput = tokenizeInput(intakeCell.UnderlyingValue)
     const astValue = parseFormulaToAST(tokenizedInput)
     const resultantValue = evaluateAST(astValue, doLookup);
     // unwrap nested formula using a stack
     // do formula
-    return [resultantValue.toString(), intakeCell[1]];
+    return new Cell(resultantValue.toString(), intakeCell.UnderlyingValue, []);
 }
 
 type ASTNode = {
@@ -100,7 +101,7 @@ function doLookup(reference: string): number {
     const columnNumber = columnLetterToNumber(values.column)
     let result;
     try {
-        result = Number(globalTableData.getCellValue(columnNumber - 1, values.row)[0])
+        result = Number(globalTableData.getCellValue(columnNumber - 1, values.row).RenderedValue)
         return result
     } catch (e) {
         return 0;

@@ -1,8 +1,8 @@
 import React, { forwardRef, MouseEventHandler, useEffect, useRef, useState } from "react";
 import CellHighlighter from "./CellHighlighter";
 import TableData from "../Entities/TableData";
-import Parse from "../Entities/FormulaParser";
 import parse from "../Entities/FormulaParser";
+import Cell from "../Entities/Cell";
 
 
 interface TableProperties {
@@ -87,9 +87,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     for (let y = 0; y < tableProperties.height; y++)
                     {
                         let cellValue = tableData.getCellValue(x, y)
-                        if (cellValue[0] != '')
+                        if (cellValue.RenderedValue != '')
                         {
-                            ctx.fillText(cellValue[0], (x * 80) + 35, (y * 30) - 10);
+                            ctx.fillText(cellValue.RenderedValue, (x * 80) + 35, (y * 30) - 10);
                         }
                     }
                 }
@@ -146,9 +146,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         }
     };
 
-    const handleCellEntry = (value: [string, string], columnNumber: number, rowNumber: number) => {
+    const handleCellEntry = (value: Cell, columnNumber: number, rowNumber: number) => {
         // TODO: Implement a partial re-draw perhaps if performance becomes an issue?
-        if (value[1][0] == '=') {
+        if (value.UnderlyingValue[0] == '=') {
             console.log("parsing formula")
             value = parse(value, tableData)
         }
@@ -160,6 +160,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
 
+        // TODO: This is a stop gap solution, really things should respond contextually with the input open.
         if (isHighlightEditingRef.current) {
             return
         }
@@ -228,7 +229,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Delete")
         {
-            setTableData(tableData.setCellValue(['', ''], selectionStartColumnRef.current, selectionStartRowRef.current))
+            setTableData(tableData.setCellValue(new Cell('', '', []), selectionStartColumnRef.current, selectionStartRowRef.current))
             setIsHighlightEditing(false);
             return
         }
@@ -354,7 +355,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 isEditing={false}
                 onInputChange={handleCellEntry}
                 isMultiSelect={copyOriginHighlightData.isMultiSelect}
-                currentValue={["", ""]}
+                currentValue={new Cell('', '', [])}
                 visible={isCopyOriginHighlightingVisible}
                 isCopyHighlighter={true}
             />

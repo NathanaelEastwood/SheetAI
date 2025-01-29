@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Cell from "../Entities/Cell";
 
 interface CellHighlightParameters {
     left: number;
@@ -9,10 +10,10 @@ interface CellHighlightParameters {
     rowNumber: number;
     isEditing: boolean;
     isMultiSelect: boolean;
-    currentValue: [string, string];
+    currentValue: Cell;
     visible?: boolean; // Added visible property with a default of true
     isCopyHighlighter?: boolean;
-    onInputChange: (value: [string, string], columnNumber: number, rowNumber: number) => void;
+    onInputChange: (value: Cell, columnNumber: number, rowNumber: number) => void;
 }
 
 const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParameters: CellHighlightParameters) => {
@@ -39,7 +40,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
     const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "Enter") {
             highlightCoordinates.onInputChange(
-                [inputRef.current?.value || "", inputRef.current?.value || ""],
+                new Cell(inputRef.current?.value || "", inputRef.current?.value || "", []),
                 highlightCoordinates.columnNumber,
                 highlightCoordinates.rowNumber
             );
@@ -78,7 +79,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
             {highlightCoordinates.isEditing && (
                 <input
                     type="text"
-                    defaultValue={highlightCoordinates.currentValue[1]}
+                    defaultValue={highlightCoordinates.currentValue.UnderlyingValue}
                     style={{
                         position: "absolute",
                         top: "0px",

@@ -1,32 +1,34 @@
+import Cell from "./Cell";
+
 class TableData {
-    constructor(data: [string, string][][]) {
+    constructor(data: Cell[][]) {
         this._data = data;
     }
 
-    get data(): [string, string][][] {
+    get data(): Cell[][] {
         return this._data;
     }
 
-    set data(value: [string, string][][]) {
+    set data(value: Cell[][]) {
         this._data = value;
     }
 
-    private _data: [string, string][][];
+    private _data: Cell[][];
 
     // Use a method instead of a setter to modify cell values
-    setCellValue(value: [string, string], columnNumber: number, rowNumber: number): TableData {
+    setCellValue(value: Cell, columnNumber: number, rowNumber: number): TableData {
         const newData = new TableData(this.data);  // Assuming 'data' is a 2D array or similar
         newData.data[rowNumber][columnNumber] = value;
         return newData;
     }
 
-    getCellValue(column: number, row: number): [string, string] {
+    getCellValue(column: number, row: number): Cell {
         return this._data[row][column];
     }
 
     extendXDirection(distance: number){
         const height = this._data.length
-        const fillerArray: [string, string][] = Array.from({ length: distance }, () => ['', '']);
+        const fillerArray: Cell[] = Array.from({ length: distance }, () => new Cell('', '', []));
         for(let i = 0; i < height; i++)
         {
             this._data[i].push(...fillerArray);
@@ -36,7 +38,7 @@ class TableData {
 
     extendYDirection(distance: number) {
         const width = this._data[0].length
-        const fillerArray: [string, string][] = Array.from({ length: width }, () => ['', '']);
+        const fillerArray: Cell[] = Array.from({ length: distance }, () => new Cell('', '', []));
         for (let i = 0; i < distance; i++){
             this._data.push({...fillerArray});
         }
@@ -68,7 +70,7 @@ class TableData {
         return new TableData(result);
     }
 
-    paste (pasteBuffer: TableData, pasteColumnNumber: number, pasteRowNumber: number): [string, string][][] {
+    paste (pasteBuffer: TableData, pasteColumnNumber: number, pasteRowNumber: number): Cell[][] {
         const height = pasteBuffer._data.length;
         const width = pasteBuffer._data[0].length;
 
