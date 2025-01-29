@@ -37,10 +37,11 @@ class TableData {
     }
 
     extendYDirection(distance: number) {
-        const width = this._data[0].length
-        const fillerArray: Cell[] = Array.from({ length: distance }, () => new Cell('', '', []));
-        for (let i = 0; i < distance; i++){
-            this._data.push({...fillerArray});
+        const width = this._data[0]?.length || 0; // Handle empty _data case
+        const fillerArray: Cell[] = Array.from({ length: width }, () => new Cell('', '', []));
+
+        for (let i = 0; i < distance; i++) {
+            this._data.push([...fillerArray]);
         }
 
         return this;
