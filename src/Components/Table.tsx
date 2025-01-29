@@ -169,6 +169,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 setIsCopyOriginHighlightingVisible(true);
                 copiedData.current = tableData.copy(selectionStartColumnRef.current, selectionEndColumnRef.current, selectionStartRowRef.current, selectionEndRowRef.current);
             } else if (event.key == "v" && copiedData.current.data.length > 0) {
+
+                // TODO: Detect when a paste larger than the current canvas is done, and expand the canvas with it
+
                 const updatedTableData = tableData.paste(
                     copiedData.current,
                     selectionStartColumnRef.current,
@@ -177,6 +180,33 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
                 // Create a new instance of the TableData to trigger re-render
                 setTableData(new TableData(updatedTableData));
+
+                let dX = copiedData.current.data[0].length;
+                let dY = copiedData.current.data.length;
+
+                setHighlightData((prevData) => {
+                    let topEdge : number;
+                    let bottomEdge : number;
+                    let rightEdge : number;
+                    let leftEdge : number;
+
+                    topEdge = selectionStartRowRef.current * 30;
+                    bottomEdge = (selectionStartRowRef.current + dY) * 30;
+
+                    leftEdge = selectionStartColumnRef.current * 80;
+                    rightEdge = (selectionStartColumnRef.current + dX) * 80;
+
+
+                    return {
+                        top: topEdge,
+                        left: leftEdge,
+                        right: rightEdge,
+                        bottom: bottomEdge,
+                        columnNumber: selectionStartColumnRef.current,
+                        rowNumber: selectionStartRowRef.current,
+                        isMultiSelect: true
+                    }
+                })
             }
         }
 

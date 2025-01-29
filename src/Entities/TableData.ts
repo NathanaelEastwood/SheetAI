@@ -45,7 +45,6 @@ class TableData {
     }
 
     copy (startColumn: number, endColumn: number, startRow: number, endRow: number): TableData {
-        console.log(`Copying with startRow: ${startRow}, endRow ${endRow}`)
         if (endColumn < startColumn) {
             let temp = endColumn
             endColumn = startColumn;
@@ -72,8 +71,6 @@ class TableData {
     paste (pasteBuffer: TableData, pasteColumnNumber: number, pasteRowNumber: number): [string, string][][] {
         const height = pasteBuffer._data.length;
         const width = pasteBuffer._data[0].length;
-
-        console.log(`pasting at co-ords: ${width}, ${height}`)
 
         for (let i = 0; i < height; i++) {
             for (let j = 0; j < width; j++) {
