@@ -21,7 +21,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
-
+    let isHighlightEditingRef = useRef(false)
+    isHighlightEditingRef.current = isHighlightEditing;
 
     // position and visibility of copy location highlighter
     const [copyOriginHighlightData, setCopyOriginHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean, isVisible: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false, isVisible: false });
@@ -158,6 +159,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
+
+        if (isHighlightEditingRef.current) {
+            return
+        }
 
         // TODO: Refactor this event handler because it is poo poo
         if (event.ctrlKey) {

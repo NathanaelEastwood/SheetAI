@@ -78,7 +78,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
             {highlightCoordinates.isEditing && (
                 <input
                     type="text"
-                    defaultValue={highlightCoordinates.currentValue[0]}
+                    defaultValue={highlightCoordinates.currentValue[1]}
                     style={{
                         position: "absolute",
                         top: "0px",
