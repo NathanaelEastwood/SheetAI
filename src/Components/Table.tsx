@@ -1,6 +1,9 @@
 import React, { forwardRef, MouseEventHandler, useEffect, useRef, useState } from "react";
 import CellHighlighter from "./CellHighlighter";
 import TableData from "../Entities/TableData";
+import Parse from "../Entities/FormulaParser";
+import parse from "../Entities/FormulaParser";
+
 
 interface TableProperties {
     style?: React.CSSProperties;
@@ -15,7 +18,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
-
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
@@ -145,6 +147,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const handleCellEntry = (value: [string, string], columnNumber: number, rowNumber: number) => {
         // TODO: Implement a partial re-draw perhaps if performance becomes an issue?
+        if (value[1][0] == '=') {
+            console.log("parsing formula")
+            value = parse(value, tableData)
+        }
         setTableData(tableData.setCellValue(value, columnNumber, rowNumber))
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
@@ -154,7 +160,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     const handleGlobalKeypress = (event: KeyboardEvent) => {
 
         // TODO: Refactor this event handler because it is poo poo
-
         if (event.ctrlKey) {
             if (event.key == "c") {
 
