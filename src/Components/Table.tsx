@@ -3,6 +3,7 @@ import CellHighlighter from "./CellHighlighter";
 import TableData from "../Entities/TableData";
 import parse from "../Entities/FormulaParser";
 import Cell from "../Entities/Cell";
+import evaluateDependencies from "../Entities/DependencyEvaluator";
 
 
 interface TableProperties {
@@ -150,9 +151,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         // TODO: Implement a partial re-draw perhaps if performance becomes an issue?
         if (value.UnderlyingValue[0] == '=') {
             console.log("parsing formula")
-            value = parse(value, tableData)
+            value = parse(value, tableData, [columnNumber, rowNumber]);
         }
-        setTableData(tableData.setCellValue(value, columnNumber, rowNumber))
+        setTableData(tableData.setCellValue(value, columnNumber, rowNumber));
+        setTableData(evaluateDependencies(tableData, value));
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
@@ -229,7 +231,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Delete")
         {
-            setTableData(tableData.setCellValue(new Cell('', '', []), selectionStartColumnRef.current, selectionStartRowRef.current))
+            setTableData(tableData.setCellValue(new Cell('', '', new Set<[number, number]>()), selectionStartColumnRef.current, selectionStartRowRef.current))
             setIsHighlightEditing(false);
             return
         }
@@ -355,7 +357,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 isEditing={false}
                 onInputChange={handleCellEntry}
                 isMultiSelect={copyOriginHighlightData.isMultiSelect}
-                currentValue={new Cell('', '', [])}
+                currentValue={new Cell('', '', new Set<[number, number]>())}
                 visible={isCopyOriginHighlightingVisible}
                 isCopyHighlighter={true}
             />

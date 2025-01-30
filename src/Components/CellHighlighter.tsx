@@ -40,7 +40,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
     const handleInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "Enter") {
             highlightCoordinates.onInputChange(
-                new Cell(inputRef.current?.value || "", inputRef.current?.value || "", []),
+                new Cell(inputRef.current?.value || "", inputRef.current?.value || "", cellHighlightParameters.currentValue.Dependants),
                 highlightCoordinates.columnNumber,
                 highlightCoordinates.rowNumber
             );

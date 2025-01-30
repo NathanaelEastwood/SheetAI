@@ -26,9 +26,13 @@ class TableData {
         return this._data[row][column];
     }
 
+    getCellValueByReference(reference: [number, number]): Cell {
+        return this._data[reference[1]][reference[0]];
+    }
+
     extendXDirection(distance: number){
         const height = this._data.length
-        const fillerArray: Cell[] = Array.from({ length: distance }, () => new Cell('', '', []));
+        const fillerArray: Cell[] = Array.from({ length: distance }, () => new Cell('', '', new Set<[number, number]>()));
         for(let i = 0; i < height; i++)
         {
             this._data[i].push(...fillerArray);
@@ -38,7 +42,7 @@ class TableData {
 
     extendYDirection(distance: number) {
         const width = this._data[0]?.length || 0; // Handle empty _data case
-        const fillerArray: Cell[] = Array.from({ length: width }, () => new Cell('', '', []));
+        const fillerArray: Cell[] = Array.from({ length: width }, () => new Cell('', '', new Set<[number, number]>()));
 
         for (let i = 0; i < distance; i++) {
             this._data.push([...fillerArray]);
