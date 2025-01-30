@@ -28,7 +28,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // position and visibility of copy location highlighter
     const [copyOriginHighlightData, setCopyOriginHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean, isVisible: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false, isVisible: false });
     const [isCopyOriginHighlightingVisible, setIsCopyOriginHighlightingVisible] = useState<boolean>(false);
-
+    let copyOriginColumnNumberRef = useRef<number>();
+    copyOriginColumnNumberRef.current = copyOriginHighlightData.columnNumber;
+    let copyOriginRowNumberRef = useRef<number>();
+    copyOriginRowNumberRef.current = copyOriginHighlightData.rowNumber;
     // Selection state and reference variables
     let selectionStartColumnRef = useRef(highlightData.columnNumber);
     selectionStartColumnRef.current = highlightData.columnNumber;
@@ -184,15 +187,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             } else if (event.key == "v" && copiedData.current.data.length > 0) {
 
                 // TODO: Detect when a paste larger than the current canvas is done, and expand the canvas with it
-
-                const updatedTableData = tableData.paste(
-                    copiedData.current,
-                    selectionStartColumnRef.current,
-                    selectionStartRowRef.current
-                );
+                tableData.paste(copiedData.current, selectionStartColumnRef.current, selectionStartRowRef.current, copyOriginColumnNumberRef.current || 0, copyOriginRowNumberRef.current || 0);
+                setTableData(new TableData(tableData.data));
 
                 // Create a new instance of the TableData to trigger re-render
-                setTableData(new TableData(updatedTableData));
+                // setTableData(new TableData(updatedTableData));
 
                 let dX = copiedData.current.data[0].length;
                 let dY = copiedData.current.data.length;
