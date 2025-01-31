@@ -3,7 +3,7 @@ import Cell from "./Cell";
 import parse from "./FormulaParser";
 
 function evaluateDependencies(tableData: TableData, originCell: Cell): TableData {
-    // TODO: Prevent circular dependency by tracking the origin cell and throwing an exception when this is reached.
+    // TODO: Prevent circular dependency by tracking traversed cells in a set and if the length doesn't increase it is circular.
     originCell.Dependants.forEach(dependant => {
         let dependantCell = tableData.getCellValueByReference(dependant);
         if (dependantCell.UnderlyingValue[0] == '=') {

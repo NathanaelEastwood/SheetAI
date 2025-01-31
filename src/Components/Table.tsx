@@ -230,7 +230,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         if (event.key == "Delete")
         {
-            setTableData(tableData.setCellValue(new Cell('', '', new Set<[number, number]>()), selectionStartColumnRef.current, selectionStartRowRef.current))
+            let originalCell = tableData.getCellValue(selectionStartColumnRef.current, selectionStartRowRef.current);
+            let newCell = new Cell('', '', structuredClone(originalCell.Dependants));
+            let updatedTableData = tableData.setCellValue(newCell, selectionStartColumnRef.current, selectionStartRowRef.current);
+            updatedTableData = evaluateDependencies(updatedTableData, newCell);
+            setTableData(updatedTableData);
             setIsHighlightEditing(false);
             return
         }
