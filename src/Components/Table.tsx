@@ -23,8 +23,12 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
 
+    // Scalar data
+    const [horizontalScalar, setHorizontalScalar] = useState<Scalars>(tableProperties.horizontalScalars);
+    const [verticalScalar, setVerticalScalar] = useState<Scalars>(tableProperties.verticalScalars);
+
     // Use state for highlighting position and editing state
-    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
+    const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: verticalScalar.scalars[0], right: horizontalScalar.scalars[0], isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
     let isHighlightEditingRef = useRef(false)
     isHighlightEditingRef.current = isHighlightEditing;
@@ -49,10 +53,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     const [tableData, setTableData] = useState<TableData>(tableProperties.data);
     const copiedData = useRef(new TableData([]));
 
-    // Scalar data
-    const [horizontalScalar, setHorizontalScalar] = useState<Scalars>(tableProperties.horizontalScalars);
-    const [verticalScalar, setVerticalScalar] = useState<Scalars>(tableProperties.verticalScalars);
-
     // Mouse state for evaluating a drag select
     let isDragging = useRef(false);
     let dragStartCellCoordinates = useRef([0, 0])
@@ -61,7 +61,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     useEffect(() => {
         scrollXRef.current = tableProperties.scrollX;
         scrollYRef.current = tableProperties.scrollY;
-    }, [tableProperties.scrollX, tableProperties.scrollY]);
+    }, [tableProperties.scrollX, tableProperties.scrollY, tableProperties.horizontalScalars]);
 
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -114,7 +114,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 }
             }
         }
-    }, [tableProperties.width, tableProperties.height, ref, tableData]);
+    }, [tableProperties.width, tableProperties.height, ref, tableData, tableProperties.horizontalScalars]);
 
     useEffect(() => {
         window.addEventListener("keydown", handleGlobalKeypress);

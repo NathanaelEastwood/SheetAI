@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Table from "../Components/Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
@@ -15,14 +15,14 @@ const TableContainer: React.FC = () => {
     // top bar values
     const [startingLetter, setStartingLetter] = useState(0);
     const [topBarWidth, setTopBarWidth] = useState(40);
-    const [horizontalScalars, setHorizontalScalars] = useState(() => new Scalars(Array.from({ length: 20 }, () => 160)));
+    const [horizontalScalars, setHorizontalScalars] = useState<Scalars>(() => new Scalars(Array.from({ length: 40 }, () => 80)));
 
     let readyToUpdateXAxis = true;
 
     // sidebar values
     const [startingNumber, setStartingNumber] = useState(1);
     const [sideBarHeight, setSideBarHeight] = useState(100);
-    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 40 }, () => 30)));
+    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 100 }, () => 30)));
 
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
@@ -31,7 +31,13 @@ const TableContainer: React.FC = () => {
     // data values
     const [tableData, setTableData] = useState(generateEmptyTable(sideBarHeight, topBarWidth))
 
+    const horizontalAdjustCallback = useCallback((index: number, distance: number) => {
+        console.log(`Adjusting horizontal scalars with index: ${index} and distance ${distance}`);
+        setHorizontalScalars(prevScalars => new Scalars(prevScalars.shiftValue(index, distance)));
+    }, [horizontalScalars]);
+
     useEffect(() => {
+
         const handleScroll = (event: Event) => {
             const target = event.target as HTMLDivElement;
 
@@ -69,7 +75,7 @@ const TableContainer: React.FC = () => {
             if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
                 setSideBarHeight(prevWidth => prevWidth + 10);
                 setTableData(tableData.extendYDirection(10))
-                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(50))));
+                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
                 readyToUpdateYAxis = false;
             } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
                 readyToUpdateYAxis = true;
@@ -80,6 +86,7 @@ const TableContainer: React.FC = () => {
         if (tableContainer) {
             tableContainer.addEventListener("scroll", handleScroll);
         }
+
 
         return () => {
             if (tableContainer) {
@@ -118,6 +125,9 @@ const TableContainer: React.FC = () => {
                 horizontalScalars={horizontalScalars}
                 width={topBarWidth}
                 startingLetter={startingLetter}
+                scrollX={scrollX}
+                scrollY={scrollY}
+                adjustScalars={horizontalAdjustCallback}
             />
 
             {/* Sidebar positioned on the left */}

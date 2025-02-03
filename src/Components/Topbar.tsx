@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
 import {Scalars} from "../Entities/Scalars";
+import Cell from "../Entities/Cell";
 
 interface TopbarProps {
     style?: React.CSSProperties;
     startingLetter: number;
     horizontalScalars: Scalars;
     width: number;
+    scrollX: number;
+    scrollY: number;
+    adjustScalars: (index: number, distance: number) => void;
 }
 
-const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width, horizontalScalars }, ref) => {
+const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width, horizontalScalars, scrollX, scrollY, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
     const [columnHeadings, setColumnHeadings] = useState<string[]>(() =>
@@ -17,9 +21,14 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
 
     const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars)
 
+    const [draggingColumnBorder, setDraggingColumnBorder] = useState<boolean>(false);
+    const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
+    let hoveringResize = useRef<boolean>(false);
+    let dragStartLocation = useRef<number>(0);
+
     useEffect(() => {
         setColumnHeadings(generateLetterList(width, startingLetter));
-    }, [width, startingLetter]);
+    }, [width, startingLetter, horizontalScalars]);
 
     useEffect(() => {
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
@@ -69,9 +78,51 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 });
             }
         }
-    }, [columnHeadings, width]);
+    }, [columnHeadings, width, horizontalScalars]);
 
-    return <canvas ref={ref || localCanvasRef} style={style}></canvas>;
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let absoluteX = event.clientX + scrollX - 100;
+        if (!draggingColumnBorder) {
+            const canvas = event.currentTarget; // Get the canvas element
+            let hovering = horizontalScalarsState.pointIsWithinDistanceOfEdge(absoluteX, 5);
+            hoveringResize.current = true;
+            // Change cursor style based on hovering state
+            canvas.style.cursor = hovering ? "col-resize" : "default";
+        } else {
+            setDragCurrentLocation(absoluteX);
+        }
+    };
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!hoveringResize){
+            return
+        } else {
+            setDraggingColumnBorder(true);
+            dragStartLocation.current = event.clientX + scrollX - 100;
+            setDragCurrentLocation(dragStartLocation.current)
+        }
+    }
+
+    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let dragEnd = event.clientX + scrollX - 100;
+        setDraggingColumnBorder(false);
+        if (Math.abs(dragEnd - dragStartLocation.current) > 5) {
+            console.log("Click and drag event executed")
+            const startIndex = horizontalScalarsState.getIndexFromPosition(dragStartLocation.current);
+            adjustScalars(startIndex, dragEnd - dragStartLocation.current);
+        }
+    }
+
+    const quitEvent = () => {
+        setDraggingColumnBorder(false)
+    }
+
+    return (
+        <>
+            <div style={{height: "1000px", width: "0px", borderStyle: "dashed", borderWidth: 1, position: "absolute", top: 0, left: dragCurrentLocation + 100, visibility: draggingColumnBorder ? "visible" : "hidden"}}></div>
+            <canvas ref={ref || localCanvasRef} style={style} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={quitEvent}></canvas>
+        </>
+    )
 });
 
 export default React.memo(Topbar);

@@ -28,16 +28,22 @@ class Scalars {
         return this.scalars.slice(0, index).reduce((sum, value) => sum + value, 0);
     }
 
-    public getClosestEdge(position: number): number {
+    public pointIsWithinDistanceOfEdge(point: number, acceptableDistance: number): boolean {
         let cumulativePosition = 0;
-        let result = 0;
-        while (true) {
-            if (cumulativePosition > position){
-                return cumulativePosition;
+        let index = 0;
+        while (cumulativePosition <= point) {
+            if (Math.abs(cumulativePosition - point) <= acceptableDistance){
+                return true;
             }
-            cumulativePosition += this.scalars[result];
-            result += 1;
+            cumulativePosition += this.scalars[index];
+            index += 1;
         }
+        return false;
+    }
+
+    public shiftValue(index: number, shiftDistance: number): number[] {
+        this.scalars[index - 1] += shiftDistance;
+        return this.scalars;
     }
 
     public scalars: number[];
