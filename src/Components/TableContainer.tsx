@@ -3,6 +3,7 @@ import Table from "../Components/Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import generateEmptyTable from "../Entities/generateEmptyTable";
+import {Scalars} from "../Entities/Scalars";
 
 const TableContainer: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -14,11 +15,15 @@ const TableContainer: React.FC = () => {
     // top bar values
     const [startingLetter, setStartingLetter] = useState(0);
     const [topBarWidth, setTopBarWidth] = useState(40);
+    const [horizontalScalars, setHorizontalScalars] = useState(() => new Scalars(Array.from({ length: 40 }, () => 80)));
+
     let readyToUpdateXAxis = true;
 
     // sidebar values
     const [startingNumber, setStartingNumber] = useState(1);
     const [sideBarHeight, setSideBarHeight] = useState(100);
+    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 100 }, () => 30)));
+
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
     let readyToUpdateYAxis = true;
@@ -54,7 +59,8 @@ const TableContainer: React.FC = () => {
             // handle expanding the canvas
             if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.25 && readyToUpdateXAxis) {
                 setTopBarWidth(prevWidth => prevWidth + 10);
-                setTableData(tableData.extendXDirection(10))
+                setTableData(tableData.extendXDirection(10));
+                setVerticalScalars(new Scalars(horizontalScalars.extend(Array(10).fill(80))));
                 readyToUpdateXAxis = false;
             } else if (!readyToUpdateXAxis && target.scrollLeft < (target.scrollWidth - target.clientWidth) / 1.25) {
                 readyToUpdateXAxis = true;
@@ -63,6 +69,7 @@ const TableContainer: React.FC = () => {
             if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
                 setSideBarHeight(prevWidth => prevWidth + 10);
                 setTableData(tableData.extendYDirection(10))
+                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
                 readyToUpdateYAxis = false;
             } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
                 readyToUpdateYAxis = true;
@@ -108,6 +115,7 @@ const TableContainer: React.FC = () => {
                     zIndex: 2,
                 }}
                 ref={topRef}
+                horizontalScalars={horizontalScalars}
                 width={topBarWidth}
                 startingLetter={startingLetter}
             />
@@ -121,6 +129,7 @@ const TableContainer: React.FC = () => {
                     zIndex: 1,
                 }}
                 ref={sideRef}
+                verticalScalars={verticalScalars}
                 height={sideBarHeight}
                 startingNumber={startingNumber}
             />
@@ -143,6 +152,8 @@ const TableContainer: React.FC = () => {
                     }}
                     ref={tableRef} width={topBarWidth} height={sideBarHeight} scrollX={scrollX} scrollY={scrollY}
                     data={tableData}
+                    verticalScalars={verticalScalars}
+                    horizontalScalars={horizontalScalars}
                 />
             </div>
         </div>

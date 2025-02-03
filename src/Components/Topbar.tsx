@@ -1,17 +1,21 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
+import {Scalars} from "../Entities/Scalars";
 
 interface TopbarProps {
     style?: React.CSSProperties;
     startingLetter: number;
+    horizontalScalars: Scalars;
     width: number;
 }
 
-const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width }, ref) => {
+const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width, horizontalScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
     const [columnHeadings, setColumnHeadings] = useState<string[]>(() =>
         generateLetterList(width, startingLetter)
     );
+
+    const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars)
 
     useEffect(() => {
         setColumnHeadings(generateLetterList(width, startingLetter));
@@ -22,7 +26,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
         if (canvas) {
             const ctx = canvas.getContext("2d");
             if (ctx) {
-                canvas.width = width * 80;
+                canvas.width = horizontalScalarsState.pixelLength;
                 canvas.height = 30;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -36,25 +40,31 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 // Draw initial border lines
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, 30);
-                ctx.stroke();
-                ctx.moveTo(0, 0);
                 ctx.lineTo(canvas.width, 0);
                 ctx.stroke();
                 ctx.moveTo(0, 30)
                 ctx.lineTo(canvas.width, 30);
                 ctx.stroke();
 
+                let cumulativeXPosition = 0
                 columnHeadings.forEach((letter, index) => {
-                    const x = 80 * index;
+                    let x;
+                    if (index == 0) {
+                        x = 100;
+                        cumulativeXPosition = 100
+                    } else {
+                        x = cumulativeXPosition + horizontalScalarsState.scalars[index];
+                        cumulativeXPosition += horizontalScalarsState.scalars[index];
+                    }
                     const y = 20;
 
                     ctx.beginPath();
-                    ctx.moveTo(x + 100, 0);
-                    ctx.lineTo(x + 100, 30);
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, 30);
                     ctx.stroke();
 
-                    ctx.fillText(letter, x + 50, y);
+                    // TODO: Add properly calculated scaling factor, same for Sidebar
+                    ctx.fillText(letter, x - (horizontalScalarsState.scalars[index] * 0.55), y);
                 });
             }
         }

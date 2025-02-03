@@ -4,10 +4,13 @@ import TableData from "../Entities/TableData";
 import parse from "../Entities/FormulaParser";
 import Cell from "../Entities/Cell";
 import evaluateDependencies from "../Entities/DependencyEvaluator";
+import {Scalars} from "../Entities/Scalars";
 
 
 interface TableProperties {
     style?: React.CSSProperties;
+    horizontalScalars: Scalars;
+    verticalScalars: Scalars;
     width: number;
     height: number;
     scrollX: number;
@@ -19,6 +22,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
+
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: 30, right: 80, isMultiSelect: false });
     const [isHighlightEditing, setIsHighlightEditing] = useState<boolean>(false);
@@ -32,6 +36,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     copyOriginColumnNumberRef.current = copyOriginHighlightData.columnNumber;
     let copyOriginRowNumberRef = useRef<number>();
     copyOriginRowNumberRef.current = copyOriginHighlightData.rowNumber;
+
     // Selection state and reference variables
     let selectionStartColumnRef = useRef(highlightData.columnNumber);
     selectionStartColumnRef.current = highlightData.columnNumber;
@@ -42,7 +47,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     // table data
     const [tableData, setTableData] = useState<TableData>(tableProperties.data);
-    const copiedData = useRef(new TableData([]))
+    const copiedData = useRef(new TableData([]));
+
+    // Scalar data
+    const [horizontalScalar, setHorizontalScalar] = useState<Scalars>(tableProperties.horizontalScalars);
+    const [verticalScalar, setVerticalScalar] = useState<Scalars>(tableProperties.verticalScalars);
 
     // Mouse state for evaluating a drag select
     let isDragging = useRef(false);
@@ -62,27 +71,34 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             const ctx = canvas.getContext("2d");
 
             // TODO: Hardcoded multiplier values which won't work once cells are expandable
-
-            canvas.width = tableProperties.width * 80;
-            canvas.height = tableProperties.height * 30;
+            let pixelWidth = horizontalScalar.pixelLength;
+            let pixelHeight = verticalScalar.pixelLength;
+            canvas.width = pixelWidth;
+            canvas.height = pixelHeight;
             if (ctx) {
+                let cumulativeHeight = 0;
                 // Draw table cells
                 for (let i = 0; i < tableProperties.height; i++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
-                    ctx.moveTo(0, 30 * i);
-                    ctx.lineTo(canvas.width, 30 * i);
+                    ctx.moveTo(0, verticalScalar.scalars[i] + cumulativeHeight);
+                    ctx.lineTo(canvas.width, verticalScalar.scalars[i] + cumulativeHeight);
                     ctx.stroke();
+                    cumulativeHeight += verticalScalar.scalars[i];
                 }
 
-                for (let j = 0; j < tableProperties.width; j++) {
+                let cumulativeWidth = 0
+
+                // TODO: Hacky, fix this issue with offset by one error against the top bar, without just offsetting by one in the opposite direction.
+                for (let j = 0; j < tableProperties.width - 1; j++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
-                    ctx.moveTo(80 * j, 0);
-                    ctx.lineTo(80 * j, canvas.height);
+                    ctx.moveTo(cumulativeWidth + horizontalScalar.scalars[j + 1], 0);
+                    ctx.lineTo(cumulativeWidth + horizontalScalar.scalars[j + 1], canvas.height);
                     ctx.stroke();
+                    cumulativeWidth += horizontalScalar.scalars[j + 1];
                 }
 
                 ctx.font = "15px serif";
@@ -153,11 +169,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     const handleCellEntry = (value: Cell, columnNumber: number, rowNumber: number) => {
         // TODO: Implement a partial re-draw perhaps if performance becomes an issue?
         if (value.UnderlyingValue[0] == '=') {
-            console.log("parsing formula")
             value = parse(value, tableData, [columnNumber, rowNumber]);
         }
-        setTableData(tableData.setCellValue(value, columnNumber, rowNumber));
-        setTableData(evaluateDependencies(tableData, value));
+        let newTableData = tableData.setCellValue(value, columnNumber, rowNumber)
+        newTableData = evaluateDependencies(newTableData, value);
+        setTableData(newTableData);
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})

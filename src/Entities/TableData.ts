@@ -79,16 +79,6 @@ class TableData {
     paste (pasteBuffer: TableData, pasteColumnNumber: number, pasteRowNumber: number, originColumnNumber: number, originRowNumber: number): void {
         let xOffset = pasteColumnNumber - originColumnNumber;
         let yOffset = pasteRowNumber - originRowNumber;
-/*        const height = pasteBuffer._data.length;
-        const width = pasteBuffer._data[0].length;
-
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width; j++) {
-                this._data[i + pasteRowNumber][j + pasteColumnNumber] = pasteBuffer._data[i][j];
-            }
-        }
-
-        return this._data;*/
 
         shiftAndInsertCells(xOffset, yOffset, pasteBuffer, this, [pasteColumnNumber, pasteRowNumber])
     }
