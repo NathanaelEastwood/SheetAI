@@ -53,8 +53,9 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                         x = 100;
                         cumulativeXPosition = 100
                     } else {
-                        x = cumulativeXPosition + horizontalScalarsState.scalars[index];
-                        cumulativeXPosition += horizontalScalarsState.scalars[index];
+                        // Indexes are -1'd here as we shouldn't be consuming a member of the scalar for the blank part of the column headings
+                        x = cumulativeXPosition + horizontalScalarsState.scalars[index - 1];
+                        cumulativeXPosition += horizontalScalarsState.scalars[index - 1];
                     }
                     const y = 20;
 
@@ -64,7 +65,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                     ctx.stroke();
 
                     // TODO: Add properly calculated scaling factor, same for Sidebar
-                    ctx.fillText(letter, x - (horizontalScalarsState.scalars[index] * 0.55), y);
+                    ctx.fillText(letter, x - (horizontalScalarsState.scalars[index - 1] * 0.55), y);
                 });
             }
         }

@@ -90,15 +90,14 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
                 let cumulativeWidth = 0
 
-                // TODO: Hacky, fix this issue with offset by one error against the top bar, without just offsetting by one in the opposite direction.
-                for (let j = 0; j < tableProperties.width - 1; j++) {
+                for (let j = 0; j < tableProperties.width; j++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
                     ctx.strokeStyle = "#D3D3D3";
-                    ctx.moveTo(cumulativeWidth + horizontalScalar.scalars[j + 1], 0);
-                    ctx.lineTo(cumulativeWidth + horizontalScalar.scalars[j + 1], canvas.height);
+                    ctx.moveTo(cumulativeWidth + horizontalScalar.scalars[j], 0);
+                    ctx.lineTo(cumulativeWidth + horizontalScalar.scalars[j], canvas.height);
                     ctx.stroke();
-                    cumulativeWidth += horizontalScalar.scalars[j + 1];
+                    cumulativeWidth += horizontalScalar.scalars[j];
                 }
 
                 ctx.font = "15px serif";
@@ -109,7 +108,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                         let cellValue = tableData.getCellValue(x, y)
                         if (cellValue.RenderedValue != '')
                         {
-                            ctx.fillText(cellValue.RenderedValue, (x * 80) + 35, (y * 30) - 10);
+                            ctx.fillText(cellValue.RenderedValue, (horizontalScalar.getPositionFromIndex(x)) + (horizontalScalar.scalars[x] - 15)/2 , (verticalScalar.getPositionFromIndex(y)) + (verticalScalar.scalars[y] + 10)/2);
                         }
                     }
                 }
@@ -144,8 +143,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
         const ySnappingCoordinate = verticalScalar.getPositionFromIndex(rowNumber);
-        console.log(`Producing YSnappingCoord: ${ySnappingCoordinate} from rowNumber: ${rowNumber}`)
-        console.log(`Producing XSnappingCoord: ${xSnappingCoordinate} from columnNumber: ${columnNumber}`)
 
         // Always highlight the cell immediately
         setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + verticalScalar.scalars[rowNumber], right: xSnappingCoordinate + horizontalScalar.scalars[columnNumber], isMultiSelect: false });
@@ -176,9 +173,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         let newTableData = tableData.setCellValue(value, columnNumber, rowNumber)
         newTableData = evaluateDependencies(newTableData, value);
         setTableData(newTableData);
-        const xSnappingCoordinate = (columnNumber) * 80;
-        const ySnappingCoordinate = (rowNumber + 1) * 30;
-        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
+        const newRowNumber = rowNumber + 1;
+        const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
+        const ySnappingCoordinate = verticalScalar.getPositionFromIndex(newRowNumber);
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: newRowNumber, bottom: ySnappingCoordinate + verticalScalar.scalars[newRowNumber], right: xSnappingCoordinate + horizontalScalar.scalars[columnNumber], isMultiSelect: false})
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
@@ -192,10 +190,18 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         if (event.ctrlKey) {
             if (event.key == "c") {
 
-                const top = selectionStartRowRef.current < selectionEndRowRef.current ? selectionStartRowRef.current * 30 : selectionEndRowRef.current * 30;
-                const left = selectionStartColumnRef.current < selectionEndColumnRef.current ? selectionStartColumnRef.current * 80 : selectionEndColumnRef.current * 80;
-                const bottom = (selectionStartRowRef.current > selectionEndRowRef.current ? selectionStartRowRef.current * 30 : selectionEndRowRef.current * 30) + 30;
-                const right = (selectionStartColumnRef.current > selectionEndColumnRef.current ? selectionStartColumnRef.current * 80 : selectionEndColumnRef.current * 80) + 80;
+                const top = selectionStartRowRef.current < selectionEndRowRef.current ? verticalScalar.getPositionFromIndex(selectionStartRowRef.current) :
+                    verticalScalar.getPositionFromIndex(selectionEndRowRef.current);
+
+                const left = selectionStartColumnRef.current < selectionEndColumnRef.current ? horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current) :
+                    horizontalScalar.getPositionFromIndex(selectionEndColumnRef.current);
+
+                const bottom = (selectionStartRowRef.current > selectionEndRowRef.current ? verticalScalar.getPositionFromIndex(selectionStartRowRef.current) + verticalScalar.scalars[selectionStartRowRef.current] :
+                    verticalScalar.getPositionFromIndex(selectionEndRowRef.current) + verticalScalar.scalars[selectionEndRowRef.current]);
+
+                const right = (selectionStartColumnRef.current > selectionEndColumnRef.current ? horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current) + horizontalScalar.scalars[selectionStartRowRef.current] :
+                    horizontalScalar.getPositionFromIndex(selectionEndColumnRef.current) + horizontalScalar.scalars[selectionEndColumnRef.current]);
+
                 const columnNumber = selectionStartColumnRef.current < selectionEndColumnRef.current ? selectionStartColumnRef.current : selectionEndColumnRef.current;
                 const rowNumber = selectionStartRowRef.current < selectionEndRowRef.current ? selectionStartRowRef.current : selectionEndRowRef.current;
 
@@ -220,11 +226,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     let rightEdge : number;
                     let leftEdge : number;
 
-                    topEdge = selectionStartRowRef.current * 30;
-                    bottomEdge = (selectionStartRowRef.current + dY) * 30;
+                    topEdge = verticalScalar.getPositionFromIndex(selectionStartRowRef.current);
+                    bottomEdge = verticalScalar.getPositionFromIndex(selectionStartRowRef.current + dY);
 
-                    leftEdge = selectionStartColumnRef.current * 80;
-                    rightEdge = (selectionStartColumnRef.current + dX) * 80;
+                    leftEdge = horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current);
+                    rightEdge = horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current + dX);
 
 
                     return {
@@ -270,11 +276,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             switch (event.key) {
                 case "ArrowDown":
                     event.preventDefault();
-                    newRow = Math.max(newRow + 1, 1);
+                    newRow = Math.max(newRow + 1, 0);
                     break;
                 case "ArrowUp":
                     event.preventDefault();
-                    newRow = Math.max(newRow - 1, 1);
+                    newRow = Math.max(newRow - 1, 0);
                     break;
                 case "ArrowLeft":
                     event.preventDefault();
@@ -290,12 +296,12 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
 
             return {
-                top: newRow * 30,
-                left: newCol * 80,
+                top: verticalScalar.getPositionFromIndex(newRow),
+                left: horizontalScalar.getPositionFromIndex(newCol),
                 rowNumber: newRow,
                 columnNumber: newCol,
-                bottom: (newRow * 30) + 30,
-                right: (newCol * 80) + 80,
+                bottom: verticalScalar.getPositionFromIndex(newRow) + verticalScalar.scalars[newRow],
+                right: horizontalScalar.getPositionFromIndex(newCol) + horizontalScalar.scalars[newCol],
                 isMultiSelect: false
             };
         });
@@ -370,7 +376,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = horizontalScalar.getIndexFromPosition(tableX);
         const rowNumber = verticalScalar.getIndexFromPosition(tableY);
 
-        console.log(`ColumnNumber: ${columnNumber}, RowNumber: ${rowNumber}`)
         return [columnNumber, rowNumber];
     }
 
