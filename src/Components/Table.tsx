@@ -142,11 +142,13 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         dragStartCellCoordinates.current = cellCoords;
         isDragging.current = true;
 
-        const xSnappingCoordinate = columnNumber * 80;
-        const ySnappingCoordinate = rowNumber * 30;
+        const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
+        const ySnappingCoordinate = verticalScalar.getPositionFromIndex(rowNumber);
+        console.log(`Producing YSnappingCoord: ${ySnappingCoordinate} from rowNumber: ${rowNumber}`)
+        console.log(`Producing XSnappingCoord: ${xSnappingCoordinate} from columnNumber: ${columnNumber}`)
 
         // Always highlight the cell immediately
-        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false });
+        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + verticalScalar.scalars[rowNumber], right: xSnappingCoordinate + horizontalScalar.scalars[columnNumber], isMultiSelect: false });
         setIsHighlightEditing(false);
 
         if (event.detail === 1) {
@@ -176,7 +178,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         setTableData(newTableData);
         const xSnappingCoordinate = (columnNumber) * 80;
         const ySnappingCoordinate = (rowNumber + 1) * 30;
-        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber + 1, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + 30, right: xSnappingCoordinate + 80, isMultiSelect: false})
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
@@ -321,21 +323,26 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     let leftCell;
 
                     if (dY < 0) {
-                        topCell = (endingCellCoords[1] * 30);
-                        bottomCell = dragStartCellCoordinates.current[1] * 30;
+                        // topCell = (endingCellCoords[1] * 30);
+                        topCell = verticalScalar.getPositionFromIndex(endingCellCoords[1]);
+                        // bottomCell = dragStartCellCoordinates.current[1] * 30;
+                        bottomCell = verticalScalar.getPositionFromIndex(dragStartCellCoordinates.current[1]);
                     } else {
                         topCell = prevData.top;
-                        bottomCell = (endingCellCoords[1] * 30) + 30;
+                        // bottomCell = (endingCellCoords[1] * 30) + 30;
+                        bottomCell = verticalScalar.getPositionFromIndex(endingCellCoords[1]) + verticalScalar.scalars[endingCellCoords[1]];
                     }
 
                     if (dX < 0) {
-                        rightCell = dragStartCellCoordinates.current[0] * 80;
-                        leftCell = (endingCellCoords[0] * 80);
+                        // rightCell = dragStartCellCoordinates.current[0] * 80;
+                        rightCell = horizontalScalar.getPositionFromIndex(dragStartCellCoordinates.current[0]);
+                        // leftCell = (endingCellCoords[0] * 80);
+                        leftCell = horizontalScalar.getPositionFromIndex(endingCellCoords[0]);
                     } else {
-                        rightCell = (endingCellCoords[0] * 80) + 80;
+                        // rightCell = (endingCellCoords[0] * 80) + 80;
                         leftCell = prevData.left;
+                        rightCell = horizontalScalar.getPositionFromIndex(endingCellCoords[0]) + horizontalScalar.scalars[endingCellCoords[0]];
                     }
-
                     return {
                         top: topCell,
                         left: leftCell,
@@ -348,6 +355,23 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 })
             }
         }
+    }
+
+    function findTableCell(event: React.MouseEvent, scrollX: number, scrollY: number) {
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+
+        // TODO: look into why these correction factors are needed and why they are hardcoded
+        const tableX = mouseX + scrollX - 100;
+        const tableY = mouseY + scrollY - 230;
+
+        // const columnNumber = Math.floor(tableX / 80);
+        // const rowNumber = Math.floor(tableY / 30);
+        const columnNumber = horizontalScalar.getIndexFromPosition(tableX);
+        const rowNumber = verticalScalar.getIndexFromPosition(tableY);
+
+        console.log(`ColumnNumber: ${columnNumber}, RowNumber: ${rowNumber}`)
+        return [columnNumber, rowNumber];
     }
 
 
@@ -386,15 +410,4 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
 export default Table;
 
-function findTableCell(event: React.MouseEvent, scrollX: number, scrollY: number) {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
 
-    const tableX = mouseX + scrollX - 20;
-    const tableY = mouseY + scrollY - 230;
-
-    const columnNumber = Math.floor(tableX / 80);
-    const rowNumber = Math.floor(tableY / 30);
-
-    return [columnNumber - 1, rowNumber + 1];
-}

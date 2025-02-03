@@ -15,14 +15,14 @@ const TableContainer: React.FC = () => {
     // top bar values
     const [startingLetter, setStartingLetter] = useState(0);
     const [topBarWidth, setTopBarWidth] = useState(40);
-    const [horizontalScalars, setHorizontalScalars] = useState(() => new Scalars(Array.from({ length: 40 }, () => 80)));
+    const [horizontalScalars, setHorizontalScalars] = useState(() => new Scalars(Array.from({ length: 20 }, () => 160)));
 
     let readyToUpdateXAxis = true;
 
     // sidebar values
     const [startingNumber, setStartingNumber] = useState(1);
     const [sideBarHeight, setSideBarHeight] = useState(100);
-    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 100 }, () => 30)));
+    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 40 }, () => 30)));
 
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
@@ -69,7 +69,7 @@ const TableContainer: React.FC = () => {
             if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
                 setSideBarHeight(prevWidth => prevWidth + 10);
                 setTableData(tableData.extendYDirection(10))
-                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
+                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(50))));
                 readyToUpdateYAxis = false;
             } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
                 readyToUpdateYAxis = true;
@@ -148,7 +148,7 @@ const TableContainer: React.FC = () => {
                 <Table
                     style={{
                         top: "0",
-                        left: "0"
+                        left: "0",
                     }}
                     ref={tableRef} width={topBarWidth} height={sideBarHeight} scrollX={scrollX} scrollY={scrollY}
                     data={tableData}

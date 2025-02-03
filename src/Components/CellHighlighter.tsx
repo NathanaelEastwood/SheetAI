@@ -62,7 +62,7 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
         <div
             style={{
                 position: "absolute",
-                top: `${highlightCoordinates.top - 30}px`,
+                top: `${highlightCoordinates.top}px`,
                 left: `${highlightCoordinates.left}px`,
                 width: `${selectionWidth}px`,
                 height: `${selectionHeight}px`,
