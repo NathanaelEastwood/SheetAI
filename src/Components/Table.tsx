@@ -61,6 +61,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     useEffect(() => {
         scrollXRef.current = tableProperties.scrollX;
         scrollYRef.current = tableProperties.scrollY;
+        setHorizontalScalar(tableProperties.horizontalScalars);
     }, [tableProperties.scrollX, tableProperties.scrollY, tableProperties.horizontalScalars]);
 
     const localCanvasRef = useRef<HTMLCanvasElement>(null);

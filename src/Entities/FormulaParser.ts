@@ -112,7 +112,7 @@ function doLookup(reference: string): number {
     const columnNumber = columnLetterToNumber(values.column)
     let result;
     try {
-        let dependencyCell = globalTableData.getCellValue(columnNumber - 1, values.row)
+        let dependencyCell = globalTableData.getCellValue(columnNumber - 1, values.row - 1)
         if(freshDependencyRun) {
             dependencyCell.Dependants.add(globalIntakeReference);
         }

@@ -32,76 +32,71 @@ const TableContainer: React.FC = () => {
     const [tableData, setTableData] = useState(generateEmptyTable(sideBarHeight, topBarWidth))
 
     const horizontalAdjustCallback = useCallback((index: number, distance: number) => {
-        console.log(`Adjusting horizontal scalars with index: ${index} and distance ${distance}`);
         setHorizontalScalars(prevScalars => new Scalars(prevScalars.shiftValue(index, distance)));
-    }, [horizontalScalars]);
+    }, []);
 
     useEffect(() => {
-
-        const handleScroll = (event: Event) => {
-            const target = event.target as HTMLDivElement;
-
-            // Update scrollX and scrollY using refs (no re-render)
-            setScrollX(target.scrollLeft);
-            setScrollY(target.scrollTop);
-
-            const containerLeft = containerRef.current ? containerRef.current.offsetLeft : 0;
-            const containerTop = containerRef.current ? containerRef.current.offsetTop : 0;
-
-            // TODO: Fix the issue where when side scrolling the sidebar will peek through.
-
-            if (topRef.current) {
-                topRef.current.style.position = "fixed";
-                topRef.current.style.left = `${containerLeft - target.scrollLeft}px`;
-                topRef.current.style.top = `${containerTop}px`;
-            }
-
-            if (sideRef.current) {
-                sideRef.current.style.position = "fixed";
-                sideRef.current.style.left = `${containerLeft}px`;
-                sideRef.current.style.top = `${containerTop + 30 - target.scrollTop}px`;
-            }
-
-            // handle expanding the canvas
-            if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.25 && readyToUpdateXAxis) {
-                setTopBarWidth(prevWidth => prevWidth + 10);
-                setTableData(tableData.extendXDirection(10));
-                setVerticalScalars(new Scalars(horizontalScalars.extend(Array(10).fill(80))));
-                readyToUpdateXAxis = false;
-            } else if (!readyToUpdateXAxis && target.scrollLeft < (target.scrollWidth - target.clientWidth) / 1.25) {
-                readyToUpdateXAxis = true;
-            }
-
-            if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
-                setSideBarHeight(prevWidth => prevWidth + 10);
-                setTableData(tableData.extendYDirection(10))
-                setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
-                readyToUpdateYAxis = false;
-            } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
-                readyToUpdateYAxis = true;
-            }
-        };
-
         const tableContainer = tableContainerRef.current;
         if (tableContainer) {
             tableContainer.addEventListener("scroll", handleScroll);
         }
-
 
         return () => {
             if (tableContainer) {
                 tableContainer.removeEventListener("scroll", handleScroll);
             }
         };
-    }, [readyToUpdateXAxis, readyToUpdateYAxis]);  // Add dependencies here to avoid stale closures
+    }, [readyToUpdateXAxis, readyToUpdateYAxis, topBarWidth]);  // Add dependencies here to avoid stale closures
+
+    const handleScroll = (event: Event) => {
+        const target = event.target as HTMLDivElement;
+
+        // Update scrollX and scrollY using refs (no re-render)
+        setScrollX(target.scrollLeft);
+        setScrollY(target.scrollTop);
+
+        const containerLeft = containerRef.current ? containerRef.current.offsetLeft : 0;
+        const containerTop = containerRef.current ? containerRef.current.offsetTop : 0;
+
+        // TODO: Fix the issue where when side scrolling the sidebar will peek through.
+
+        if (topRef.current) {
+            topRef.current.style.position = "fixed";
+            topRef.current.style.left = `${containerLeft - target.scrollLeft}px`;
+            topRef.current.style.top = `${containerTop}px`;
+        }
+
+        if (sideRef.current) {
+            sideRef.current.style.position = "fixed";
+            sideRef.current.style.left = `${containerLeft}px`;
+            sideRef.current.style.top = `${containerTop + 30 - target.scrollTop}px`;
+        }
+
+        // handle expanding the canvas
+        if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.25 && readyToUpdateXAxis) {
+            setTopBarWidth(prevWidth => prevWidth + 10);
+            setTableData(tableData.extendXDirection(10));
+            setVerticalScalars(new Scalars(horizontalScalars.extend(Array(10).fill(80))));
+            readyToUpdateXAxis = false;
+        } else if (!readyToUpdateXAxis && target.scrollLeft < (target.scrollWidth - target.clientWidth) / 1.25) {
+            readyToUpdateXAxis = true;
+        }
+
+        if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
+            setSideBarHeight(prevWidth => prevWidth + 10);
+            setTableData(tableData.extendYDirection(10))
+            setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
+            readyToUpdateYAxis = false;
+        } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
+            readyToUpdateYAxis = true;
+        }
+    };
 
     return (
         <div
             className="canvasContainer"
             style={{
-
                 // TODO: remove hard coded width and height values.
-
                 position: "absolute",
                 width: "100vw",
                 height: "78vh", // Ensure full viewport height
