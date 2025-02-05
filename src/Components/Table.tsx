@@ -172,7 +172,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             value = parse(value, tableData, [columnNumber, rowNumber]);
         }
         let newTableData = tableData.setCellValue(value, columnNumber, rowNumber)
-        newTableData = evaluateDependencies(newTableData, value);
+        newTableData = evaluateDependencies(newTableData, value, new Set<Cell>());
         setTableData(newTableData);
         const newRowNumber = rowNumber + 1;
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
@@ -258,7 +258,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             let originalCell = tableData.getCellValue(selectionStartColumnRef.current, selectionStartRowRef.current);
             let newCell = new Cell('', '', structuredClone(originalCell.Dependants));
             let updatedTableData = tableData.setCellValue(newCell, selectionStartColumnRef.current, selectionStartRowRef.current);
-            updatedTableData = evaluateDependencies(updatedTableData, newCell);
+            updatedTableData = evaluateDependencies(updatedTableData, newCell, new Set<Cell>());
             setTableData(updatedTableData);
             setIsHighlightEditing(false);
             return
