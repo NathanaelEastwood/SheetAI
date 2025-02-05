@@ -59,8 +59,6 @@ const TableContainer: React.FC = () => {
         const containerLeft = containerRef.current ? containerRef.current.offsetLeft : 0;
         const containerTop = containerRef.current ? containerRef.current.offsetTop : 0;
 
-        // TODO: Fix the issue where when side scrolling the sidebar will peek through.
-
         if (topRef.current) {
             topRef.current.style.position = "fixed";
             topRef.current.style.left = `${containerLeft - target.scrollLeft}px`;
@@ -99,7 +97,8 @@ const TableContainer: React.FC = () => {
                 margin: 0, // Remove any default margin
                 padding: 0, // Remove any padding
                 boxSizing: "border-box", // Include padding and border in dimensions
-                overflow: "hidden"
+                overflow: "hidden",
+                clipPath: "inset(0 0 0 0)"
             }}
             ref={containerRef}
         >
