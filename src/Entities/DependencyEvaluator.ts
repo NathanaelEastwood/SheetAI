@@ -3,8 +3,8 @@ import Cell from "./Cell";
 import parse from "./FormulaParser";
 
 function evaluateDependencies(tableData: TableData, originCell: Cell, visitedSet: Set<Cell>): TableData {
-    // TODO: Prevent circular dependency by tracking traversed cells in a set and if the length doesn't increase it is circular.
-    let newVisitedSet = visitedSet.add(originCell);
+    // TODO: Rollback inserted dependencies when a circular dependency is added.
+    let newVisitedSet = new Set(visitedSet).add(originCell);
     if (newVisitedSet.size != visitedSet.size + 1) {
         throw new Error("Circular dependency detected!");
     }

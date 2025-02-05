@@ -117,7 +117,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
 
     return (
         <>
-            <div style={{height: "1000px", width: "0px", borderStyle: "dashed", borderWidth: 1, position: "absolute", top: 0, left: dragCurrentLocation, visibility: draggingColumnBorder ? "visible" : "hidden"}}></div>
+            <div style={{height: "1000px", width: "0px", borderLeft: "solid", borderWidth: 1, position: "absolute", top: 0, left: dragCurrentLocation, visibility: draggingColumnBorder ? "visible" : "hidden"}}></div>
             <canvas ref={ref || localCanvasRef} style={style} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={quitEvent}></canvas>
         </>
     )

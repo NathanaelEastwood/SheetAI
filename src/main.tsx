@@ -13,7 +13,7 @@ const App: React.FC = () => (
         </Row>
         <Row className="h-75" style={{ paddingLeft: 0 }}>
             <TableContainer/>
-            <Col xs={12} md={4}> {/* Updated breakpoint sizes */}
+            <Col xs={12} md={4}>
                 <div className="interaction-space">
                     INTERACTION WORKSPACE
                 </div>

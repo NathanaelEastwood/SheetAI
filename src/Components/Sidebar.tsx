@@ -74,7 +74,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             let hovering = verticalScalars.pointIsWithinDistanceOfEdge(absoluteY, 5);
             hoveringResize.current = hovering;
             // Change cursor style based on hovering state
-            canvas.style.cursor = hovering ? "col-resize" : "default";
+            canvas.style.cursor = hovering ? "row-resize" : "default";
         } else {
             setDragCurrentLocation(event.clientY - 200);
         }
@@ -111,7 +111,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             <div style={{
                 height: "0",
                 width: "5000px",
-                borderStyle: "dashed",
+                borderTop: "solid",
                 borderWidth: 1,
                 position: "absolute",
                 top: dragCurrentLocation,
