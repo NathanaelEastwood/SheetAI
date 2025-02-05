@@ -6,9 +6,10 @@ interface SidebarProps {
     height: number;
     verticalScalars: Scalars;
     style?: React.CSSProperties;
+    adjustScalars: (index: number, distance: number) => void;
 }
 
-const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber, verticalScalars }, ref) => {
+const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber, verticalScalars, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
     // Recalculate rowHeadings when height or startingNumber changes
@@ -16,14 +17,17 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
         generateRowHeadings(height, startingNumber)
     );
 
-    const [verticalScalarsState, setVerticalScalars] = useState<Scalars>(verticalScalars)
+    const [verticalScalarsState, setVerticalScalars] = useState<Scalars>(verticalScalars);
+    const [draggingRowBorder, setDraggingRowBorder] = useState<boolean>(false);
+    const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
 
-    useEffect(() => {
-        setRowHeadings(generateRowHeadings(height, startingNumber));
-    }, [height, startingNumber]);
+    let hoveringResize  = useRef<boolean>(false);
+    let dragStartLocation = useRef<number>(0);
 
     // Effect to handle canvas drawing and state updates
     useEffect(() => {
+        setRowHeadings(generateRowHeadings(height, startingNumber));
+        setVerticalScalars(verticalScalars);
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
@@ -63,7 +67,60 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
         }
     }, [height, startingNumber, style]); // Redraw when height, startingNumber, or style change
 
-    return <canvas ref={ref || localCanvasRef} style={style}></canvas>;
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let absoluteY = event.clientY + scrollY - 230;
+        if (!draggingRowBorder) {
+            const canvas = event.currentTarget; // Get the canvas element
+            let hovering = verticalScalars.pointIsWithinDistanceOfEdge(absoluteY, 5);
+            hoveringResize.current = hovering;
+            // Change cursor style based on hovering state
+            canvas.style.cursor = hovering ? "col-resize" : "default";
+        } else {
+            setDragCurrentLocation(event.clientY - 200);
+        }
+    };
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!hoveringResize.current){
+            return
+        } else {
+            setDraggingRowBorder(true);
+            dragStartLocation.current = event.clientY + scrollY - 230;
+            setDragCurrentLocation(event.clientY - 200);
+        }
+    }
+
+    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!draggingRowBorder) {
+            return;
+        }
+        let dragEnd = event.clientY + scrollY - 230;
+        setDraggingRowBorder(false);
+        if (Math.abs(dragEnd - dragStartLocation.current) > 5) {
+            const startIndex = verticalScalarsState.getIndexFromPosition(dragStartLocation.current);
+            adjustScalars(startIndex, dragEnd - dragStartLocation.current);
+        }
+    }
+
+    const quitEvent = () => {
+        setDraggingRowBorder(false)
+    }
+
+    return (
+        <>
+            <div style={{
+                height: "0",
+                width: "5000px",
+                borderStyle: "dashed",
+                borderWidth: 1,
+                position: "absolute",
+                top: dragCurrentLocation,
+                left: 0,
+                visibility: draggingRowBorder ? "visible" : "hidden"
+            }}></div>
+            <canvas ref={ref || localCanvasRef} style={style} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={quitEvent}></canvas>
+        </>
+    )
 });
 
 export default React.memo(Sidebar);

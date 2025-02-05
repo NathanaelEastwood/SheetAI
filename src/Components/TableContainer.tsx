@@ -17,8 +17,6 @@ const TableContainer: React.FC = () => {
     const [topBarWidth, setTopBarWidth] = useState(40);
     const [horizontalScalars, setHorizontalScalars] = useState<Scalars>(() => new Scalars(Array.from({ length: 40 }, () => 80)));
 
-    let readyToUpdateXAxis = true;
-
     // sidebar values
     const [startingNumber, setStartingNumber] = useState(1);
     const [sideBarHeight, setSideBarHeight] = useState(100);
@@ -26,13 +24,16 @@ const TableContainer: React.FC = () => {
 
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
-    let readyToUpdateYAxis = true;
 
     // data values
     const [tableData, setTableData] = useState(generateEmptyTable(sideBarHeight, topBarWidth))
 
     const horizontalAdjustCallback = useCallback((index: number, distance: number) => {
         setHorizontalScalars(prevScalars => new Scalars(prevScalars.shiftValue(index, distance)));
+    }, []);
+
+    const verticalAdjustCallback = useCallback((index: number, distance: number) => {
+        setVerticalScalars(prevState => new Scalars(prevState.shiftValue(index, distance)));
     }, []);
 
     useEffect(() => {
@@ -46,7 +47,7 @@ const TableContainer: React.FC = () => {
                 tableContainer.removeEventListener("scroll", handleScroll);
             }
         };
-    }, [readyToUpdateXAxis, readyToUpdateYAxis, topBarWidth]);  // Add dependencies here to avoid stale closures
+    }, [topBarWidth, sideBarHeight]);  // Add dependencies here to avoid stale closures
 
     const handleScroll = (event: Event) => {
         const target = event.target as HTMLDivElement;
@@ -73,22 +74,17 @@ const TableContainer: React.FC = () => {
         }
 
         // handle expanding the canvas
-        if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.25 && readyToUpdateXAxis) {
-            setTopBarWidth(prevWidth => prevWidth + 10);
-            setTableData(tableData.extendXDirection(10));
-            setVerticalScalars(new Scalars(horizontalScalars.extend(Array(10).fill(80))));
-            readyToUpdateXAxis = false;
-        } else if (!readyToUpdateXAxis && target.scrollLeft < (target.scrollWidth - target.clientWidth) / 1.25) {
-            readyToUpdateXAxis = true;
+        if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.4) {
+            setTopBarWidth(prevWidth => prevWidth + 5);
+            setTableData(tableData.extendXDirection(5));
+            setVerticalScalars(new Scalars(horizontalScalars.extend(Array(4).fill(80))));
+
         }
 
-        if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25 && readyToUpdateYAxis) {
+        if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25) {
             setSideBarHeight(prevWidth => prevWidth + 10);
             setTableData(tableData.extendYDirection(10))
             setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
-            readyToUpdateYAxis = false;
-        } else if (!readyToUpdateYAxis && target.scrollTop < (target.scrollHeight - target.clientHeight) / 1.25) {
-            readyToUpdateYAxis = true;
         }
     };
 
@@ -137,6 +133,7 @@ const TableContainer: React.FC = () => {
                 verticalScalars={verticalScalars}
                 height={sideBarHeight}
                 startingNumber={startingNumber}
+                adjustScalars={verticalAdjustCallback}
             />
 
             <div

@@ -62,6 +62,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         scrollXRef.current = tableProperties.scrollX;
         scrollYRef.current = tableProperties.scrollY;
         setHorizontalScalar(tableProperties.horizontalScalars);
+        setVerticalScalar(tableProperties.verticalScalars);
     }, [tableProperties.scrollX, tableProperties.scrollY, tableProperties.horizontalScalars]);
 
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,7 +72,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         if (canvas) {
             const ctx = canvas.getContext("2d");
 
-            // TODO: Hardcoded multiplier values which won't work once cells are expandable
             let pixelWidth = horizontalScalar.pixelLength;
             let pixelHeight = verticalScalar.pixelLength;
             canvas.width = pixelWidth;
@@ -115,7 +115,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 }
             }
         }
-    }, [tableProperties.width, tableProperties.height, ref, tableData, tableProperties.horizontalScalars]);
+    }, [tableProperties.width, tableProperties.height, ref, tableData, tableProperties.horizontalScalars, tableProperties.verticalScalars]);
 
     useEffect(() => {
         window.addEventListener("keydown", handleGlobalKeypress);
