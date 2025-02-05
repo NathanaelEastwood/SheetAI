@@ -6,10 +6,11 @@ interface SidebarProps {
     height: number;
     verticalScalars: Scalars;
     style?: React.CSSProperties;
+    scrollY: number;
     adjustScalars: (index: number, distance: number) => void;
 }
 
-const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber, verticalScalars, adjustScalars }, ref) => {
+const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber, verticalScalars, scrollY, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
 
     // Recalculate rowHeadings when height or startingNumber changes
@@ -38,7 +39,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 canvas.height = verticalScalarsState.pixelLength;
 
                 ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, 100, height * 30);
+                ctx.fillRect(0, 0, 100, verticalScalarsState.pixelLength);
 
                 ctx.beginPath();
                 // Set up the drawing context
@@ -46,7 +47,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 ctx.fillStyle = "black";
                 ctx.lineWidth = 1;
                 ctx.moveTo(100, 0);
-                ctx.lineTo(100, height * 30);
+                ctx.lineTo(100, verticalScalarsState.pixelLength);
                 ctx.stroke();
                 let cumulativeYPosition = 0; /*-verticalScalarsState.scalars[0]*/
                 rowHeadings.forEach((value: number, index: number) => {

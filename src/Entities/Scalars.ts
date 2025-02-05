@@ -31,7 +31,7 @@ class Scalars {
     public pointIsWithinDistanceOfEdge(point: number, acceptableDistance: number): boolean {
         let cumulativePosition = 0;
         let index = 0;
-        while (cumulativePosition <= point) {
+        while (cumulativePosition <= point + acceptableDistance) {
             if (Math.abs(cumulativePosition - point) <= acceptableDistance){
                 return true;
             }

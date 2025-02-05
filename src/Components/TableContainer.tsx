@@ -133,6 +133,7 @@ const TableContainer: React.FC = () => {
                 verticalScalars={verticalScalars}
                 height={sideBarHeight}
                 startingNumber={startingNumber}
+                scrollY={scrollY}
                 adjustScalars={verticalAdjustCallback}
             />
 

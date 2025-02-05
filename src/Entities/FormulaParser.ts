@@ -7,6 +7,7 @@ let globalIntakeReference: [number, number];
 let freshDependencyRun: boolean;
 
 function parse(intakeCell: Cell, table: TableData, intakeReference: [number, number], freshDependencies?: boolean): Cell {
+    // TODO: Strip redundant dependencies on formula change, this can be achieved by passing the old formula and removing all dependencies passed in.
     globalTableData = table;
     globalIntakeReference = intakeReference;
     freshDependencyRun = freshDependencies || true;
@@ -107,7 +108,7 @@ function evaluateAST(node: ASTNode, lookup: (cell: string) => number): number {
 }
 
 function doLookup(reference: string): number {
-    // TODO: Throw exception instead of evaluating to zero if cell contents are invalid
+    // TODO: Throw exception instead of evaluating to zero if cell contents are invalid.
     let values = splitReference(reference)
     const columnNumber = columnLetterToNumber(values.column)
     let result;
