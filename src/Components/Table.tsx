@@ -26,6 +26,10 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     // Scalar data
     const [horizontalScalar, setHorizontalScalar] = useState<Scalars>(tableProperties.horizontalScalars);
     const [verticalScalar, setVerticalScalar] = useState<Scalars>(tableProperties.verticalScalars);
+    let horizontalScalarRef = useRef<Scalars>(horizontalScalar);
+    horizontalScalarRef.current = horizontalScalar;
+    let verticalScalarRef = useRef<Scalars>(verticalScalar);
+    verticalScalarRef.current = verticalScalar;
 
     // Use state for highlighting position and editing state
     const [highlightData, setHighlightData] = useState<{ top: number; left: number; columnNumber: number; rowNumber: number; bottom: number; right: number; isMultiSelect: boolean}>({ top: 0, left: 0, columnNumber: 0, rowNumber: 0, bottom: verticalScalar.scalars[0], right: horizontalScalar.scalars[0], isMultiSelect: false });
@@ -142,11 +146,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         dragStartCellCoordinates.current = cellCoords;
         isDragging.current = true;
 
-        const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
-        const ySnappingCoordinate = verticalScalar.getPositionFromIndex(rowNumber);
+        const xSnappingCoordinate = horizontalScalarRef.current.getPositionFromIndex(columnNumber);
+        const ySnappingCoordinate = verticalScalarRef.current.getPositionFromIndex(rowNumber);
 
         // Always highlight the cell immediately
-        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + verticalScalar.scalars[rowNumber], right: xSnappingCoordinate + horizontalScalar.scalars[columnNumber], isMultiSelect: false });
+        setHighlightData({ top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: rowNumber, bottom: ySnappingCoordinate + verticalScalarRef.current.scalars[rowNumber], right: xSnappingCoordinate + horizontalScalarRef.current.scalars[columnNumber], isMultiSelect: false });
         setIsHighlightEditing(false);
 
         if (event.detail === 1) {
@@ -177,7 +181,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const newRowNumber = rowNumber + 1;
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
         const ySnappingCoordinate = verticalScalar.getPositionFromIndex(newRowNumber);
-        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: newRowNumber, bottom: ySnappingCoordinate + verticalScalar.scalars[newRowNumber], right: xSnappingCoordinate + horizontalScalar.scalars[columnNumber], isMultiSelect: false})
+        setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: newRowNumber, bottom: ySnappingCoordinate + verticalScalarRef.current.scalars[newRowNumber], right: xSnappingCoordinate + horizontalScalarRef.current.scalars[columnNumber], isMultiSelect: false})
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
@@ -191,17 +195,17 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         if (event.ctrlKey) {
             if (event.key == "c") {
 
-                const top = selectionStartRowRef.current < selectionEndRowRef.current ? verticalScalar.getPositionFromIndex(selectionStartRowRef.current) :
-                    verticalScalar.getPositionFromIndex(selectionEndRowRef.current);
+                const top = selectionStartRowRef.current < selectionEndRowRef.current ? verticalScalarRef.current.getPositionFromIndex(selectionStartRowRef.current) :
+                    verticalScalarRef.current.getPositionFromIndex(selectionEndRowRef.current);
 
-                const left = selectionStartColumnRef.current < selectionEndColumnRef.current ? horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current) :
-                    horizontalScalar.getPositionFromIndex(selectionEndColumnRef.current);
+                const left = selectionStartColumnRef.current < selectionEndColumnRef.current ? horizontalScalarRef.current.getPositionFromIndex(selectionStartColumnRef.current) :
+                    horizontalScalarRef.current.getPositionFromIndex(selectionEndColumnRef.current);
 
-                const bottom = (selectionStartRowRef.current > selectionEndRowRef.current ? verticalScalar.getPositionFromIndex(selectionStartRowRef.current) + verticalScalar.scalars[selectionStartRowRef.current] :
-                    verticalScalar.getPositionFromIndex(selectionEndRowRef.current) + verticalScalar.scalars[selectionEndRowRef.current]);
+                const bottom = (selectionStartRowRef.current > selectionEndRowRef.current ? verticalScalarRef.current.getPositionFromIndex(selectionStartRowRef.current) + verticalScalarRef.current.scalars[selectionStartRowRef.current] :
+                    verticalScalarRef.current.getPositionFromIndex(selectionEndRowRef.current) + verticalScalarRef.current.scalars[selectionEndRowRef.current]);
 
-                const right = (selectionStartColumnRef.current > selectionEndColumnRef.current ? horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current) + horizontalScalar.scalars[selectionStartRowRef.current] :
-                    horizontalScalar.getPositionFromIndex(selectionEndColumnRef.current) + horizontalScalar.scalars[selectionEndColumnRef.current]);
+                const right = (selectionStartColumnRef.current > selectionEndColumnRef.current ? horizontalScalarRef.current.getPositionFromIndex(selectionStartColumnRef.current) + horizontalScalarRef.current.scalars[selectionStartRowRef.current] :
+                    horizontalScalarRef.current.getPositionFromIndex(selectionEndColumnRef.current) + horizontalScalarRef.current.scalars[selectionEndColumnRef.current]);
 
                 const columnNumber = selectionStartColumnRef.current < selectionEndColumnRef.current ? selectionStartColumnRef.current : selectionEndColumnRef.current;
                 const rowNumber = selectionStartRowRef.current < selectionEndRowRef.current ? selectionStartRowRef.current : selectionEndRowRef.current;
@@ -227,11 +231,11 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     let rightEdge : number;
                     let leftEdge : number;
 
-                    topEdge = verticalScalar.getPositionFromIndex(selectionStartRowRef.current);
-                    bottomEdge = verticalScalar.getPositionFromIndex(selectionStartRowRef.current + dY);
+                    topEdge = verticalScalarRef.current.getPositionFromIndex(selectionStartRowRef.current);
+                    bottomEdge = verticalScalarRef.current.getPositionFromIndex(selectionStartRowRef.current + dY);
 
-                    leftEdge = horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current);
-                    rightEdge = horizontalScalar.getPositionFromIndex(selectionStartColumnRef.current + dX);
+                    leftEdge = horizontalScalarRef.current.getPositionFromIndex(selectionStartColumnRef.current);
+                    rightEdge = horizontalScalarRef.current.getPositionFromIndex(selectionStartColumnRef.current + dX);
 
 
                     return {
@@ -297,12 +301,12 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
 
             return {
-                top: verticalScalar.getPositionFromIndex(newRow),
-                left: horizontalScalar.getPositionFromIndex(newCol),
+                top: verticalScalarRef.current.getPositionFromIndex(newRow),
+                left: horizontalScalarRef.current.getPositionFromIndex(newCol),
                 rowNumber: newRow,
                 columnNumber: newCol,
-                bottom: verticalScalar.getPositionFromIndex(newRow) + verticalScalar.scalars[newRow],
-                right: horizontalScalar.getPositionFromIndex(newCol) + horizontalScalar.scalars[newCol],
+                bottom: verticalScalarRef.current.getPositionFromIndex(newRow) + verticalScalar.scalars[newRow],
+                right: horizontalScalarRef.current.getPositionFromIndex(newCol) + horizontalScalar.scalars[newCol],
                 isMultiSelect: false
             };
         });
@@ -331,24 +335,24 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
                     if (dY < 0) {
                         // topCell = (endingCellCoords[1] * 30);
-                        topCell = verticalScalar.getPositionFromIndex(endingCellCoords[1]);
+                        topCell = verticalScalarRef.current.getPositionFromIndex(endingCellCoords[1]);
                         // bottomCell = dragStartCellCoordinates.current[1] * 30;
-                        bottomCell = verticalScalar.getPositionFromIndex(dragStartCellCoordinates.current[1]);
+                        bottomCell = verticalScalarRef.current.getPositionFromIndex(dragStartCellCoordinates.current[1]);
                     } else {
                         topCell = prevData.top;
                         // bottomCell = (endingCellCoords[1] * 30) + 30;
-                        bottomCell = verticalScalar.getPositionFromIndex(endingCellCoords[1]) + verticalScalar.scalars[endingCellCoords[1]];
+                        bottomCell = verticalScalarRef.current.getPositionFromIndex(endingCellCoords[1]) + verticalScalar.scalars[endingCellCoords[1]];
                     }
 
                     if (dX < 0) {
                         // rightCell = dragStartCellCoordinates.current[0] * 80;
-                        rightCell = horizontalScalar.getPositionFromIndex(dragStartCellCoordinates.current[0]);
+                        rightCell = horizontalScalarRef.current.getPositionFromIndex(dragStartCellCoordinates.current[0]);
                         // leftCell = (endingCellCoords[0] * 80);
-                        leftCell = horizontalScalar.getPositionFromIndex(endingCellCoords[0]);
+                        leftCell = horizontalScalarRef.current.getPositionFromIndex(endingCellCoords[0]);
                     } else {
                         // rightCell = (endingCellCoords[0] * 80) + 80;
                         leftCell = prevData.left;
-                        rightCell = horizontalScalar.getPositionFromIndex(endingCellCoords[0]) + horizontalScalar.scalars[endingCellCoords[0]];
+                        rightCell = horizontalScalarRef.current.getPositionFromIndex(endingCellCoords[0]) + horizontalScalar.scalars[endingCellCoords[0]];
                     }
                     return {
                         top: topCell,
@@ -374,8 +378,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
         // const columnNumber = Math.floor(tableX / 80);
         // const rowNumber = Math.floor(tableY / 30);
-        const columnNumber = horizontalScalar.getIndexFromPosition(tableX);
-        const rowNumber = verticalScalar.getIndexFromPosition(tableY);
+        const columnNumber = horizontalScalarRef.current.getIndexFromPosition(tableX);
+        const rowNumber = verticalScalarRef.current.getIndexFromPosition(tableY);
 
         return [columnNumber, rowNumber];
     }

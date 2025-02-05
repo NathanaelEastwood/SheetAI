@@ -75,8 +75,7 @@ const TableContainer: React.FC = () => {
         if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.4) {
             setTopBarWidth(prevWidth => prevWidth + 5);
             setTableData(tableData.extendXDirection(5));
-            setVerticalScalars(new Scalars(horizontalScalars.extend(Array(4).fill(80))));
-
+            setHorizontalScalars(new Scalars(horizontalScalars.extend(Array(4).fill(80))));
         }
 
         if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25) {
@@ -102,6 +101,21 @@ const TableContainer: React.FC = () => {
             }}
             ref={containerRef}
         >
+            {/* Blanking cell to hide objects moving through */}
+            <div
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "30px",
+                    width: "100px",
+                    backgroundColor: "white",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    zIndex: 99,
+                }}
+            >
+            </div>
             {/* Topbar positioned at the very top */}
             <Topbar
                 style={{
