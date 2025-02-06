@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
-import {Scalars} from "../Entities/Scalars";
+import {Scalars} from "../../Entities/Table/Scalars";
 
 interface SidebarProps {
     startingNumber: number;

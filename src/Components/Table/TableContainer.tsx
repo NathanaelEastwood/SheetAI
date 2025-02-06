@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import Table from "../Components/Table";
+import Table from "./Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import generateEmptyTable from "../Entities/generateEmptyTable";
-import {Scalars} from "../Entities/Scalars";
+import generateEmptyTable from "../../Entities/Table/generateEmptyTable";
+import {Scalars} from "../../Entities/Table/Scalars";
 
 const TableContainer: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -91,7 +91,7 @@ const TableContainer: React.FC = () => {
             style={{
                 // TODO: remove hard coded width and height values.
                 position: "absolute",
-                width: "100vw",
+                width: "50vw",
                 height: "78vh", // Ensure full viewport height
                 margin: 0, // Remove any default margin
                 padding: 0, // Remove any padding
@@ -155,7 +155,7 @@ const TableContainer: React.FC = () => {
                     position: "absolute",
                     overflow: "scroll",
                     height: "75vh",
-                    width: "94.8vw",
+                    width: "44.8vw",
                     top: "30px",
                     left: "100px"
                 }}

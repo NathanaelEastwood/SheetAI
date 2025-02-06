@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import Cell from "../Entities/Cell";
+import Cell from "../../Entities/Table/Cell";
 
 interface CellHighlightParameters {
     left: number;

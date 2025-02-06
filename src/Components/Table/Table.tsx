@@ -1,10 +1,10 @@
 import React, { forwardRef, MouseEventHandler, useEffect, useRef, useState } from "react";
 import CellHighlighter from "./CellHighlighter";
-import TableData from "../Entities/TableData";
-import parse from "../Entities/FormulaParser";
-import Cell from "../Entities/Cell";
-import evaluateDependencies from "../Entities/DependencyEvaluator";
-import {Scalars} from "../Entities/Scalars";
+import TableData from "../../Entities/Table/TableData";
+import parse from "../../Entities/Table/FormulaParser";
+import Cell from "../../Entities/Table/Cell";
+import evaluateDependencies from "../../Entities/Table/DependencyEvaluator";
+import {Scalars} from "../../Entities/Table/Scalars";
 
 
 interface TableProperties {

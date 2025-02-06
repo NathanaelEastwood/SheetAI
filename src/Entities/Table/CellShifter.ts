@@ -19,7 +19,7 @@ function shiftAndInsertCells(xOffset: number, yOffset: number, copiedCells: Tabl
                 newCell.Dependants = table.getCellValue(newCellCoordinate[0], newCellCoordinate[1]).Dependants
             }
             table.setCellValue(newCell, newCellCoordinate[0], newCellCoordinate[1]);
-            evaluateDependencies(table, table.getCellValue(newCellCoordinate[0], newCellCoordinate[1]))
+            evaluateDependencies(table, table.getCellValue(newCellCoordinate[0], newCellCoordinate[1]), new Set<Cell>())
         }
     }
 }

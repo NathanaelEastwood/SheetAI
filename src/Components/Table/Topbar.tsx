@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
-import {Scalars} from "../Entities/Scalars";
+import {Scalars} from "../../Entities/Table/Scalars";
 
 interface TopbarProps {
     style?: React.CSSProperties;
