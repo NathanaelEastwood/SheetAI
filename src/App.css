@@ -278,3 +278,83 @@ html, body, #root {
   border-radius: 8px;
   background-color: #888888;
 }
+
+/* Modern, clean node style with a tasteful accent stripe */
+.modern-function-node {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  width: 220px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Accent stripe on the left for a subtle pop of color */
+.modern-function-node::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #007bff, #00aaff);
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.modern-function-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Content styles */
+.modern-function-node .content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* Provide some left padding so text doesn't overlap the accent stripe */
+  padding-left: 8px;
+}
+
+.modern-function-node label {
+  font-size: 14px;
+  color: #333333;
+  margin-bottom: 4px;
+}
+
+.modern-function-node .input-field {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.modern-function-node .input-field:focus {
+  border-color: #007bff;
+}
+
+/* Modern handle style */
+.handle {
+  width: 12px;
+  height: 12px;
+  background-color: #007bff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.handle.handle-left {
+  left: -8px;
+}
+
+.handle.handle-right {
+  right: -8px;
+}

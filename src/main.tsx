@@ -9,12 +9,6 @@ import InteractionSpace from "./Components/InteractionSpace/InteractionSpace";
 
 const App: React.FC = () => (
     <>
-        <script src="https://cdn.jsdelivr.net/npm/rete/rete.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/rete-area-plugin/rete-area-plugin.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/rete-connection-plugin/rete-connection-plugin.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/rete-render-utils/rete-render-utils.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/rete-react-plugin/rete-react-plugin.min.js"></script>
-
         <div className="vh-100 vw-100">
         <Row className="h-25">
             <h1>Tool Bar Space</h1>
@@ -32,6 +26,8 @@ const App: React.FC = () => (
     </div>
     </>
     );
+
+
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
