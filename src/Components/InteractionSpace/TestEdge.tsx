@@ -2,7 +2,7 @@ import {
     getStraightPath,
     BaseEdge,
     type EdgeProps,
-    type Edge, getSmoothStepPath,
+    type Edge, getSmoothStepPath, getBezierPath, getSimpleBezierPath,
 } from '@xyflow/react';
 
 type CustomEdge = Edge<{ value: number }, 'custom'>;
@@ -13,8 +13,10 @@ export default function CustomEdge({
                                        sourceY,
                                        targetX,
                                        targetY,
+                                       sourcePosition,
+                                       targetPosition
                                    }: EdgeProps<CustomEdge>) {
-    const [edgePath] = getSmoothStepPath({ sourceX, sourceY, targetX, targetY });
+    const [edgePath] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetPosition, targetY });
 
     return <BaseEdge id={id} path={edgePath} />;
 }

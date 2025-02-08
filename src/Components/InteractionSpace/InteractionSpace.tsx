@@ -2,13 +2,15 @@ import CellSelectionBox from "./CellSelectionBox";
 import React, {useCallback, useRef, useState} from "react";
 import {
     addEdge,
-    ReactFlow,
-    useEdgesState,
-    useNodesState,
+    applyEdgeChanges,
+    Connection,
+    EdgeTypes,
     Node,
     NodeTypes,
-    applyEdgeChanges,
-    EdgeTypes, Connection, Edge
+    Position,
+    ReactFlow,
+    useEdgesState,
+    useNodesState
 } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 import ContextMenu from "./ContextMenu";
@@ -22,6 +24,7 @@ const edgeTypes: EdgeTypes = {'straight-step-edge': CustomEdge};
 
 const InteractionSpace: React.FC = () => {
 
+
     const options = [
         new ContextMenuOption("Add Function", addNode)
     ]
@@ -33,7 +36,7 @@ const InteractionSpace: React.FC = () => {
     const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
     const initialNodes: Node[] = [
-        {id: '1', type: 'functionNode', position: {x: 100, y:100 }, data: {label: '1'}},
+        {id: '1', type: 'functionNode', targetPosition: Position.Left, position: {x: 100, y:100 }, data: {label: 'A1', intakeNodes: 1}, draggable: false}
     ]
 
     const initialEdges: any[] = [];
@@ -59,7 +62,7 @@ const InteractionSpace: React.FC = () => {
 
         setNodes((prevNodes) => [
             ...prevNodes,
-            { id: id.current.toString(), type: 'functionNode', position: { x: flowCoords.x, y: flowCoords.y }, data: { label: id.current.toString() } }
+            { id: id.current.toString(), type: 'functionNode', position: { x: flowCoords.x, y: flowCoords.y }, targetPosition: Position.Left, sourcePosition: Position.Right, data: { label: id.current.toString(), intakeNodes: 2, outputNodes: 4, height: 20}}
         ]);
 
         id.current += 1;
@@ -101,6 +104,7 @@ const InteractionSpace: React.FC = () => {
                         reactFlowRef.current = reactFlowInstance;
                         reactFlowInstance.fitView({padding: 4}).then();  // Optional padding
                     }}
+
                 />
             </div>
             <ContextMenu x={contextMenuLocation[0]} y={contextMenuLocation[1]} visible={contextMenuVisible} options={options} onClose={() => {setContextMenuVisible(false)}}/>
