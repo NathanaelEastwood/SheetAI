@@ -17,6 +17,8 @@ import ContextMenu from "./ContextMenu";
 import ContextMenuOption from "../../Entities/InteractionSpace/ContextMenuOption";
 import FunctionNode from "./FunctionNode";
 import CustomEdge from "./TestEdge";
+import FunctionNodeFactory from "../../Entities/InteractionSpace/FunctionNodeFactory";
+import FunctionPalette from "./FunctionPalette";
 
 
 const nodeTypes: NodeTypes = { functionNode: FunctionNode };
@@ -26,7 +28,7 @@ const InteractionSpace: React.FC = () => {
 
 
     const options = [
-        new ContextMenuOption("Add Function", addNode)
+        new ContextMenuOption("Add Function", showFunctionPalette)
     ]
 
     const id = useRef<number>(3);
@@ -34,6 +36,7 @@ const InteractionSpace: React.FC = () => {
     // context menu params
     const [contextMenuLocation, setContextMenuLocation] = useState<[number, number]>([0, 0]);
     const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+    const [functionPaletteVisible, setFunctionPaletteVisible] = useState<boolean>(false);
 
     const initialNodes: Node[] = [
         {id: '1', type: 'functionNode', targetPosition: Position.Left, position: {x: 100, y:100 }, data: {label: 'A1', intakeNodes: 1}, draggable: false}
@@ -51,6 +54,10 @@ const InteractionSpace: React.FC = () => {
         [],
     );
 
+    function showFunctionPalette(){
+        setFunctionPaletteVisible(true);
+    }
+
     function addNode(clientX: number, clientY: number) {
         if (!interactionSpace.current) return;
 
@@ -59,10 +66,11 @@ const InteractionSpace: React.FC = () => {
         if (!reactFlowInstance) return;
 
         const flowCoords = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
+        let newNode = FunctionNodeFactory.Multiply(id.current, flowCoords.x, flowCoords.y);
 
         setNodes((prevNodes) => [
             ...prevNodes,
-            { id: id.current.toString(), type: 'functionNode', position: { x: flowCoords.x, y: flowCoords.y }, targetPosition: Position.Left, sourcePosition: Position.Right, data: { label: id.current.toString(), intakeNodes: 2, outputNodes: 4, height: 20}}
+            newNode
         ]);
 
         id.current += 1;
@@ -79,11 +87,13 @@ const InteractionSpace: React.FC = () => {
     const onContextMenu = (event: React.MouseEvent) => {
         setContextMenuLocation([event.clientX, event.clientY]);
         setContextMenuVisible(true);
+        setFunctionPaletteVisible(false);
         event.preventDefault();
     }
 
     const onClick = (event: React.MouseEvent) => {
         setContextMenuVisible(false);
+        setFunctionPaletteVisible(false);
     }
 
     return (
@@ -108,6 +118,14 @@ const InteractionSpace: React.FC = () => {
                 />
             </div>
             <ContextMenu x={contextMenuLocation[0]} y={contextMenuLocation[1]} visible={contextMenuVisible} options={options} onClose={() => {setContextMenuVisible(false)}}/>
+            <div style={{
+                position: "fixed",
+                top: contextMenuLocation[1],
+                left: contextMenuLocation[0],
+                visibility: functionPaletteVisible ? "visible" : "hidden"
+            }}>
+                <FunctionPalette></FunctionPalette>
+            </div>
         </>
     );
 };

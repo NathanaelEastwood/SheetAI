@@ -44,22 +44,34 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
                 position: "absolute",
                 top: y,
                 left: x,
-                background: "white",
-                border: "1px solid #ccc",
-                boxShadow: "2px 2px 5px rgba(0,0,0,0.2)",
-                padding: "8px",
-                borderRadius: "4px",
+                background: "#f8f9fa", // Light background for modern look
+                border: "1px solid #ddd", // Lighter border
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)", // Subtle shadow for depth
+                borderRadius: "8px", // Rounded corners for modern touch
                 zIndex: 1000,
+                padding: "10px",
+                minWidth: "180px",
             }}
         >
             <div>
                 {options.map((option, index) => (
                     <div
                         key={index}
-                        style={{ padding: "4px 8px", cursor: "pointer" }}
+                        style={{
+                            padding: "8px 12px", // Padding for each option
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease",
+                            borderRadius: "6px", // Round each option slightly
+                        }}
                         onClick={() => {
                             option.callback(x, y);
                             onClose();
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#f1f1f1"; // Light hover effect
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "transparent"; // Reset on leave
                         }}
                     >
                         {option.value}

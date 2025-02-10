@@ -1,15 +1,8 @@
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import React from 'react';
+import FunctionNodeParameters from "../../Entities/InteractionSpace/FunctionNodeParameters";
 
-type FunctionNodeType = Node<{
-    number: number;
-    label: string;
-    height: number;
-    intakeNodes: number;
-    outputNodes: number;
-}, 'number'>;
-
-export default function ModernFunctionNode({ data, isConnectable }: NodeProps<FunctionNodeType>) {
+export default function ModernFunctionNode({ data, isConnectable }: NodeProps<FunctionNodeParameters>) {
     // Define the minimum gap between handles.
     const MIN_HANDLE_GAP = 20;
 
