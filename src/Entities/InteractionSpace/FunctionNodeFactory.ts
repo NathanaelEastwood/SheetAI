@@ -40,24 +40,6 @@ abstract class FunctionNodeFactory {
                 }
             }
     }
-
-    public static Multiply(id: number, positionX: number, positionY: number): FunctionNodeParameters {
-        return {id: id.toString(),
-            type: 'functionNode',
-            position: {
-                x: positionX,
-                y: positionY
-            },
-            targetPosition: Position.Left,
-            sourcePosition: Position.Right,
-            data: {
-                label: "Multiply",
-                intakeNodes: 2,
-                outputNodes: 1,
-                height: 20
-            }
-        }
-    }
 }
 
 export default FunctionNodeFactory;

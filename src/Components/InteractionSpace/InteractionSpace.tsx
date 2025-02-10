@@ -58,15 +58,17 @@ const InteractionSpace: React.FC = () => {
         setFunctionPaletteVisible(true);
     }
 
-    function addNode(clientX: number, clientY: number) {
+    function addNode(function_id: number) {
+        setContextMenuVisible(false);
+        setFunctionPaletteVisible(false);
         if (!interactionSpace.current) return;
 
         // Use the ReactFlow instance to map screen coordinates to flow space
         const reactFlowInstance = reactFlowRef.current; // Ensure you store the instance
         if (!reactFlowInstance) return;
 
-        const flowCoords = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
-        let newNode = FunctionNodeFactory.Multiply(id.current, flowCoords.x, flowCoords.y);
+        const flowCoords = reactFlowInstance.screenToFlowPosition({ x: contextMenuLocation[0], y: contextMenuLocation[1] });
+        let newNode = FunctionNodeFactory.getNodeFromEnum(function_id, id.current, flowCoords.x, flowCoords.y);
 
         setNodes((prevNodes) => [
             ...prevNodes,
@@ -124,7 +126,7 @@ const InteractionSpace: React.FC = () => {
                 left: contextMenuLocation[0],
                 visibility: functionPaletteVisible ? "visible" : "hidden"
             }}>
-                <FunctionPalette></FunctionPalette>
+                <FunctionPalette onClickCallback={addNode}></FunctionPalette>
             </div>
         </>
     );
