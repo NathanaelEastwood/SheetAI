@@ -282,28 +282,16 @@ html, body, #root {
 /* Modern, clean node style with a tasteful accent stripe */
 .modern-function-node {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border: 1px solid #888888;
+  border-radius: 5px;
   padding: 16px;
-  width: 220px;
+  width: 140px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Accent stripe on the left for a subtle pop of color */
-.modern-function-node::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #007bff, #00aaff);
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
 
 .modern-function-node:hover {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
@@ -331,10 +319,6 @@ html, body, #root {
   border-radius: 8px;
   outline: none;
   transition: border-color 0.2s ease;
-}
-
-.modern-function-node .input-field:focus {
-  border-color: #007bff;
 }
 
 /* Modern handle style */

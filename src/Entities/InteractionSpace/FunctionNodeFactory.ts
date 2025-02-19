@@ -15,10 +15,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Add",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["X + Y = Z"]
                     }
                 }
             case 1:
@@ -32,10 +34,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Subtract",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["X - Y = Z"]
                     }
                 }
             case 2:
@@ -49,10 +53,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Multiply",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["X * Y = Z"]
                     }
                 }
             case 3:
@@ -66,10 +72,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Divide",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["X / Y = Z"]
                     }
                 }
             case 4:
@@ -83,10 +91,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Modulo",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["X % Y = Z"]
                     }
                 }
             case 5:
@@ -100,27 +110,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Power",
-                        intakeNodes: 2,
+                        label: "",
+                        inputNodes: 2,
                         outputNodes: 1,
-                        height: 20
-                    }
-                }
-            case 6:
-                return {
-                    id: id.toString(),
-                    type: 'functionNode',
-                    position: {
-                        x: positionX,
-                        y: positionY
-                    },
-                    targetPosition: Position.Left,
-                    sourcePosition: Position.Right,
-                    data: {
-                        label: "Sum",
-                        intakeNodes: 2,
-                        outputNodes: 1,
-                        height: 20
+                        height: 20,
+                        inputLabels: ["X", "Y"],
+                        outputLabels: ["Xʸ = Z"]
                     }
                 }
             default:
@@ -134,10 +129,12 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "Multiply",
-                        intakeNodes: 2,
-                        outputNodes: 1,
-                        height: 20
+                        label: "unknown",
+                        inputNodes: 0,
+                        outputNodes: 0,
+                        height: 20,
+                        inputLabels: [],
+                        outputLabels: []
                     }
                 }
             }

@@ -5,7 +5,6 @@ enum Functions {
     Divide,
     Modulo,
     Power,
-    Sum
 }
 
 export default Functions;

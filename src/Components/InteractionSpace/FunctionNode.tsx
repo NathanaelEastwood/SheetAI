@@ -9,14 +9,14 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
     // Calculate the minimum required height for each side.
     // For more than one handle, the required height is the number of gaps * gap size.
     // For a single handle, we default to a minimal height (20px in this case).
-    const minLeftHeight = data.intakeNodes > 1 ? (data.intakeNodes - 1) * MIN_HANDLE_GAP : 20;
+    const minLeftHeight = data.inputNodes > 1 ? (data.inputNodes - 1) * MIN_HANDLE_GAP : 20;
     const minRightHeight = data.outputNodes > 1 ? (data.outputNodes - 1) * MIN_HANDLE_GAP : 20;
 
     // Use the maximum of the provided height and the minimal required heights.
     const finalHeight = Math.max(data.height, minLeftHeight, minRightHeight);
 
     // Calculate the offsets so the handles are evenly distributed.
-    const leftOffsets = calculateOffsets(data.intakeNodes, finalHeight);
+    const leftOffsets = calculateOffsets(data.inputNodes, finalHeight);
     const rightOffsets = calculateOffsets(data.outputNodes, finalHeight);
 
     return (
@@ -39,7 +39,29 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
             ))}
 
             <div className="content" style={{ height: `${finalHeight}px` }}>
+                {data.inputLabels.map((value, index) => (
+                    <div
+                        key={`input-label-${index}-${data.label}`}
+                        style={{
+                        position: "absolute",
+                        top: leftOffsets[index] + 5,
+                        left: 7
+                    }}>
+                        {value}
+                    </div>
+                    ))}
                 <label htmlFor="text">{data.label}</label>
+                {data.outputLabels.map((value, index) => (
+                    <div
+                        key={`output-label-${index}-${data.label}`}
+                        style={{
+                            position: "absolute",
+                            top: rightOffsets[index] + 5,
+                            right: 5
+                        }}>
+                        {value}
+                    </div>
+                ))}
             </div>
 
             {/* Right side connections */}

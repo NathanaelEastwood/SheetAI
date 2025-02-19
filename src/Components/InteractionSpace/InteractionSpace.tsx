@@ -39,7 +39,7 @@ const InteractionSpace: React.FC = () => {
     const [functionPaletteVisible, setFunctionPaletteVisible] = useState<boolean>(false);
 
     const initialNodes: Node[] = [
-        {id: '1', type: 'functionNode', targetPosition: Position.Left, position: {x: 100, y:100 }, data: {label: 'A1', intakeNodes: 1}, draggable: false}
+        {id: '1', type: 'functionNode', targetPosition: Position.Left, position: {x: 100, y:100 }, data: {label: 'Output', inputNodes: 1, inputLabels: ["=A1"], outputLabels: [], height: 20}, draggable: false}
     ]
 
     const initialEdges: any[] = [];
@@ -114,7 +114,7 @@ const InteractionSpace: React.FC = () => {
                     edgeTypes={edgeTypes}
                     onInit={(reactFlowInstance) => {
                         reactFlowRef.current = reactFlowInstance;
-                        reactFlowInstance.fitView({padding: 4}).then();  // Optional padding
+                        reactFlowInstance.fitView({padding: 6}).then();  // Optional padding
                     }}
 
                 />
