@@ -6,6 +6,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import TableContainer from "./Components/Table/TableContainer";
 import InteractionSpace from "./Components/InteractionSpace/InteractionSpace";
+// @ts-ignore
+import { Provider } from 'react-redux'
+import {configureStore, createStore} from "@reduxjs/toolkit";
+import globalTableDataReducer from './Entities/Table/globalStateStore';
 
 // Define the type of your shared data
 interface SharedData {
@@ -37,20 +41,10 @@ const App: React.FC = () => {
             </Row>
             <Row className="h-75" style={{ paddingLeft: 0 }}>
                 <Col>
-                    <TableContainer
-                        tableData={sharedData.tableData}
-                        updateTableData={updateTableData}
-                        // Optionally, if TableContainer needs to know about the interaction data:
-                        interactionData={sharedData.interactionData}
-                    />
+                    <TableContainer/>
                 </Col>
                 <Col>
-                    <InteractionSpace
-                        interactionData={sharedData.interactionData}
-                        updateInteractionData={updateInteractionData}
-                        // Optionally, if InteractionSpace needs to know about the table data:
-                        tableData={sharedData.tableData}
-                    />
+                    <InteractionSpace/>
                 </Col>
             </Row>
         </div>
@@ -60,8 +54,24 @@ const App: React.FC = () => {
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
 
+const store = configureStore({
+    reducer: {
+        globalTableData: globalTableDataReducer,
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: {
+            ignoredActions: ['globalTableData/updateGlobalTableData'],
+            ignoredPaths: ['globalTableData.value']
+        }
+    })
+})
+
+export type RootState = ReturnType<typeof store.getState>
+
 ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-        <App />
+        <Provider store={store}>
+            <App />
+        </Provider>
     </React.StrictMode>
 );

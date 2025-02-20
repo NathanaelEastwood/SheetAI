@@ -5,6 +5,9 @@ import parse from "../../Entities/Table/FormulaParser";
 import Cell from "../../Entities/Table/Cell";
 import evaluateDependencies from "../../Entities/Table/DependencyEvaluator";
 import {Scalars} from "../../Entities/Table/Scalars";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../main";
+import {updateGlobalTableData} from "../../Entities/Table/globalStateStore";
 
 
 interface TableProperties {
@@ -15,10 +18,13 @@ interface TableProperties {
     height: number;
     scrollX: number;
     scrollY: number;
-    data: TableData;
 }
 
 const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, ref) => {
+
+    const dispatch = useDispatch();
+    const tableData = useSelector((state: RootState) => state.globalTableData.value);
+
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
     const scrollYRef = useRef<number>(tableProperties.scrollY);
@@ -53,8 +59,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
     let selectionEndColumnRef = useRef(0);
     let selectionEndRowRef = useRef(0);
 
-    // table data
-    const [tableData, setTableData] = useState<TableData>(tableProperties.data);
     const copiedData = useRef(new TableData([]));
 
     // Mouse state for evaluating a drag select
@@ -177,7 +181,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         }
         let newTableData = tableData.setCellValue(value, columnNumber, rowNumber)
         newTableData = evaluateDependencies(newTableData, value, new Set<Cell>());
-        setTableData(newTableData);
+        dispatch(updateGlobalTableData(newTableData))
         const newRowNumber = rowNumber + 1;
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
         const ySnappingCoordinate = verticalScalar.getPositionFromIndex(newRowNumber);
@@ -217,7 +221,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
                 // TODO: Detect when a paste larger than the current canvas is done, and expand the canvas with it
                 tableData.paste(copiedData.current, selectionStartColumnRef.current, selectionStartRowRef.current, copyOriginColumnNumberRef.current || 0, copyOriginRowNumberRef.current || 0);
-                setTableData(new TableData(tableData.data));
+                dispatch(updateGlobalTableData(new TableData(tableData.data)))
 
                 // Create a new instance of the TableData to trigger re-render
                 // setTableData(new TableData(updatedTableData));
@@ -263,7 +267,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             let newCell = new Cell('', '', structuredClone(originalCell.Dependants));
             let updatedTableData = tableData.setCellValue(newCell, selectionStartColumnRef.current, selectionStartRowRef.current);
             updatedTableData = evaluateDependencies(updatedTableData, newCell, new Set<Cell>());
-            setTableData(updatedTableData);
+            dispatch(updateGlobalTableData(updatedTableData))
             setIsHighlightEditing(false);
             return
         }

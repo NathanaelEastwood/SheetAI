@@ -4,8 +4,14 @@ import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import generateEmptyTable from "../../Entities/Table/generateEmptyTable";
 import {Scalars} from "../../Entities/Table/Scalars";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../main";
+import {updateGlobalTableData} from "../../Entities/Table/globalStateStore";
 
 const TableContainer: React.FC = () => {
+    const dispatch = useDispatch();
+    const tableData = useSelector((state: RootState) => state.globalTableData.value);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const tableRef = useRef<HTMLCanvasElement>(null);
     const topRef = useRef<HTMLCanvasElement>(null);
@@ -24,9 +30,6 @@ const TableContainer: React.FC = () => {
 
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
-
-    // data values
-    const [tableData, setTableData] = useState(generateEmptyTable(sideBarHeight, topBarWidth))
 
     const horizontalAdjustCallback = useCallback((index: number, distance: number) => {
         setHorizontalScalars(prevScalars => new Scalars(prevScalars.shiftValue(index, distance)));
@@ -74,13 +77,13 @@ const TableContainer: React.FC = () => {
         // handle expanding the canvas
         if (target.scrollLeft > (target.scrollWidth - target.clientWidth) / 1.4) {
             setTopBarWidth(prevWidth => prevWidth + 5);
-            setTableData(tableData.extendXDirection(5));
+            dispatch(updateGlobalTableData(tableData.extendXDirection(5)));
             setHorizontalScalars(new Scalars(horizontalScalars.extend(Array(4).fill(80))));
         }
 
         if (target.scrollTop > (target.scrollHeight - target.clientHeight) / 1.25) {
             setSideBarHeight(prevWidth => prevWidth + 10);
-            setTableData(tableData.extendYDirection(10))
+            dispatch(updateGlobalTableData(tableData.extendYDirection(10)))
             setVerticalScalars(new Scalars(verticalScalars.extend(Array(10).fill(30))));
         }
     };
@@ -167,7 +170,6 @@ const TableContainer: React.FC = () => {
                         left: "0",
                     }}
                     ref={tableRef} width={topBarWidth} height={sideBarHeight} scrollX={scrollX} scrollY={scrollY}
-                    data={tableData}
                     verticalScalars={verticalScalars}
                     horizontalScalars={horizontalScalars}
                 />
