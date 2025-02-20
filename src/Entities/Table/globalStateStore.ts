@@ -5,7 +5,7 @@ const globalTableData = createSlice({
     name: 'globalTableData',
     initialState: {
         value: generateEmptyTable(100, 40),
-        selectedCell: "A1"
+        selectedCell: [0, 0]
     },
     reducers: {
         updateGlobalTableData: (state, action) => {state.value = action.payload},

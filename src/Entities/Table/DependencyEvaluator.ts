@@ -4,6 +4,7 @@ import parse from "./FormulaParser";
 
 function evaluateDependencies(tableData: TableData, originCell: Cell, visitedSet: Set<Cell>): TableData {
     // TODO: Rollback inserted dependencies when a circular dependency is added.
+    // TODO: Fix bug where cells pasted into previous references do not have their dependencies correctly evaluated. I.e. paste into A1 when B1 references it, and it will not re-render.
     let newVisitedSet = new Set(visitedSet).add(originCell);
     if (newVisitedSet.size != visitedSet.size + 1) {
         throw new Error("Circular dependency detected!");

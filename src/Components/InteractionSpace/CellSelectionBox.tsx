@@ -1,17 +1,19 @@
 import React from "react";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
+import {getLetterFromNumber} from "../../Entities/General/HelperFunctions";
 
-interface CellSelectionBoxProps {
-    cellName: string;
-}
+const CellSelectionBox: React.FC = () => {
 
-const CellSelectionBox: React.FC<CellSelectionBoxProps> = ({ cellName }) => {
+    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell)
+
     return (
         <div style={{
             borderWidth: "1px",
             borderColor: "black",
             borderStyle: "solid",
         }}>
-            {cellName}
+            {getLetterFromNumber(selectedCell[0] + 1)}{selectedCell[1] + 1}
         </div>
     );
 };

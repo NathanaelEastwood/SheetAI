@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
 import {Scalars} from "../../Entities/Table/Scalars";
+import {getLetterFromNumber} from "../../Entities/General/HelperFunctions";
 
 interface TopbarProps {
     style?: React.CSSProperties;
@@ -127,14 +128,4 @@ export default React.memo(Topbar);
 
 function generateLetterList(width: number, startingLetter: number): string[] {
     return Array.from({ length: width }, (_, i) => getLetterFromNumber(startingLetter + i));
-}
-
-function getLetterFromNumber(number: number): string {
-    let result = "";
-    while (number > 0) {
-        let rem = (number - 1) % 26;
-        result = String.fromCharCode("A".charCodeAt(0) + rem) + result;
-        number = Math.floor((number - 1) / 26);
-    }
-    return result;
 }

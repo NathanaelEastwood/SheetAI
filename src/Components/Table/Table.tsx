@@ -7,7 +7,7 @@ import evaluateDependencies from "../../Entities/Table/DependencyEvaluator";
 import {Scalars} from "../../Entities/Table/Scalars";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../main";
-import {updateGlobalTableData} from "../../Entities/Table/globalStateStore";
+import {updateGlobalTableData, updateSelectedCell} from "../../Entities/Table/globalStateStore";
 
 
 interface TableProperties {
@@ -24,6 +24,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const dispatch = useDispatch();
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
+    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell)
 
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
@@ -143,6 +144,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
+        dispatch(updateSelectedCell([columnNumber, rowNumber]))
+
         selectionEndRowRef.current = rowNumber;
         selectionEndColumnRef.current = columnNumber;
 
@@ -186,6 +189,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
         const ySnappingCoordinate = verticalScalar.getPositionFromIndex(newRowNumber);
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: newRowNumber, bottom: ySnappingCoordinate + verticalScalarRef.current.scalars[newRowNumber], right: xSnappingCoordinate + horizontalScalarRef.current.scalars[columnNumber], isMultiSelect: false})
+        dispatch(updateSelectedCell([columnNumber, rowNumber]))
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
