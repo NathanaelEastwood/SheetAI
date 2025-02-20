@@ -40,10 +40,10 @@ const App: React.FC = () => {
                 <h1>Tool Bar Space</h1>
             </Row>
             <Row className="h-75" style={{ paddingLeft: 0 }}>
-                <Col>
+                <Col style={{padding: 0}}>
                     <TableContainer/>
                 </Col>
-                <Col>
+                <Col style={{padding: 0}}>
                     <InteractionSpace/>
                 </Col>
             </Row>

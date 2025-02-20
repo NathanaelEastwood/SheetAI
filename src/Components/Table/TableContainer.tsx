@@ -112,13 +112,13 @@ const TableContainer: React.FC = () => {
                     left: 0,
                     height: "30px",
                     width: "100px",
-                    backgroundColor: "white",
-                    borderStyle: "solid",
-                    borderWidth: "1px",
+                    backgroundColor: "#f8f9fa", // Light gray background
+                    border: "1px solid #e0e0e0", // Soft gray border
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)", // Subtle shadow
+                    borderRadius: "4px", // Slight rounding
                     zIndex: 99,
                 }}
-            >
-            </div>
+            />
             {/* Topbar positioned at the very top */}
             <Topbar
                 style={{

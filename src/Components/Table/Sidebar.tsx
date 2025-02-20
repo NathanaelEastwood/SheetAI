@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
-import {Scalars} from "../../Entities/Table/Scalars";
+import { Scalars } from "../../Entities/Table/Scalars";
 
 interface SidebarProps {
     startingNumber: number;
@@ -12,69 +12,79 @@ interface SidebarProps {
 
 const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, startingNumber, verticalScalars, scrollY, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
-
-    // Recalculate rowHeadings when height or startingNumber changes
     const [rowHeadings, setRowHeadings] = useState<number[]>(() =>
         generateRowHeadings(height, startingNumber)
     );
-
     const [verticalScalarsState, setVerticalScalars] = useState<Scalars>(verticalScalars);
     const [draggingRowBorder, setDraggingRowBorder] = useState<boolean>(false);
     const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
-
-    let hoveringResize  = useRef<boolean>(false);
+    let hoveringResize = useRef<boolean>(false);
     let dragStartLocation = useRef<number>(0);
 
-    // Effect to handle canvas drawing and state updates
     useEffect(() => {
         setRowHeadings(generateRowHeadings(height, startingNumber));
         setVerticalScalars(verticalScalars);
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
-
             if (ctx) {
-                // Set canvas width and height dynamically
                 canvas.width = 100;
                 canvas.height = verticalScalarsState.pixelLength;
 
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "#f8f9fa"; // Light gray background
                 ctx.fillRect(0, 0, 100, verticalScalarsState.pixelLength);
 
-                ctx.beginPath();
-                // Set up the drawing context
-                ctx.font = "15px serif";
-                ctx.fillStyle = "black";
+                ctx.font = "14px 'Segoe UI', 'Roboto', sans-serif'";
+                ctx.fillStyle = "#2c5282"; // Blue text
                 ctx.lineWidth = 1;
-                ctx.moveTo(100, 0);
-                ctx.lineTo(100, verticalScalarsState.pixelLength);
+                ctx.strokeStyle = "#e0e0e0"; // Soft gray borders
+
+                // Draw left border
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, verticalScalarsState.pixelLength);
                 ctx.stroke();
-                let cumulativeYPosition = 0; /*-verticalScalarsState.scalars[0]*/
+
+                // Stronger right separation
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#d1d5db"; // Slightly darker gray
+                ctx.beginPath();
+                ctx.moveTo(99.5, 0); // Slightly inset from edge
+                ctx.lineTo(99.5, verticalScalarsState.pixelLength);
+                ctx.stroke();
+
+                // Reset for row lines
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "#e0e0e0";
+
+                let cumulativeYPosition = 0;
                 rowHeadings.forEach((value: number, index: number) => {
+                    const rowHeight = verticalScalarsState.scalars[index];
+                    const nextY = cumulativeYPosition + rowHeight;
 
-                    // TODO: Fix line thickness issue from pixel scaling.
-
+                    // Horizontal row lines
                     ctx.beginPath();
-                    ctx.lineWidth = 1;
-                    ctx.moveTo(0, cumulativeYPosition + verticalScalarsState.scalars[index]);
-                    ctx.lineTo(100, cumulativeYPosition + verticalScalarsState.scalars[index]);
+                    ctx.moveTo(0, nextY);
+                    ctx.lineTo(100, nextY);
                     ctx.stroke();
-                    const y = cumulativeYPosition + verticalScalarsState.scalars[index] - (verticalScalarsState.scalars[index] * (1/3)); // Calculate y-coordinate for each number
-                    const x = 45; // Fixed x-coordinate
-                    ctx.fillText(String(value), x, y);
-                    cumulativeYPosition += verticalScalarsState.scalars[index];
+
+                    // Center the text vertically
+                    const textY = cumulativeYPosition + (rowHeight / 2) + 5; // +5 for baseline adjustment
+                    const textX = 50 - (ctx.measureText(String(value)).width / 2); // Center horizontally
+                    ctx.fillText(String(value), textX, textY);
+
+                    cumulativeYPosition = nextY;
                 });
             }
         }
-    }, [height, startingNumber, style]); // Redraw when height, startingNumber, or style change
+    }, [height, startingNumber, verticalScalars]);
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
         let absoluteY = event.clientY + scrollY - 230;
         if (!draggingRowBorder) {
-            const canvas = event.currentTarget; // Get the canvas element
+            const canvas = event.currentTarget;
             let hovering = verticalScalars.pointIsWithinDistanceOfEdge(absoluteY, 5);
             hoveringResize.current = hovering;
-            // Change cursor style based on hovering state
             canvas.style.cursor = hovering ? "row-resize" : "default";
         } else {
             setDragCurrentLocation(event.clientY - 200);
@@ -82,14 +92,14 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!hoveringResize.current){
-            return
+        if (!hoveringResize.current) {
+            return;
         } else {
             setDraggingRowBorder(true);
             dragStartLocation.current = event.clientY + scrollY - 230;
             setDragCurrentLocation(event.clientY - 200);
         }
-    }
+    };
 
     const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (!draggingRowBorder) {
@@ -101,27 +111,39 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             const startIndex = verticalScalarsState.getIndexFromPosition(dragStartLocation.current);
             adjustScalars(startIndex, dragEnd - dragStartLocation.current);
         }
-    }
+    };
 
     const quitEvent = () => {
-        setDraggingRowBorder(false)
-    }
+        setDraggingRowBorder(false);
+    };
 
     return (
         <>
             <div style={{
-                height: "0",
+                height: "2px",
                 width: "5000px",
-                borderTop: "solid",
-                borderWidth: 1,
+                backgroundColor: "#2c5282", // Blue drag indicator
                 position: "absolute",
                 top: dragCurrentLocation,
                 left: 0,
-                visibility: draggingRowBorder ? "visible" : "hidden"
+                visibility: draggingRowBorder ? "visible" : "hidden",
+                opacity: 0.8,
+                zIndex: 10
             }}></div>
-            <canvas ref={ref || localCanvasRef} style={style} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={quitEvent}></canvas>
+            <canvas
+                ref={ref || localCanvasRef}
+                style={{
+                    ...style,
+                    backgroundColor: "#f8f9fa",
+                    boxShadow: "2px 0 4px rgba(0, 0, 0, 0.15)", // Stronger shadow on right
+                }}
+                onMouseMove={handleMouseMove}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={quitEvent}
+            />
         </>
-    )
+    );
 });
 
 export default React.memo(Sidebar);

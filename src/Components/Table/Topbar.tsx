@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
-import {Scalars} from "../../Entities/Table/Scalars";
-import {getLetterFromNumber} from "../../Entities/General/HelperFunctions";
+import { Scalars } from "../../Entities/Table/Scalars";
+import { getLetterFromNumber } from "../../Entities/General/HelperFunctions";
 
 interface TopbarProps {
     style?: React.CSSProperties;
@@ -14,12 +14,10 @@ interface TopbarProps {
 
 const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width, horizontalScalars, scrollX, scrollY, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
-
     const [columnHeadings, setColumnHeadings] = useState<string[]>(() =>
         generateLetterList(width, startingLetter)
     );
-
-    const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars)
+    const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars);
     const [draggingColumnBorder, setDraggingColumnBorder] = useState<boolean>(false);
     const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
     let hoveringResize = useRef<boolean>(false);
@@ -36,42 +34,53 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 canvas.height = 30;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "#f8f9fa"; // Light gray background
                 ctx.fillRect(0, 0, canvas.width, 30);
 
-                ctx.font = "15px serif";
-                ctx.fillStyle = "black";
+                ctx.font = "14px 'Segoe UI', 'Roboto', sans-serif";
+                ctx.fillStyle = "#2c5282"; // Blue text
                 ctx.lineWidth = 1;
+                ctx.strokeStyle = "#e0e0e0"; // Soft gray borders
 
-                // Draw initial border lines
+                // Draw top border
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(canvas.width, 0);
                 ctx.stroke();
-                ctx.moveTo(0, 30)
-                ctx.lineTo(canvas.width, 30);
+
+                // Stronger bottom separation
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#d1d5db"; // Slightly darker gray
+                ctx.beginPath();
+                ctx.moveTo(0, 29.5); // Slightly inset from edge
+                ctx.lineTo(canvas.width, 29.5);
                 ctx.stroke();
 
-                let cumulativeXPosition = 0
+                // Reset for column lines
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "#e0e0e0";
+
+                let cumulativeXPosition = 0;
                 columnHeadings.forEach((letter, index) => {
                     let x;
-                    if (index == 0) {
+                    if (index === 0) {
                         x = 100;
-                        cumulativeXPosition = 100
+                        cumulativeXPosition = 100;
                     } else {
-                        // Indexes are -1'd here as we shouldn't be consuming a member of the scalar for the blank part of the column headings
                         x = cumulativeXPosition + horizontalScalarsState.scalars[index - 1];
                         cumulativeXPosition += horizontalScalarsState.scalars[index - 1];
                     }
                     const y = 20;
 
+                    // Vertical column lines
                     ctx.beginPath();
                     ctx.moveTo(x, 0);
                     ctx.lineTo(x, 30);
                     ctx.stroke();
 
-                    // TODO: Add properly calculated scaling factor, same for Sidebar
-                    ctx.fillText(letter, x - (horizontalScalarsState.scalars[index - 1] * 0.55), y);
+                    // Center the text with slight offset
+                    const textWidth = ctx.measureText(letter).width;
+                    ctx.fillText(letter, x - (horizontalScalarsState.scalars[index - 1] / 2) - (textWidth / 2), y);
                 });
             }
         }
@@ -80,10 +89,9 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
         let absoluteX = event.clientX + scrollX - 100;
         if (!draggingColumnBorder) {
-            const canvas = event.currentTarget; // Get the canvas element
+            const canvas = event.currentTarget;
             let hovering = horizontalScalarsState.pointIsWithinDistanceOfEdge(absoluteX, 5);
             hoveringResize.current = hovering;
-            // Change cursor style based on hovering state
             canvas.style.cursor = hovering ? "col-resize" : "default";
         } else {
             setDragCurrentLocation(event.clientX);
@@ -91,14 +99,14 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!hoveringResize.current){
-            return
+        if (!hoveringResize.current) {
+            return;
         } else {
             setDraggingColumnBorder(true);
             dragStartLocation.current = event.clientX + scrollX - 100;
             setDragCurrentLocation(event.clientX);
         }
-    }
+    };
 
     const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (!draggingColumnBorder) {
@@ -110,18 +118,39 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
             const startIndex = horizontalScalarsState.getIndexFromPosition(dragStartLocation.current);
             adjustScalars(startIndex, dragEnd - dragStartLocation.current);
         }
-    }
+    };
 
     const quitEvent = () => {
-        setDraggingColumnBorder(false)
-    }
+        setDraggingColumnBorder(false);
+    };
 
     return (
         <>
-            <div style={{height: "1000px", width: "0px", borderLeft: "solid", borderWidth: 1, position: "absolute", top: 0, left: dragCurrentLocation, visibility: draggingColumnBorder ? "visible" : "hidden"}}></div>
-            <canvas ref={ref || localCanvasRef} style={style} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={quitEvent}></canvas>
+            <div style={{
+                height: "1000px",
+                width: "2px",
+                backgroundColor: "#2c5282",
+                position: "absolute",
+                top: 0,
+                left: dragCurrentLocation,
+                visibility: draggingColumnBorder ? "visible" : "hidden",
+                opacity: 0.8,
+                zIndex: 10
+            }}></div>
+            <canvas
+                ref={ref || localCanvasRef}
+                style={{
+                    ...style,
+                    backgroundColor: "#f8f9fa",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.15)", // Stronger shadow at bottom
+                }}
+                onMouseMove={handleMouseMove}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={quitEvent}
+            />
         </>
-    )
+    );
 });
 
 export default React.memo(Topbar);
