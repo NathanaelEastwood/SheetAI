@@ -19,6 +19,7 @@ import FunctionNode from "./FunctionNode";
 import CustomEdge from "./TestEdge";
 import FunctionNodeFactory from "../../Entities/InteractionSpace/FunctionNodeFactory";
 import FunctionPalette from "./FunctionPalette";
+import SourceDialogue from "./SourceDialogue";
 
 
 const nodeTypes: NodeTypes = { functionNode: FunctionNode };
@@ -28,7 +29,8 @@ const InteractionSpace: React.FC = () => {
 
 
     const options = [
-        new ContextMenuOption("Add Function", showFunctionPalette)
+        new ContextMenuOption("Add Function", showFunctionPalette),
+        new ContextMenuOption("Add Source", showSourceDialogue)
     ]
 
     const id = useRef<number>(3);
@@ -36,6 +38,8 @@ const InteractionSpace: React.FC = () => {
     // context menu params
     const [contextMenuLocation, setContextMenuLocation] = useState<[number, number]>([0, 0]);
     const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+
+    const [sourceDialogueVisible, setSourceDialogueVisible] = useState<boolean>(false);
     const [functionPaletteVisible, setFunctionPaletteVisible] = useState<boolean>(false);
 
     const initialNodes: Node[] = [
@@ -58,9 +62,14 @@ const InteractionSpace: React.FC = () => {
         setFunctionPaletteVisible(true);
     }
 
+    function showSourceDialogue(){
+        setSourceDialogueVisible(true);
+    }
+
     function addNode(function_id: number) {
         setContextMenuVisible(false);
         setFunctionPaletteVisible(false);
+        setSourceDialogueVisible(false);
         if (!interactionSpace.current) return;
 
         // Use the ReactFlow instance to map screen coordinates to flow space
@@ -90,12 +99,14 @@ const InteractionSpace: React.FC = () => {
         setContextMenuLocation([event.clientX, event.clientY]);
         setContextMenuVisible(true);
         setFunctionPaletteVisible(false);
+        setSourceDialogueVisible(false);
         event.preventDefault();
     }
 
     const onClick = (event: React.MouseEvent) => {
         setContextMenuVisible(false);
         setFunctionPaletteVisible(false);
+        setSourceDialogueVisible(false);
     }
 
     return (
@@ -120,6 +131,7 @@ const InteractionSpace: React.FC = () => {
                 />
             </div>
             <ContextMenu x={contextMenuLocation[0]} y={contextMenuLocation[1]} visible={contextMenuVisible} options={options} onClose={() => {setContextMenuVisible(false)}}/>
+            <SourceDialogue x={contextMenuLocation[0]} y={contextMenuLocation[1]} visible={sourceDialogueVisible} column={"A"} row={1} onClose={() => {setSourceDialogueVisible(false)}} onColumnChange={(string) => console.log(string)} onRowChange={(string) => console.log(string)}/>
             <div style={{
                 position: "fixed",
                 top: contextMenuLocation[1],

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@formulajs/formulajs": "^4.4.9",
+    "@reduxjs/toolkit": "^2.5.1",
     "@tanstack/react-table": "^8.20.5",
     "@xyflow/react": "^12.4.2",
     "bootstrap": "^5.3.3",
