@@ -287,7 +287,6 @@ html, body, #root {
   padding: 16px;
   width: 140px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -307,7 +306,6 @@ html, body, #root {
 }
 
 .modern-function-node label {
-  font-size: 14px;
   color: #333333;
   margin-bottom: 4px;
 }

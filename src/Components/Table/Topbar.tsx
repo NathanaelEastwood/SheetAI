@@ -37,7 +37,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 ctx.fillStyle = "#f8f9fa"; // Light gray background
                 ctx.fillRect(0, 0, canvas.width, 30);
 
-                ctx.font = "14px 'Segoe UI', 'Roboto', sans-serif";
+                ctx.font = "14px Segoe UI, Roboto, sans-serif";
                 ctx.fillStyle = "#2c5282"; // Blue text
                 ctx.lineWidth = 1;
                 ctx.strokeStyle = "#e0e0e0"; // Soft gray borders

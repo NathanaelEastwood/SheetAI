@@ -35,19 +35,21 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="vh-100 vw-100">
-            <Row className="h-25">
-                <h1>Tool Bar Space</h1>
-            </Row>
-            <Row className="h-75" style={{ paddingLeft: 0 }}>
-                <Col style={{padding: 0}}>
-                    <TableContainer/>
-                </Col>
-                <Col style={{padding: 0}}>
-                    <InteractionSpace/>
-                </Col>
-            </Row>
-        </div>
+        <>
+            <div className="vh-100 vw-100">
+                <Row className="h-25">
+                    <h1>Tool Bar Space</h1>
+                </Row>
+                <Row className="h-75" style={{ paddingLeft: 0 }}>
+                    <Col style={{padding: 0}}>
+                        <TableContainer/>
+                    </Col>
+                    <Col style={{padding: 0}}>
+                        <InteractionSpace/>
+                    </Col>
+                </Row>
+            </div>
+        </>
     );
 };
 

@@ -23,12 +23,15 @@ import SourceDialogue from "./SourceDialogue";
 import { useSelector } from "react-redux";
 import { RootState } from "../../main";
 import { getLetterFromNumber } from "../../Entities/General/HelperFunctions";
+import FlowToFormulaTranspiler from "../../Entities/General/FlowToFormulaTranspiler";
 
 const nodeTypes: NodeTypes = { functionNode: FunctionNode };
 const edgeTypes: EdgeTypes = { 'straight-step-edge': CustomEdge };
 
 const InteractionSpace: React.FC = () => {
     const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
+    const selectedCellContents = useSelector((state: RootState) => state.globalTableData.value.getCellValue(selectedCell[0], selectedCell[1]));
+
 
     const options = [
         new ContextMenuOption("Add Function", showFunctionPalette),
@@ -61,19 +64,28 @@ const InteractionSpace: React.FC = () => {
     ];
 
     useEffect(() => {
-        setNodes((prevNodes) =>
-            prevNodes.map((node) =>
-                node.id === '1'
-                    ? {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            inputLabels: [`=${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`]
-                        }
-                    }
-                    : node
-            )
-        );
+        if (selectedCellContents.UnderlyingValue[0] == '=') {
+            let flowValues = FlowToFormulaTranspiler.formulaToFlow(selectedCellContents.UnderlyingValue)
+            console.log(flowValues)
+            setNodes(flowValues[0])
+            setEdges(flowValues[1])
+        } else {
+            setNodes([{
+                id: '1',
+                type: 'functionNode',
+                targetPosition: Position.Left,
+                position: {x: 100, y: 100},
+                data: {
+                    label: 'Output',
+                    inputNodes: 1,
+                    inputLabels: [`=${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`],
+                    outputLabels: [],
+                    height: 20
+                },
+                draggable: false
+            }])
+            setEdges([])
+        }
     }, [selectedCell]);
 
     const initialEdges: any[] = [];

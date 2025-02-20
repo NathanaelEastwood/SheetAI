@@ -32,6 +32,7 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                         width: '10px',
                         height: '10px',
                         top: `${offset + 15}px`,
+                        fontStyle: "14px Segoe UI, Roboto, sans-serif"
                     }}
                     isConnectable={isConnectable}
                     className="handle handle-left"
@@ -45,7 +46,8 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                         style={{
                         position: "absolute",
                         top: leftOffsets[index] + 5,
-                        left: 7
+                        left: 7,
+                        fontStyle: "14px Segoe UI, Roboto, sans-serif"
                     }}>
                         {value}
                     </div>
@@ -57,7 +59,8 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                         style={{
                             position: "absolute",
                             top: rightOffsets[index] + 5,
-                            right: 5
+                            right: 5,
+                            fontStyle: "14px Segoe UI, Roboto, sans-serif"
                         }}>
                         {value}
                     </div>

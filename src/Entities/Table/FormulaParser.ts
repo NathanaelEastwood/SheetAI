@@ -1,6 +1,7 @@
 import TableData from "./TableData";
 import tableData from "./TableData";
 import Cell from "./Cell";
+import {evaluateAST, parseFormulaToAST, tokenizeInput} from "../General/ASTHelperFunctions";
 
 let globalTableData : tableData;
 let globalIntakeReference: [number, number];
@@ -25,86 +26,6 @@ function parse(intakeCell: Cell, table: TableData, intakeReference: [number, num
     // unwrap nested formula using a stack
     // do formula
     return new Cell(resultantValue.toString(), intakeCell.UnderlyingValue, newDependants);
-}
-
-type ASTNode = {
-    type: "Number" | "CellReference" | "Operator";
-    value?: string;
-    left?: ASTNode;
-    right?: ASTNode;
-};
-
-function tokenizeInput(input: string): string[] {
-    const result : string[] = [];
-    const boundaryRegex = new RegExp('^[A-Za-z0-9]$');
-    let currentTokenStart = 1;
-    for (let i = 1; i < input.length; i++){
-        if (!boundaryRegex.test(input[i])) {
-            if(currentTokenStart != i) {
-                result.push(input.slice(currentTokenStart, i));
-            }
-            currentTokenStart = i + 1;
-            result.push(input[i]);
-        }
-    }
-
-    result.push(input.slice(currentTokenStart, input.length))
-
-    return result;
-}
-
-function parseFormulaToAST(tokens: string[]): ASTNode {
-    const stack: ASTNode[] = [];
-    const operatorStack: string[] = [];
-
-    function applyOperator() {
-        const right = stack.pop()!;
-        const left = stack.pop()!;
-        const operator = operatorStack.pop()!;
-
-        stack.push({ type: "Operator", value: operator, left, right });
-    }
-
-    for (const token of tokens) {
-        if (/\d+/.test(token) || /^[A-Z]+\d+$/.test(token)) {
-            stack.push({ type: /^[A-Z]+\d+$/.test(token) ? "CellReference" : "Number", value: token });
-        } else if ("+-*/".includes(token)) {
-            while (operatorStack.length && "+-*/".includes(operatorStack[operatorStack.length - 1])) {
-                applyOperator();
-            }
-            operatorStack.push(token);
-        } else if (token === "(") {
-            operatorStack.push(token);
-        } else if (token === ")") {
-            while (operatorStack.length && operatorStack[operatorStack.length - 1] !== "(") {
-                applyOperator();
-            }
-            operatorStack.pop(); // Remove "("
-        }
-    }
-
-    while (operatorStack.length) {
-        applyOperator();
-    }
-
-    return stack[0]; // The root node of the AST
-}
-
-function evaluateAST(node: ASTNode, lookup: (cell: string) => number): number {
-    if (node.type === "Number") return Number(node.value);
-    if (node.type === "CellReference") return lookup(node.value!);
-
-    const leftValue = evaluateAST(node.left!, lookup);
-    const rightValue = evaluateAST(node.right!, lookup);
-
-    switch (node.value) {
-        case "+": return leftValue + rightValue;
-        case "-": return leftValue - rightValue;
-        case "*": return leftValue * rightValue;
-        case "/": return leftValue / rightValue;
-    }
-
-    throw new Error("Unknown operator");
 }
 
 function doLookup(reference: string): number {
