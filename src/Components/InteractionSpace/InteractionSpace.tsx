@@ -169,8 +169,6 @@ const InteractionSpace: React.FC = () => {
                 x={contextMenuLocation[0]}
                 y={contextMenuLocation[1]}
                 visible={sourceDialogueVisible}
-                column={"A"}
-                row={1}
                 onClose={() => setSourceDialogueVisible(false)}
                 onColumnChange={(string) => console.log(string)}
                 onRowChange={(string) => console.log(string)}

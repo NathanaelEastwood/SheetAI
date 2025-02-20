@@ -34,7 +34,8 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 ctx.fillStyle = "#f8f9fa"; // Light gray background
                 ctx.fillRect(0, 0, 100, verticalScalarsState.pixelLength);
 
-                ctx.font = "14px 'Segoe UI', 'Roboto', sans-serif'";
+                // Fixed font syntax
+                ctx.font = "14px Segoe UI, Roboto, sans-serif";
                 ctx.fillStyle = "#2c5282"; // Blue text
                 ctx.lineWidth = 1;
                 ctx.strokeStyle = "#e0e0e0"; // Soft gray borders
@@ -79,7 +80,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
         }
     }, [height, startingNumber, verticalScalars]);
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
         let absoluteY = event.clientY + scrollY - 230;
         if (!draggingRowBorder) {
             const canvas = event.currentTarget;
@@ -91,7 +92,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
         }
     };
 
-    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDown = (event: React.MouseEvent<HTMLElement>) => {
         if (!hoveringResize.current) {
             return;
         } else {
@@ -101,7 +102,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
         }
     };
 
-    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseUp = (event: React.MouseEvent<HTMLElement>) => {
         if (!draggingRowBorder) {
             return;
         }
@@ -111,10 +112,6 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             const startIndex = verticalScalarsState.getIndexFromPosition(dragStartLocation.current);
             adjustScalars(startIndex, dragEnd - dragStartLocation.current);
         }
-    };
-
-    const quitEvent = () => {
-        setDraggingRowBorder(false);
     };
 
     return (
@@ -129,7 +126,11 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 visibility: draggingRowBorder ? "visible" : "hidden",
                 opacity: 0.8,
                 zIndex: 10
-            }}></div>
+            }}
+                 onMouseMove={handleMouseMove}
+                 onMouseDown={handleMouseDown}
+                 onMouseUp={handleMouseUp}
+            ></div>
             <canvas
                 ref={ref || localCanvasRef}
                 style={{
@@ -140,7 +141,6 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
-                onMouseLeave={quitEvent}
             />
         </>
     );

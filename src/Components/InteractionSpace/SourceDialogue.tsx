@@ -1,30 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
+import {getLetterFromNumber} from "../../Entities/General/HelperFunctions";
 
 interface SourceDialogueProps {
     x: number;
     y: number;
     visible: boolean;
-    column: string;
-    row: number;
     onColumnChange: (value: string) => void;
     onRowChange: (value: number) => void;
     onClose: () => void;
     onConfirm: () => void;
 }
 
-const SourceDialogue: React.FC<SourceDialogueProps> = ({ x, y, visible, column, row, onColumnChange, onRowChange, onClose, onConfirm }) => {
-    const [localColumn, setLocalColumn] = useState(column);
-    const [localRow, setLocalRow] = useState(row);
+const SourceDialogue: React.FC<SourceDialogueProps> = ({ x, y, visible, onColumnChange, onRowChange, onClose, onConfirm }) => {
+
+    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
+
     const [position, setPosition] = useState({ x, y });
     const [dragging, setDragging] = useState(false);
     const dialogRef = useRef<HTMLDivElement>(null);
     const offset = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
-        setLocalColumn(column);
-        setLocalRow(row);
         setPosition({ x, y });
-    }, [column, row, x, y]);
+    }, [x, y]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (dialogRef.current) {
@@ -80,11 +80,10 @@ const SourceDialogue: React.FC<SourceDialogueProps> = ({ x, y, visible, column, 
                     Column:
                     <input
                         type="text"
-                        value={localColumn}
+                        value={getLetterFromNumber(selectedCell[0] + 1)}
                         onChange={(e) => {
                             const value = e.target.value.toUpperCase();
                             if (/^[A-Z]{0,3}$/.test(value)) { // Allows up to "ZZZ"
-                                setLocalColumn(value);
                                 onColumnChange(value);
                             }
                         }}
@@ -94,11 +93,10 @@ const SourceDialogue: React.FC<SourceDialogueProps> = ({ x, y, visible, column, 
                     Row:
                     <input
                         type="number"
-                        value={localRow}
+                        value={selectedCell[1] + 1}
                         onChange={(e) => {
                             const value = parseInt(e.target.value, 10);
                             if (!isNaN(value) && value > 0) {
-                                setLocalRow(value);
                                 onRowChange(value);
                             }
                         }}

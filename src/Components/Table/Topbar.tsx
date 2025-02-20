@@ -86,7 +86,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
         }
     }, [width, horizontalScalars]);
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
         let absoluteX = event.clientX + scrollX - 100;
         if (!draggingColumnBorder) {
             const canvas = event.currentTarget;
@@ -98,7 +98,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
         }
     };
 
-    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDown = (event: React.MouseEvent<HTMLElement>) => {
         if (!hoveringResize.current) {
             return;
         } else {
@@ -108,7 +108,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
         }
     };
 
-    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseUp = (event: React.MouseEvent<HTMLElement>) => {
         if (!draggingColumnBorder) {
             return;
         }
@@ -118,10 +118,6 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
             const startIndex = horizontalScalarsState.getIndexFromPosition(dragStartLocation.current);
             adjustScalars(startIndex, dragEnd - dragStartLocation.current);
         }
-    };
-
-    const quitEvent = () => {
-        setDraggingColumnBorder(false);
     };
 
     return (
@@ -136,7 +132,11 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 visibility: draggingColumnBorder ? "visible" : "hidden",
                 opacity: 0.8,
                 zIndex: 10
-            }}></div>
+            }}
+                 onMouseMove={handleMouseMove}
+                 onMouseDown={handleMouseDown}
+                 onMouseUp={handleMouseUp}>
+            </div>
             <canvas
                 ref={ref || localCanvasRef}
                 style={{
@@ -147,7 +147,6 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
-                onMouseLeave={quitEvent}
             />
         </>
     );
