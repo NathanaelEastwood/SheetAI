@@ -66,7 +66,6 @@ const InteractionSpace: React.FC = () => {
     useEffect(() => {
         if (selectedCellContents.UnderlyingValue[0] == '=') {
             let flowValues = FlowToFormulaTranspiler.formulaToFlow(selectedCellContents.UnderlyingValue)
-            console.log(flowValues)
             setNodes(flowValues[0])
             setEdges(flowValues[1])
         } else {

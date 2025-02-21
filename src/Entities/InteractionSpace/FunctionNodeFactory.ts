@@ -2,7 +2,7 @@ import FunctionNodeParameters from "./FunctionNodeParameters";
 import {Position} from "@xyflow/react";
 
 abstract class FunctionNodeFactory {
-    public static getNodeFromEnum(function_id: number, id: number, positionX: number, positionY: number): FunctionNodeParameters {
+    public static getNodeFromEnum(function_id: number, id: number, positionX: number, positionY: number, label: string = ""): FunctionNodeParameters {
         switch (function_id) {
             case 0:
                 return {
@@ -118,6 +118,25 @@ abstract class FunctionNodeFactory {
                         outputLabels: ["Xʸ = Z"]
                     }
                 }
+            case 6:
+                return {
+                    id: id.toString(),
+                    type: 'functionNode',
+                    position: {
+                        x: positionX,
+                        y: positionY
+                    },
+                    targetPosition: Position.Left,
+                    sourcePosition: Position.Right,
+                    data: {
+                        label: "",
+                        inputNodes: 0,
+                        outputNodes: 1,
+                        height: 20,
+                        inputLabels: [],
+                        outputLabels: [label]
+                    }
+                }
             default:
                 return {
                     id: id.toString(),
@@ -128,6 +147,7 @@ abstract class FunctionNodeFactory {
                     },
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
+                    width: 100,
                     data: {
                         label: "unknown",
                         inputNodes: 0,

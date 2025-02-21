@@ -39,7 +39,7 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                 />
             ))}
 
-            <div className="content" style={{ height: `${finalHeight}px` }}>
+            <div className="content" style={{ height: `${finalHeight}px`}}>
                 {data.inputLabels.map((value, index) => (
                     <div
                         key={`input-label-${index}-${data.label}`}
