@@ -4,7 +4,7 @@ import {
     addEdge,
     applyEdgeChanges,
     Connection,
-    EdgeTypes,
+    EdgeTypes, MiniMap,
     Node,
     NodeTypes,
     Position,
@@ -23,14 +23,15 @@ import SourceDialogue from "./SourceDialogue";
 import { useSelector } from "react-redux";
 import { RootState } from "../../main";
 import { getLetterFromNumber } from "../../Entities/General/HelperFunctions";
-import FlowToFormulaTranspiler from "../../Entities/General/FlowToFormulaTranspiler";
+import FlowFormulaTranspiler from "../../Entities/General/FlowFormulaTranspiler";
 
 const nodeTypes: NodeTypes = { functionNode: FunctionNode };
 const edgeTypes: EdgeTypes = { 'straight-step-edge': CustomEdge };
 
 const InteractionSpace: React.FC = () => {
     const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
-    const selectedCellContents = useSelector((state: RootState) => state.globalTableData.value.getCellValue(selectedCell[0], selectedCell[1]));
+    const tableData = useSelector((state: RootState) => state.globalTableData.value);
+    const selectedCellContents = tableData.getCellValue(selectedCell[0], selectedCell[1]);
 
 
     const options = [
@@ -65,7 +66,7 @@ const InteractionSpace: React.FC = () => {
 
     useEffect(() => {
         if (selectedCellContents.UnderlyingValue[0] == '=') {
-            let flowValues = FlowToFormulaTranspiler.formulaToFlow(selectedCellContents.UnderlyingValue)
+            let flowValues = FlowFormulaTranspiler.formulaToFlow(`${getLetterFromNumber(selectedCell[0])}${selectedCell[1]}`, selectedCellContents.UnderlyingValue, tableData)
             setNodes(flowValues[0])
             setEdges(flowValues[1])
         } else {
@@ -167,7 +168,8 @@ const InteractionSpace: React.FC = () => {
                         reactFlowRef.current = reactFlowInstance;
                         reactFlowInstance.fitView({ padding: 6 }).then();
                     }}
-                />
+                >
+                </ReactFlow>
             </div>
             <ContextMenu
                 x={contextMenuLocation[0]}

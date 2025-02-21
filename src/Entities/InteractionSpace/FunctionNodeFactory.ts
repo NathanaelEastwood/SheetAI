@@ -137,6 +137,25 @@ abstract class FunctionNodeFactory {
                         outputLabels: [label]
                     }
                 }
+            case 7:
+                return {
+                    id: id.toString(),
+                    type: 'functionNode',
+                    position: {
+                        x: positionX,
+                        y: positionY
+                    },
+                    targetPosition: Position.Left,
+                    sourcePosition: Position.Right,
+                    data: {
+                        label: "",
+                        inputNodes: 1,
+                        outputNodes: 0,
+                        height: 20,
+                        inputLabels: [label],
+                        outputLabels: []
+                    }
+                }
             default:
                 return {
                     id: id.toString(),

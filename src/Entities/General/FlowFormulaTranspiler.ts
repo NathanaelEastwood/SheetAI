@@ -1,27 +1,80 @@
-import {Node, Edge, Position} from "@xyflow/react";
-import {parseFormulaToAST, tokenizeInput, ASTNode} from "./ASTHelperFunctions";
+import {Edge, MarkerType, Node} from "@xyflow/react";
+import {ASTNode, evaluateAST, parseFormulaToAST, tokenizeInput} from "./ASTHelperFunctions";
 import functionNodeFactory from "../InteractionSpace/FunctionNodeFactory";
+import {columnLetterToNumber, splitReference} from "./HelperFunctions";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
+import tableData from "../Table/TableData";
 
-abstract class FlowToFormulaTranspiler {
+abstract class FlowFormulaTranspiler {
+
     public static flowToFormula = (nodes: Node[], edges: Edge[]): string => {
 
     }
 
-    public static formulaToFlow = (formula: string): [Node[], Edge[]] => {
+    public static formulaToFlow = (originName: string, formula: string, tableData: tableData): [Node[], Edge[]] => {
+        // TODO: REMOVE PASSING TABLE DATA LIKE THIS, HIGH RISK OF CAUSING PROBLEMS!!!
         const tokenizedInput: string[] = tokenizeInput(formula)
+
         const astValue: ASTNode = parseFormulaToAST(tokenizedInput)
+        let resultant_value: number = evaluateAST(astValue, doLookup)
+
+        function doLookup(reference: string): number {
+            // TODO: Throw exception instead of evaluating to zero if cell contents are invalid.
+            let values = splitReference(reference)
+            const columnNumber = columnLetterToNumber(values.column)
+            let result;
+            try {
+                let dependencyCell = tableData.getCellValue(columnNumber - 1, values.row - 1)
+                result = Number(dependencyCell.RenderedValue)
+                return result
+            } catch (e) {
+                return 0;
+            }
+        }
 
         let id_object = {
             id: 11
         }
 
-        let result = this.getNodeFromAst(astValue, 10, true,[0, 0], id_object)
+        let result = this.getNodeFromAst(astValue, 10, true,[0, 0], id_object, tableData)
+        result[0].push(functionNodeFactory.getNodeFromEnum(7, 10, 400, 60, `=${originName}`));
+        result[1].push({
+            id: `origin_edge`,
+            target: "10",
+            source: "11",
+            type: 'straight-step-edge',
+            markerEnd: {
+                type: MarkerType.Arrow,
+                width: 30,       // Increase arrow width (default is 20)
+                height: 30,      // Increase arrow height (default is 20)
+                strokeWidth: 1,  // Thicker outline (optional) }
+            },
+            label: `${resultant_value}`
+        })
         return [result[0], result[1]]
     }
 
-    public static getNodeFromAst(node: ASTNode, parent_id: number, is_left_child: boolean, new_position: [number, number], id_object: any): [Node[], Edge[]]  {
+    public static getNodeFromAst(node: ASTNode, parent_id: number, is_left_child: boolean, new_position: [number, number], id_object: any, tableData: tableData): [Node[], Edge[]]  {
         let edges: Edge[] = [];
         let nodes: Node[] = [];
+
+        // TODO: If we're ever looking for a performance boost, look here - not only are we evaluating the AST Value twice, we're actually evaluating each sub-tree multiple times as well.
+        let resultant_value: number = evaluateAST(node, doLookup)
+
+        function doLookup(reference: string): number {
+            // TODO: Throw exception instead of evaluating to zero if cell contents are invalid.
+            let values = splitReference(reference)
+            const columnNumber = columnLetterToNumber(values.column)
+            let result;
+            try {
+                let dependencyCell = tableData.getCellValue(columnNumber - 1, values.row - 1)
+                result = Number(dependencyCell.RenderedValue)
+                return result
+            } catch (e) {
+                return 0;
+            }
+        }
 
         const nodeWidth = 150;    // Estimated width of a single node
         const nodeHeight = 80;    // Estimated height of a single node
@@ -40,7 +93,7 @@ abstract class FlowToFormulaTranspiler {
         // Process left subtree
         if (node.left) {
             const leftPosition: [number, number] = [new_position[0] - nodeWidth - minHorizontalSpacing, new_position[1]];
-            let leftSide = this.getNodeFromAst(node.left, this_node_id, true, leftPosition, id_object);
+            let leftSide = this.getNodeFromAst(node.left, this_node_id, true, leftPosition, id_object, tableData);
             nodes = nodes.concat(leftSide[0]);
             edges = edges.concat(leftSide[1]);
 
@@ -60,7 +113,7 @@ abstract class FlowToFormulaTranspiler {
                 new_position[0] - nodeWidth - minHorizontalSpacing,
                 new_position[1] + verticalOffset
             ];
-            let rightSide = this.getNodeFromAst(node.right, this_node_id, false, rightPosition, id_object);
+            let rightSide = this.getNodeFromAst(node.right, this_node_id, false, rightPosition, id_object, tableData);
             nodes = nodes.concat(rightSide[0]);
             edges = edges.concat(rightSide[1]);
 
@@ -105,7 +158,14 @@ abstract class FlowToFormulaTranspiler {
                 target: parent_id.toString(),
                 targetHandle: is_left_child ? "input-0-" : "input-1-",
                 source: this_node_id.toString(),
-                type: 'straight-step-edge'
+                type: 'straight-step-edge',
+                markerEnd: {
+                    type: MarkerType.Arrow,
+                    width: 30,       // Increase arrow width (default is 20)
+                    height: 30,      // Increase arrow height (default is 20)
+                    strokeWidth: 1,   // Thicker outline (optional)
+                },
+                label: `${resultant_value}`
             });
         }
 
@@ -128,8 +188,4 @@ function getFunctionNode(type: string, value?: string): number {
     return -1; // Default value for unknown types
 }
 
-function calculate_parent_position(){
-
-}
-
-export default FlowToFormulaTranspiler;
+export default FlowFormulaTranspiler;

@@ -6,20 +6,38 @@ type ASTNode = {
 };
 
 function tokenizeInput(input: string): string[] {
-    const result : string[] = [];
-    const boundaryRegex = new RegExp('^[A-Za-z0-9]$');
-    let currentTokenStart = 1;
-    for (let i = 1; i < input.length; i++){
-        if (!boundaryRegex.test(input[i])) {
-            if(currentTokenStart != i) {
-                result.push(input.slice(currentTokenStart, i));
+    const result: string[] = [];
+    let currentToken = '';
+
+    // Start from index 1 to skip initial '='
+    for (let i = 1; i < input.length; i++) {
+        const char = input[i];
+
+        // Skip whitespace
+        if (/\s/.test(char)) {
+            if (currentToken) {
+                result.push(currentToken);
+                currentToken = '';
             }
-            currentTokenStart = i + 1;
-            result.push(input[i]);
+            continue;
+        }
+
+        if (/[A-Za-z0-9]/.test(char)) {
+            currentToken += char;
+        } else {
+            if (currentToken) {
+                result.push(currentToken);
+                currentToken = '';
+            }
+            if (/[+\-*/()]/.test(char)) {
+                result.push(char);
+            }
         }
     }
 
-    result.push(input.slice(currentTokenStart, input.length))
+    if (currentToken) {
+        result.push(currentToken);
+    }
 
     return result;
 }
@@ -28,21 +46,23 @@ function parseFormulaToAST(tokens: string[]): ASTNode {
     const stack: ASTNode[] = [];
     const operatorStack: string[] = [];
 
-    // Define operator precedence
     function getPrecedence(operator: string): number {
         switch (operator) {
             case "*":
             case "/":
-                return 2; // Higher precedence
+                return 2;
             case "+":
             case "-":
-                return 1; // Lower precedence
+                return 1;
             default:
-                return 0; // Parentheses or unknown
+                return 0;
         }
     }
 
     function applyOperator() {
+        if (stack.length < 2 || !operatorStack.length) {
+            throw new Error("Invalid expression");
+        }
         const right = stack.pop()!;
         const left = stack.pop()!;
         const operator = operatorStack.pop()!;
@@ -50,13 +70,14 @@ function parseFormulaToAST(tokens: string[]): ASTNode {
     }
 
     for (const token of tokens) {
-        if (/\d+/.test(token) || /^[A-Z]+\d+$/.test(token)) {
-            stack.push({ type: /^[A-Z]+\d+$/.test(token) ? "CellReference" : "Number", value: token });
+        if (/^\d+$/.test(token)) {
+            stack.push({ type: "Number", value: token });
+        } else if (/^[A-Z]+\d+$/.test(token)) {
+            stack.push({ type: "CellReference", value: token });
         } else if ("+-*/".includes(token)) {
-            // Apply operators with >= precedence
             while (
                 operatorStack.length &&
-                "+-*/".includes(operatorStack[operatorStack.length - 1]) &&
+                operatorStack[operatorStack.length - 1] !== "(" &&
                 getPrecedence(operatorStack[operatorStack.length - 1]) >= getPrecedence(token)
                 ) {
                 applyOperator();
@@ -65,19 +86,31 @@ function parseFormulaToAST(tokens: string[]): ASTNode {
         } else if (token === "(") {
             operatorStack.push(token);
         } else if (token === ")") {
-            while (operatorStack.length && operatorStack[operatorStack.length - 1] !== "(") {
+            while (
+                operatorStack.length &&
+                operatorStack[operatorStack.length - 1] !== "("
+                ) {
                 applyOperator();
+            }
+            if (!operatorStack.length) {
+                throw new Error("Mismatched parentheses");
             }
             operatorStack.pop(); // Remove "("
         }
     }
 
-    // Apply remaining operators
     while (operatorStack.length) {
+        if (operatorStack[operatorStack.length - 1] === "(") {
+            throw new Error("Mismatched parentheses");
+        }
         applyOperator();
     }
 
-    return stack[0]; // The root node of the AST
+    if (stack.length !== 1) {
+        throw new Error("Invalid expression");
+    }
+
+    return stack[0];
 }
 
 function evaluateAST(node: ASTNode, lookup: (cell: string) => number): number {
@@ -97,5 +130,5 @@ function evaluateAST(node: ASTNode, lookup: (cell: string) => number): number {
     throw new Error("Unknown operator");
 }
 
-export {tokenizeInput, parseFormulaToAST, evaluateAST}
+export { tokenizeInput, parseFormulaToAST, evaluateAST };
 export type { ASTNode };

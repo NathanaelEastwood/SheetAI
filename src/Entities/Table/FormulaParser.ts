@@ -2,6 +2,7 @@ import TableData from "./TableData";
 import tableData from "./TableData";
 import Cell from "./Cell";
 import {evaluateAST, parseFormulaToAST, tokenizeInput} from "../General/ASTHelperFunctions";
+import {columnLetterToNumber, splitReference} from "../General/HelperFunctions";
 
 let globalTableData : tableData;
 let globalIntakeReference: [number, number];
@@ -45,19 +46,8 @@ function doLookup(reference: string): number {
     }
 }
 
-function splitReference(reference: string): { column: string, row: number } {
-    const match = reference.match(/^([A-Z]+)(\d+)$/);
-    if (!match) throw new Error("Invalid reference format");
-    return { column: match[1], row: parseInt(match[2], 10) };
-}
 
-function columnLetterToNumber(column: string): number {
-    let columnNumber = 0;
-    for (let i = 0; i < column.length; i++) {
-        columnNumber = columnNumber * 26 + (column.charCodeAt(i) - 64);
-    }
-    return columnNumber;
-}
+
 
 
 export default parse;

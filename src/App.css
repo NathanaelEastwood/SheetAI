@@ -418,4 +418,14 @@ html, body, #root {
   outline: none;
 }
 
-
+.label-edge__label {
+  width: fit-content;
+  height: fit-content;
+  border: 5px solid white;
+  color: var(--xy-edge-label-color-default);
+  background-color: white;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  padding-top: 0px;
+}
