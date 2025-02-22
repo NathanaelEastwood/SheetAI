@@ -2,8 +2,6 @@ import {Edge, MarkerType, Node} from "@xyflow/react";
 import {ASTNode, evaluateAST, parseFormulaToAST, tokenizeInput} from "./ASTHelperFunctions";
 import functionNodeFactory from "../InteractionSpace/FunctionNodeFactory";
 import {columnLetterToNumber, splitReference} from "./HelperFunctions";
-import {useSelector} from "react-redux";
-import {RootState} from "../../main";
 import tableData from "../Table/TableData";
 
 abstract class FlowFormulaTranspiler {

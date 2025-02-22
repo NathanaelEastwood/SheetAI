@@ -25,14 +25,31 @@ function shiftAndInsertCells(xOffset: number, yOffset: number, copiedCells: Tabl
 }
 
 function shiftFormula(xOffset: number, yOffset: number, formula: string): string {
-    // TODO: Probably achievable in one iteration rather than O(n*m) where m is number of references and n is length of the formula, by recording where references were extracted from.
     let references = extractReferences(formula);
+
+    let result = "";
+    let lastIndex = 0;
+
     references.forEach(reference => {
-        let newReference = shiftReference(xOffset, yOffset, reference);
-        formula = formula.replace(reference, newReference);
+        let matchIndex = formula.indexOf(reference, lastIndex); // Find next occurrence
+        if (matchIndex === -1) return;
+
+        // Append everything before the match
+        result += formula.substring(lastIndex, matchIndex);
+
+        // Shift and append the reference
+        result += shiftReference(xOffset, yOffset, reference);
+
+        // Update last index to continue after this match
+        lastIndex = matchIndex + reference.length;
     });
-    return formula;
+
+    // Append any remaining part of the formula
+    result += formula.substring(lastIndex);
+
+    return result;
 }
+
 
 function shiftReference(xOffset: number, yOffset: number, reference: string): string {
     const match = reference.match(/([A-Z]+)(\d+)/);
