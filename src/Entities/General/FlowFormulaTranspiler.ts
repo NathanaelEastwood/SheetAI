@@ -74,7 +74,7 @@ abstract class FlowFormulaTranspiler {
             }
         }
 
-        const nodeWidth = 150;    // Estimated width of a single node
+        const nodeWidth = 100;    // Estimated width of a single node
         const nodeHeight = 80;    // Estimated height of a single node
         const minHorizontalSpacing = 50;  // Minimum space between nodes horizontally
         const minVerticalSpacing = 40;    // Minimum space between nodes vertically

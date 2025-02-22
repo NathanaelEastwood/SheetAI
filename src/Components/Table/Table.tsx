@@ -290,18 +290,22 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 case "ArrowDown":
                     event.preventDefault();
                     newRow = Math.max(newRow + 1, 0);
+                    dispatch(updateSelectedCell([newCol, newRow]))
                     break;
                 case "ArrowUp":
                     event.preventDefault();
                     newRow = Math.max(newRow - 1, 0);
+                    dispatch(updateSelectedCell([newCol, newRow]))
                     break;
                 case "ArrowLeft":
                     event.preventDefault();
                     newCol = Math.max(newCol - 1, 0);
+                    dispatch(updateSelectedCell([newCol, newRow]))
                     break;
                 case "ArrowRight":
                     event.preventDefault();
                     newCol = Math.max(newCol + 1, 0);
+                    dispatch(updateSelectedCell([newCol, newRow]))
                     break;
                 default:
                     return prevData; // No change, exit early

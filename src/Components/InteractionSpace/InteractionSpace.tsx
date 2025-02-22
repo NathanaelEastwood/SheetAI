@@ -56,7 +56,7 @@ const InteractionSpace: React.FC = () => {
             data: {
                 label: 'Output',
                 inputNodes: 1,
-                inputLabels: [`=${getLetterFromNumber(selectedCell[0])}${selectedCell[1]}`],
+                inputLabels: [`=${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`],
                 outputLabels: [],
                 height: 20
             },
@@ -65,32 +65,52 @@ const InteractionSpace: React.FC = () => {
     ];
 
     useEffect(() => {
-        if (selectedCellContents.UnderlyingValue[0] == '=') {
-            let flowValues = FlowFormulaTranspiler.formulaToFlow(`${getLetterFromNumber(selectedCell[0])}${selectedCell[1]}`, selectedCellContents.UnderlyingValue, tableData)
-            setNodes(flowValues[0])
-            setEdges(flowValues[1])
+
+    }, [selectedCell]);
+
+    useEffect(() => {
+        if (selectedCellContents.UnderlyingValue[0] === '=') {
+            let flowValues = FlowFormulaTranspiler.formulaToFlow(
+                `${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`,
+                selectedCellContents.UnderlyingValue,
+                tableData
+            );
+            setNodes(flowValues[0]);
+            setEdges(flowValues[1]);
         } else {
-            setNodes([{
-                id: '1',
-                type: 'functionNode',
-                targetPosition: Position.Left,
-                position: {x: 100, y: 100},
-                data: {
-                    label: 'Output',
-                    inputNodes: 1,
-                    inputLabels: [`=${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`],
-                    outputLabels: [],
-                    height: 20
-                },
-                draggable: false
-            }])
-            setEdges([])
+            setNodes([
+                {
+                    id: '1',
+                    type: 'functionNode',
+                    targetPosition: Position.Left,
+                    position: { x: 100, y: 100 },
+                    data: {
+                        label: 'Output',
+                        inputNodes: 1,
+                        inputLabels: [`=${getLetterFromNumber(selectedCell[0] + 1)}${selectedCell[1] + 1}`],
+                        outputLabels: [],
+                        height: 20
+                    },
+                    draggable: false
+                }
+            ]);
+            setEdges([]);
         }
     }, [selectedCell]);
 
     const initialEdges: any[] = [];
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges] = useEdgesState(initialEdges);
+
+    useEffect(() => {
+        if (reactFlowRef.current && nodes.length > 0) {
+            setTimeout(() => {
+                reactFlowRef.current.fitView({ padding: 3, duration: 600 });
+            }, 300);
+        }
+    }, [nodes]);
+
+
 
     let interactionSpace = useRef<HTMLDivElement>(null);
     const reactFlowRef = useRef<any>(null);
@@ -168,6 +188,7 @@ const InteractionSpace: React.FC = () => {
                         reactFlowRef.current = reactFlowInstance;
                         reactFlowInstance.fitView({ padding: 6 }).then();
                     }}
+                    ref = {reactFlowRef}
                 >
                 </ReactFlow>
             </div>
