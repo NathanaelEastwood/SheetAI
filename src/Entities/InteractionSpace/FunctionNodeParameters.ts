@@ -7,6 +7,7 @@ type FunctionNodeParameters = Node<{
     outputNodes: number;
     inputLabels: string[];
     outputLabels: string[];
+    width: string;
 }>;
 
 export default FunctionNodeParameters;

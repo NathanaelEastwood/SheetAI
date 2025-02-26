@@ -20,7 +20,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["X + Y = Z"]
+                        outputLabels: ["X + Y = Z"],
+                        width: "140px"
                     }
                 }
             case 1:
@@ -39,7 +40,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["X - Y = Z"]
+                        outputLabels: ["X - Y = Z"],
+                        width: "140px"
                     }
                 }
             case 2:
@@ -58,7 +60,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["X * Y = Z"]
+                        outputLabels: ["X * Y = Z"],
+                        width: "140px"
                     }
                 }
             case 3:
@@ -77,7 +80,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["X / Y = Z"]
+                        outputLabels: ["X / Y = Z"],
+                        width: "140px"
                     }
                 }
             case 4:
@@ -96,7 +100,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["X % Y = Z"]
+                        outputLabels: ["X % Y = Z"],
+                        width: "140px"
                     }
                 }
             case 5:
@@ -115,7 +120,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: ["X", "Y"],
-                        outputLabels: ["Xʸ = Z"]
+                        outputLabels: ["Xʸ = Z"],
+                        width: "140px"
                     }
                 }
             case 6:
@@ -134,7 +140,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 1,
                         height: 20,
                         inputLabels: [],
-                        outputLabels: [label]
+                        outputLabels: [label],
+                        width: "50px"
                     }
                 }
             case 7:
@@ -153,7 +160,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 0,
                         height: 20,
                         inputLabels: [label],
-                        outputLabels: []
+                        outputLabels: [],
+                        width: "40px"
                     }
                 }
             default:
@@ -173,7 +181,8 @@ abstract class FunctionNodeFactory {
                         outputNodes: 0,
                         height: 20,
                         inputLabels: [],
-                        outputLabels: []
+                        outputLabels: [],
+                        width: "140px"
                     }
                 }
             }

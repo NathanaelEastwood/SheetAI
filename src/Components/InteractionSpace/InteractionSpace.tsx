@@ -105,8 +105,8 @@ const InteractionSpace: React.FC = () => {
     useEffect(() => {
         if (reactFlowRef.current && nodes.length > 0) {
             setTimeout(() => {
-                reactFlowRef.current.fitView({ padding: 3, duration: 600 });
-            }, 300);
+                reactFlowRef.current.fitView({ padding: 3, duration: 300 });
+            }, 150);
         }
     }, [nodes]);
 

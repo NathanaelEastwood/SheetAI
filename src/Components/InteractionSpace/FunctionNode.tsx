@@ -20,7 +20,9 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
     const rightOffsets = calculateOffsets(data.outputNodes, finalHeight);
 
     return (
-        <div className="modern-function-node">
+        <div className="modern-function-node" style={{
+            width: data.width
+        }}>
             {/* Left side connections */}
             {leftOffsets.map((offset, index) => (
                 <Handle
@@ -47,7 +49,7 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                         position: "absolute",
                         top: leftOffsets[index] + 5,
                         left: 7,
-                        fontStyle: "14px Segoe UI, Roboto, sans-serif"
+                        fontStyle: "14px Segoe UI, Roboto, sans-serif",
                     }}>
                         {value}
                     </div>
