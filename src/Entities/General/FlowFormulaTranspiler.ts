@@ -7,7 +7,7 @@ import tableData from "../Table/TableData";
 abstract class FlowFormulaTranspiler {
 
     public static flowToFormula = (nodes: Node[], edges: Edge[]): string => {
-
+        return "";  // TODO: Implement this method
     }
 
     public static formulaToFlow = (originName: string, formula: string, tableData: tableData): [Node[], Edge[]] => {
@@ -154,7 +154,7 @@ abstract class FlowFormulaTranspiler {
             edges.push({
                 id: `${this_node_id}->${parent_id}`,
                 target: parent_id.toString(),
-                targetHandle: is_left_child ? "input-0-" : "input-1-",
+                targetHandle: is_left_child ? "input-0" : "input-1",
                 source: this_node_id.toString(),
                 type: 'straight-step-edge',
                 markerEnd: {

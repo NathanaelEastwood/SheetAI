@@ -15,13 +15,13 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "",
+                        label: "+",
                         inputNodes: 2,
                         outputNodes: 1,
                         height: 20,
-                        inputLabels: ["X", "Y"],
-                        outputLabels: ["X + Y = Z"],
-                        width: "140px"
+                        inputLabels: ["", ""],
+                        outputLabels: [""],
+                        width: "60px"
                     }
                 }
             case 1:
@@ -35,13 +35,13 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "",
+                        label: "-",
                         inputNodes: 2,
                         outputNodes: 1,
                         height: 20,
-                        inputLabels: ["X", "Y"],
-                        outputLabels: ["X - Y = Z"],
-                        width: "140px"
+                        inputLabels: ["", ""],
+                        outputLabels: [""],
+                        width: "60px"
                     }
                 }
             case 2:
@@ -55,13 +55,13 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "",
+                        label: "*",
                         inputNodes: 2,
                         outputNodes: 1,
                         height: 20,
-                        inputLabels: ["X", "Y"],
-                        outputLabels: ["X * Y = Z"],
-                        width: "140px"
+                        inputLabels: ["", ""],
+                        outputLabels: [""],
+                        width: "60px"
                     }
                 }
             case 3:
@@ -75,13 +75,13 @@ abstract class FunctionNodeFactory {
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
                     data: {
-                        label: "",
+                        label: "/",
                         inputNodes: 2,
                         outputNodes: 1,
                         height: 20,
-                        inputLabels: ["X", "Y"],
-                        outputLabels: ["X / Y = Z"],
-                        width: "140px"
+                        inputLabels: ["", ""],
+                        outputLabels: [""],
+                        width: "60px"
                     }
                 }
             case 4:

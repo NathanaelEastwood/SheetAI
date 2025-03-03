@@ -21,7 +21,7 @@
   bottom: 100px;
   z-index: 1;
   background-color: white;
-  padding-left: 0; !important;
+  padding-left: 0 !important;
 }
 
 .contextCanvas

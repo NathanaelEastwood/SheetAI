@@ -26,8 +26,8 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
             {/* Left side connections */}
             {leftOffsets.map((offset, index) => (
                 <Handle
-                    id={`input-${index}-${data.label}`}
-                    key={`input-${index}-${data.label}`}
+                    id={`input-${index}`}
+                    key={`input-${index}`}
                     type="target"
                     position={Position.Left}
                     style={{
@@ -44,7 +44,7 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
             <div className="content" style={{ height: `${finalHeight}px`}}>
                 {data.inputLabels.map((value, index) => (
                     <div
-                        key={`input-label-${index}-${data.label}`}
+                        key={`input-label-${index}`}
                         style={{
                         position: "absolute",
                         top: leftOffsets[index] + 5,
@@ -57,7 +57,7 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
                 <label htmlFor="text">{data.label}</label>
                 {data.outputLabels.map((value, index) => (
                     <div
-                        key={`output-label-${index}-${data.label}`}
+                        key={`output-label-${index}`}
                         style={{
                             position: "absolute",
                             top: rightOffsets[index] + 5,
@@ -72,11 +72,10 @@ export default function ModernFunctionNode({ data, isConnectable }: NodeProps<Fu
             {/* Right side connections */}
             {rightOffsets.map((offset, index) => (
                 <Handle
-                    id={`output-${index}-${data.label}`}
-                    key={`output-${index}-${data.label}`}
+                    id={`output-${index}`}
+                    key={`output-${index}`}
                     type="source"
                     position={Position.Right}
-
                     style={{
                         width: '10px',
                         height: '10px',
