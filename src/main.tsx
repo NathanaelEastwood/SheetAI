@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import TableContainer from "./Components/Table/TableContainer";
 import InteractionSpace from "./Components/InteractionSpace/InteractionSpace";
+import FormulaBar from './Components/Table/FormulaBar';
 // @ts-ignore
 import { Provider } from 'react-redux'
 import {configureStore, createStore} from "@reduxjs/toolkit";
@@ -37,10 +38,13 @@ const App: React.FC = () => {
     return (
         <>
             <div className="vh-100 vw-100">
-                <Row className="h-25">
+                <Row style={{ height: '17%'}}>
                     <h1>Tool Bar Space</h1>
                 </Row>
-                <Row className="h-75" style={{ paddingLeft: 0 }}>
+                <Row style={{ height: '8%' }}>
+                    <FormulaBar />
+                </Row>
+                <Row style={{ paddingLeft: 0, height: '75%' }}>
                     <Col style={{padding: 0}}>
                         <TableContainer/>
                     </Col>

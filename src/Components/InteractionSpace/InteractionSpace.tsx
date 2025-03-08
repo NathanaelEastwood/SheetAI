@@ -4,7 +4,7 @@ import {
     addEdge,
     applyEdgeChanges,
     Connection,
-    EdgeTypes, MiniMap,
+    EdgeTypes,
     Node,
     NodeTypes,
     Position,
@@ -63,10 +63,6 @@ const InteractionSpace: React.FC = () => {
             draggable: false
         }
     ];
-
-    useEffect(() => {
-
-    }, [selectedCell]);
 
     useEffect(() => {
         if (selectedCellContents.UnderlyingValue[0] === '=') {

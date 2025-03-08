@@ -7,6 +7,8 @@ import tableData from "../Table/TableData";
 abstract class FlowFormulaTranspiler {
 
     public static flowToFormula = (nodes: Node[], edges: Edge[]): string => {
+        console.log(nodes)
+        console.log(edges)
         return "";  // TODO: Implement this method
     }
 
