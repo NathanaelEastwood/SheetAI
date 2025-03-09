@@ -7,10 +7,12 @@ import Col from 'react-bootstrap/Col';
 import TableContainer from "./Components/Table/TableContainer";
 import InteractionSpace from "./Components/InteractionSpace/InteractionSpace";
 import FormulaBar from './Components/Table/FormulaBar';
+import Toolbar from './Components/Toolbar/Toolbar';
 // @ts-ignore
 import { Provider } from 'react-redux'
 import {configureStore, createStore} from "@reduxjs/toolkit";
 import globalTableDataReducer from './Entities/Table/globalStateStore';
+import { Form } from 'react-bootstrap';
 
 // Define the type of your shared data
 interface SharedData {
@@ -39,13 +41,14 @@ const App: React.FC = () => {
         <>
             <div className="vh-100 vw-100">
                 <Row style={{ height: '17%'}}>
-                    <h1>Tool Bar Space</h1>
+                    <Toolbar />
                 </Row>
-                <Row style={{ height: '8%' }}>
+                <Row style={{ height: '8%'}}>
                     <FormulaBar />
                 </Row>
-                <Row style={{ paddingLeft: 0, height: '75%' }}>
+                <Row className="h-75" style={{ paddingLeft: 0 }}>
                     <Col style={{padding: 0}}>
+                        <FormulaBar />
                         <TableContainer/>
                     </Col>
                     <Col style={{padding: 0}}>
