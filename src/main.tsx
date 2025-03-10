@@ -10,9 +10,8 @@ import FormulaBar from './Components/Table/FormulaBar';
 import Toolbar from './Components/Toolbar/Toolbar';
 // @ts-ignore
 import { Provider } from 'react-redux'
-import {configureStore, createStore} from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import globalTableDataReducer from './Entities/Table/globalStateStore';
-import { Form } from 'react-bootstrap';
 
 // Define the type of your shared data
 interface SharedData {
@@ -22,21 +21,6 @@ interface SharedData {
 }
 
 const App: React.FC = () => {
-    // Create state for the shared data.
-    const [sharedData, setSharedData] = React.useState<SharedData>({
-        tableData: null,
-        interactionData: null,
-    });
-
-    // Functions to update parts of the shared data.
-    const updateTableData = (data: any) => {
-        setSharedData(prev => ({ ...prev, tableData: data }));
-    };
-
-    const updateInteractionData = (data: any) => {
-        setSharedData(prev => ({ ...prev, interactionData: data }));
-    };
-
     return (
         <>
             <div className="vh-100 vw-100">
