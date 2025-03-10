@@ -5,13 +5,11 @@ import Cell from '../../Entities/Table/Cell';
 import { updateGlobalTableData } from '../../Entities/Table/globalStateStore';
 import parse from '../../Entities/Table/FormulaParser';
 import { getLetterFromNumber } from '../../Entities/General/HelperFunctions';
-import {OpenAI} from "openai";
-import {Simulate} from "react-dom/test-utils";
-import input = Simulate.input;
 
 type FormulaType = 'traditional' | 'prompt';
 
 const FormulaBar: React.FC = () => {
+    const API_URL = "http://localhost:5000/data";
     const dispatch = useDispatch();
     const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell) as [number, number];
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
@@ -37,14 +35,23 @@ const FormulaBar: React.FC = () => {
     
     const evaluateFormula = async () => {
         const currentCell = tableData.getCellValue(selectedCell[0], selectedCell[1]);
-        console.log("OPENAI_API_KEY:", process.env.OPENAI_API_KEY);
         let newCell: Cell;
         if (inputValue.startsWith('=')) {
             // Handle different formula types
             if (formulaType === 'traditional') {
                 newCell = parse(new Cell('', inputValue, currentCell.Dependants), tableData, selectedCell);
             } else if (formulaType === 'prompt') {
-                newCell = parse(new Cell('', '', currentCell.Dependants), tableData, selectedCell);
+                await fetch(API_URL, {
+                    method: "POST", // Use POST to send data
+                    headers: {
+                        "Content-Type": "application/json", // Set JSON content type
+                    },
+                    body: JSON.stringify({"prompt_value": inputValue}), // Convert JS object to JSON
+                })
+                    .then((response) => response.json())
+                    .then((result) => newCell = parse(new Cell('', result.choices[0].message.content, currentCell.Dependants), tableData, selectedCell))
+                    .catch((error) => console.error("Error fetching data:", error));
+
             } else {
                 newCell = parse(new Cell('', inputValue, currentCell.Dependants), tableData, selectedCell);
             }
@@ -56,20 +63,20 @@ const FormulaBar: React.FC = () => {
         dispatch(updateGlobalTableData(newTableData));
     };
     
-    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             // Prevent default behavior and stop propagation to prevent table cell from going into edit mode
             event.preventDefault();
             event.stopPropagation();
-            
-            evaluateFormula();
+
+            await evaluateFormula();
             setIsFocused(false);
             (event.target as HTMLInputElement).blur();
         } else if (event.key === 'Escape') {
             // Reset to original value on Escape
             event.preventDefault();
             event.stopPropagation();
-            
+
             setInputValue(currentCellValue);
             setIsFocused(false);
             (event.target as HTMLInputElement).blur();
