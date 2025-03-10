@@ -35,9 +35,9 @@ const App: React.FC = () => {
                         <FormulaBar />
                         <TableContainer/>
                     </Col>
-                    <Col style={{padding: 0}}>
+{/*                    <Col style={{padding: 0}}>
                         <InteractionSpace/>
-                    </Col>
+                    </Col>*/}
                 </Row>
             </div>
         </>

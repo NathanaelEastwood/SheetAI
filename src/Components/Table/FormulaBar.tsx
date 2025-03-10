@@ -84,8 +84,7 @@ const FormulaBar: React.FC = () => {
     };
     
     const handleBlur = () => {
-        setIsFocused(false);
-        evaluateFormula();
+        evaluateFormula().then(() => setIsFocused(false));
     };
 
     const handleFormulaTypeChange = (type: FormulaType) => {

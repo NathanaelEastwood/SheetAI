@@ -94,7 +94,7 @@ const TableContainer: React.FC = () => {
             style={{
                 // TODO: remove hard coded width and height values.
                 position: "absolute",
-                width: "50vw",
+                width: "100vw",
                 height: "78vh", // Ensure full viewport height
                 margin: 0, // Remove any default margin
                 padding: 0, // Remove any padding
@@ -158,7 +158,7 @@ const TableContainer: React.FC = () => {
                     position: "absolute",
                     overflow: "scroll",
                     height: "75vh",
-                    width: "44.8vw",
+                    width: "94.5vw",
                     top: "30px",
                     left: "100px"
                 }}
