@@ -14,7 +14,8 @@ const TableContainer: React.FC = () => {
     const { windowHeight, windowWidth } = useWindowDimensions();
 
     const dispatch = useDispatch();
-    // Redux store table data initialisation
+
+
     const rows = Math.ceil(windowHeight / 30);
     const cols = Math.ceil(windowWidth / 80);
 
@@ -121,7 +122,7 @@ const TableContainer: React.FC = () => {
                 // TODO: remove hard coded width and height values.
                 position: "absolute",
                 width: "100vw",
-                height: "calc(100vh - 230px)", // Ensure full viewport height
+                height: "calc(100vh - 200px)", // Ensure full viewport height
                 margin: 0, // Remove any default margin
                 padding: 0, // Remove any padding
                 boxSizing: "border-box", // Include padding and border in dimensions
