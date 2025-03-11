@@ -24,7 +24,9 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const dispatch = useDispatch();
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
-    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell)
+    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
+
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
 
     // Create refs for scrollX and scrollY
     const scrollXRef = useRef<number>(tableProperties.scrollX);
@@ -85,13 +87,16 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             let pixelHeight = verticalScalar.pixelLength;
             canvas.width = pixelWidth;
             canvas.height = pixelHeight;
+
             if (ctx) {
                 let cumulativeHeight = 0;
+                ctx.fillStyle = darkModeState ? "white" : "black";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 // Draw table cells
                 for (let i = 0; i < tableProperties.height; i++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
-                    ctx.strokeStyle = "#D3D3D3";
+                    ctx.strokeStyle = darkModeState ? "#D3D3D3" : "#FFFFFF";
                     ctx.moveTo(0, verticalScalar.scalars[i] + cumulativeHeight);
                     ctx.lineTo(canvas.width, verticalScalar.scalars[i] + cumulativeHeight);
                     ctx.stroke();
@@ -103,7 +108,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 for (let j = 0; j < tableProperties.width; j++) {
                     ctx.beginPath();
                     ctx.lineWidth = 1;
-                    ctx.strokeStyle = "#D3D3D3";
+                    ctx.strokeStyle = darkModeState ? "#D3D3D3" : "#FFFFFF";
                     ctx.moveTo(cumulativeWidth + horizontalScalar.scalars[j], 0);
                     ctx.lineTo(cumulativeWidth + horizontalScalar.scalars[j], canvas.height);
                     ctx.stroke();
@@ -111,7 +116,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 }
 
                 ctx.font = "15px serif";
-                ctx.fillStyle = "black";
+                ctx.fillStyle = darkModeState ? "black" : "white";
                 for (let x = 0; x < tableProperties.width; x++){
                     for (let y = 0; y < tableProperties.height; y++)
                     {
@@ -124,7 +129,7 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                 }
             }
         }
-    }, [tableProperties.width, tableProperties.height, ref, tableData, tableProperties.horizontalScalars, tableProperties.verticalScalars]);
+    }, [tableProperties.width, tableProperties.height, ref, tableData, tableProperties.horizontalScalars, tableProperties.verticalScalars, darkModeState]);
 
     useEffect(() => {
         window.addEventListener("keydown", handleGlobalKeypress);

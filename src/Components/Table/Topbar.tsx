@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { Scalars } from "../../Entities/Table/Scalars";
 import { getLetterFromNumber } from "../../Entities/General/HelperFunctions";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
 
 interface TopbarProps {
     style?: React.CSSProperties;
@@ -19,6 +21,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
     const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars);
     const [draggingColumnBorder, setDraggingColumnBorder] = useState<boolean>(false);
     const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     let hoveringResize = useRef<boolean>(false);
     let dragStartLocation = useRef<number>(0);
 
@@ -44,13 +47,13 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 canvas.height = 30;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#f8f9fa"; // Light gray background
+                ctx.fillStyle = darkModeState ? "#f8f9fa" : "#070605"; // Light gray background
                 ctx.fillRect(0, 0, canvas.width, 30);
 
                 ctx.font = "14px Segoe UI, Roboto, sans-serif";
-                ctx.fillStyle = "#2c5282"; // Blue text
+                ctx.fillStyle = darkModeState ? "#2c5282" : "#d3ad7d"; // Blue text
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = "#e0e0e0"; // Soft gray borders
+                ctx.strokeStyle = darkModeState ? "#e0e0e0" : "#1f1f1f"; // Soft gray borders
 
                 // Draw top border
                 ctx.beginPath();
@@ -60,7 +63,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
 
                 // Stronger bottom separation
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = "#d1d5db"; // Slightly darker gray
+                ctx.strokeStyle = darkModeState ? "#d1d5db" : "#2e2a24"; // Slightly darker gray
                 ctx.beginPath();
                 ctx.moveTo(0, 29.5); // Slightly inset from edge
                 ctx.lineTo(canvas.width, 29.5);
@@ -68,7 +71,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
 
                 // Reset for column lines
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = "#e0e0e0";
+                ctx.strokeStyle = darkModeState ? "#e0e0e0" : "#1f1f1f";
 
                 let cumulativeXPosition = 0;
                 columnHeadings.forEach((letter, index) => {
@@ -94,7 +97,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 });
             }
         }
-    }, [isReady, columnHeadings, horizontalScalarsState, width]);
+    }, [isReady, columnHeadings, horizontalScalarsState, width, darkModeState]);
 
     const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
         if (!isReady) return;
@@ -138,7 +141,7 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
             <div style={{
                 height: "1000px",
                 width: "2px",
-                backgroundColor: "#2c5282",
+                backgroundColor: darkModeState ? "#2c5282" : "#d3ad7d",
                 position: "absolute",
                 top: 0,
                 left: dragCurrentLocation,
@@ -154,8 +157,8 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 ref={ref || localCanvasRef}
                 style={{
                     ...style,
-                    backgroundColor: "#f8f9fa",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.15)", // Stronger shadow at bottom
+                    backgroundColor: darkModeState ? "#f8f9fa" : "#070605",
+                    boxShadow: darkModeState ? "0 2px 4px rgba(0, 0, 0, 0.15)" : "0 2px 4px rgba(255, 255, 255, 0.15)", // Stronger shadow at bottom
                 }}
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}

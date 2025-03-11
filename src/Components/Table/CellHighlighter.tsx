@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Cell from "../../Entities/Table/Cell";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
 
 interface CellHighlightParameters {
     left: number;
@@ -23,6 +25,8 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
         visible: cellHighlightParameters.visible ?? true, // Default to true if undefined
         isCopyHighlighter: cellHighlightParameters.isCopyHighlighter ?? false // Default to false if undefined
     });
+
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -66,12 +70,15 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                 left: `${highlightCoordinates.left}px`,
                 width: `${selectionWidth}px`,
                 height: `${selectionHeight}px`,
-                backgroundColor: highlightCoordinates.isMultiSelect && !highlightCoordinates.isCopyHighlighter
+                backgroundColor: darkModeState ? (highlightCoordinates.isMultiSelect && !highlightCoordinates.isCopyHighlighter
                     ? "rgba(38, 0, 255, 0.09)"
-                    : "rgba(255, 255, 255, 0)",
+                    : "rgba(255, 255, 255, 0)") : (highlightCoordinates.isMultiSelect && !highlightCoordinates.isCopyHighlighter
+                    ? "rgb(217,255,0, 0.09)"
+                    : "rgb(0,0,0, 0)"
+                ),
                 border: highlightCoordinates.isCopyHighlighter ? "2px dashed": "2px solid",
                 borderRadius: "2px",
-                borderColor: highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8",
+                borderColor: darkModeState ? (highlightCoordinates.isEditing ? "#00308F" : "#7CB9E8") : (highlightCoordinates.isEditing ? "#ffcf70" : "#834617"),
                 pointerEvents: "none",
             }}
             onKeyDown={handleInput}
@@ -86,7 +93,8 @@ const CellHighlighter: React.FC<CellHighlightParameters> = (cellHighlightParamet
                         left: "0px",
                         width: `${selectionWidth - 5}px`,
                         height: `${selectionHeight - 5}px`,
-                        backgroundColor: "rgba(255, 255, 255, 100)",
+                        backgroundColor: darkModeState ? "rgba(255, 255, 255, 100)" : "rgba(0, 0, 0, 100)",
+                        color: darkModeState ? "black" : "white",
                         border: "none",
                         textAlign: "left",
                         fontSize: "14px",
