@@ -15,7 +15,7 @@ const TableContainer: React.FC = () => {
 
     const dispatch = useDispatch();
 
-
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     const rows = Math.ceil(windowHeight / 30);
     const cols = Math.ceil(windowWidth / 80);
 
@@ -139,9 +139,9 @@ const TableContainer: React.FC = () => {
                     left: 0,
                     height: "30px",
                     width: "100px",
-                    backgroundColor: "#f8f9fa", // Light gray background
-                    border: "1px solid #e0e0e0", // Soft gray border
-                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)", // Subtle shadow
+                    backgroundColor: darkModeState ? "#f8f9fa": "#070605", // Light gray background
+                    border: darkModeState ? "1px solid #e0e0e0" : "1px solid #1f1f1f", // Soft gray border
+                    boxShadow: darkModeState ? "0 1px 3px rgba(0, 0, 0, 0.1)" : "0 1px 3px rgba(255, 255, 255, 0.1)", // Subtle shadow
                     borderRadius: "4px", // Slight rounding
                     zIndex: 99,
                 }}

@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
+import {ThemeContext} from "../../Entities/Theme/ThemeProvider";
+import {useDispatch, useSelector} from "react-redux";
+import {toggleDarkMode} from "../../Entities/Theme/themeStateStore";
+import {RootState} from "../../main";
 
 interface MenuOption {
     label?: string;
@@ -63,6 +67,9 @@ const Toolbar: React.FC = () => {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     const [hoveredMenuItem, setHoveredMenuItem] = useState<string | null>(null);
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
+
+    const dispatch = useDispatch();
 
     const handleMenuClick = (menuName: string, event: React.MouseEvent) => {
         const rect = (event.target as HTMLElement).getBoundingClientRect();
@@ -85,8 +92,8 @@ const Toolbar: React.FC = () => {
     return (
         <div style={{
             height: "200px",
-            backgroundColor: '#f8f9fa',
-            borderBottom: '1px solid #dee2e6',
+            backgroundColor: darkModeState ? '#f8f9fa' : "#070605",
+            borderBottom: darkModeState ? '1px solid #dee2e6' : '1px solid #211d19',
             padding: '4px 8px',
             display: 'flex',
             flexDirection: 'column',
@@ -97,30 +104,40 @@ const Toolbar: React.FC = () => {
                 display: 'flex',
                 gap: '16px',
                 padding: '4px 8px',
-                borderBottom: '1px solid #dee2e6'
+                borderBottom: darkModeState ? '1px solid #dee2e6' : '1px solid #211d19'
             }}>
                 {Object.keys(menuOptions).map(item => (
-                    <div 
-                        key={item} 
+                    <div
+                        key={item}
                         onClick={(e) => handleMenuClick(item, e)}
                         style={{
                             padding: '4px 8px',
                             cursor: 'pointer',
                             fontSize: '14px',
-                            color: '#212529',
-                            backgroundColor: activeMenu === item ? '#e9ecef' : 'transparent',
+                            color: darkModeState ? '#212529' : "#dedad6",
+                            backgroundColor: darkModeState ? (activeMenu === item ? '#e9ecef' : 'transparent') : (activeMenu === item ? '#161310' : 'transparent'),
                             borderRadius: '2px'
                         }}
                     >
                         {item}
                     </div>
                 ))}
+                <div style={{
+                    position: "absolute",
+                    top: 12.5,
+                    right: 20
+                }}>
+                    <label className="switch">
+                        <input type="checkbox" onChange={() => dispatch(toggleDarkMode())}/>
+                        <span className="slider round"></span>
+                    </label>
+                </div>
             </div>
 
             {/* Dropdown menu */}
             {activeMenu && (
                 <>
-                    <div 
+                <div
                         style={{
                             position: 'fixed',
                             top: 0,
@@ -136,7 +153,7 @@ const Toolbar: React.FC = () => {
                         top: menuPosition.top,
                         left: menuPosition.left,
                         backgroundColor: 'white',
-                        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                        boxShadow: darkModeState ? '0 2px 10px rgba(0,0,0,0.2)' : '0 2px 10px rgba(255, 255, 255, 0.2)',
                         borderRadius: '4px',
                         zIndex: 101,
                         minWidth: '200px'
@@ -147,7 +164,7 @@ const Toolbar: React.FC = () => {
                                     key={`divider-${index}`} 
                                     style={{ 
                                         height: '1px', 
-                                        backgroundColor: '#dee2e6', 
+                                        backgroundColor: darkModeState ? '#dee2e6' : "#211d19",
                                         margin: '4px 0' 
                                     }} 
                                 />
@@ -163,7 +180,7 @@ const Toolbar: React.FC = () => {
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
                                         fontSize: '14px',
-                                        backgroundColor: hoveredMenuItem === option.label ? '#f8f9fa' : 'transparent'
+                                        backgroundColor: darkModeState ? (hoveredMenuItem === option.label ? '#f8f9fa' : 'transparent') : (hoveredMenuItem === option.label ? '#070605' : 'transparent')
                                     }}
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -174,7 +191,7 @@ const Toolbar: React.FC = () => {
                                     </div>
                                     {option.shortcut && (
                                         <div style={{ 
-                                            color: '#6c757d', 
+                                            color: darkModeState ? '#6c757d' : "#938a82",
                                             fontSize: '12px',
                                             marginLeft: '16px'
                                         }}>
@@ -363,13 +380,14 @@ interface ToolbarSectionProps {
 }
 
 const ToolbarSection: React.FC<ToolbarSectionProps> = ({ children }) => {
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '4px',
             padding: '4px 8px',
-            borderRight: '1px solid #dee2e6'
+            borderRight: darkModeState ? '1px solid #dee2e6' : '1px solid #211d19'
         }}>
             {children}
         </div>
@@ -384,7 +402,7 @@ interface ToolbarButtonProps {
 
 const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, small = false }) => {
     const [isHovered, setIsHovered] = useState(false);
-    
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     return (
         <div 
             title={label}
@@ -396,13 +414,13 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, small = fals
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: small ? '2px 4px' : '4px 8px',
-                border: isHovered ? '1px solid #ced4da' : '1px solid transparent',
+                border: darkModeState ? (isHovered ? '1px solid #ced4da' : '1px solid transparent') : (isHovered ? '1px solid #312b25' : '1px solid transparent'),
                 borderRadius: '2px',
                 cursor: 'pointer',
                 fontSize: small ? '12px' : '14px',
                 width: small ? '24px' : 'auto',
                 height: small ? '24px' : 'auto',
-                backgroundColor: isHovered ? '#e9ecef' : 'transparent'
+                backgroundColor: darkModeState ? (isHovered ? '#e9ecef' : 'transparent') : (isHovered ? '#161310' : 'transparent')
             }}
         >
             {icon}

@@ -12,6 +12,7 @@ const FormulaBar: React.FC = () => {
     const API_URL = "http://localhost:5000/data";
     const dispatch = useDispatch();
     const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell) as [number, number];
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
     const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState('');
@@ -103,12 +104,12 @@ const FormulaBar: React.FC = () => {
             position: "fixed",
             top: "155px",
             padding: '8px 16px',
-            backgroundColor: '#ffffff',
+            backgroundColor: darkModeState ? '#ffffff' : "#000000",
             borderBottom: '1px solid #dee2e6',
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            boxShadow: darkModeState ? '0 1px 3px rgba(0,0,0,0.1)' : '0 1px 3px rgba(255,255,255,0.1)',
             height: '48px'
         }}>
             <div style={{
@@ -127,17 +128,17 @@ const FormulaBar: React.FC = () => {
                             padding: '4px 8px',
                             border: '1px solid #ced4da',
                             borderRadius: '4px',
-                            backgroundColor: '#f8f9fa',
+                            backgroundColor: darkModeState? '#f8f9fa' : "#070605",
                             fontSize: '14px',
                             cursor: 'pointer',
                             minWidth: '120px',
                             justifyContent: 'space-between'
                         }}
                     >
-                        <span style={{ fontWeight: 500, color: '#666' }}>
+                        <span style={{ fontWeight: 500, color: darkModeState ? '#666' : "#999999"}}>
                             {formulaType === 'traditional' ? 'fx' : '🤖'}
                         </span>
-                        <span style={{ color: '#495057' }}>
+                        <span style={{ color: darkModeState ? '#495057' : "#b6afa8" }}>
                             {formulaType === 'traditional' ? 'Traditional' : 'Prompt'}
                         </span>
                         <span>▼</span>
@@ -160,8 +161,8 @@ const FormulaBar: React.FC = () => {
                                 position: 'absolute',
                                 top: '100%',
                                 left: 0,
-                                backgroundColor: 'white',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                                backgroundColor: darkModeState ? 'white' : 'black',
+                                boxShadow: darkModeState ? '0 2px 10px rgba(0,0,0,0.2)' : '0 2px 10px rgba(255,255,255,0.2)',
                                 borderRadius: '4px',
                                 zIndex: 101,
                                 width: '100%',
@@ -175,10 +176,10 @@ const FormulaBar: React.FC = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px',
-                                        backgroundColor: formulaType === 'traditional' ? '#f8f9fa' : 'transparent'
+                                        backgroundColor: darkModeState ? formulaType === 'traditional' ? '#f8f9fa' : 'transparent' : formulaType === 'traditional' ? '#070605' : 'transparent'
                                     }}
                                 >
-                                    <span style={{ fontWeight: 500, color: '#666' }}>fx</span>
+                                    <span style={{ fontWeight: 500, color: darkModeState ? '#666' : "#999999" }}>fx</span>
                                     <span>Traditional</span>
                                 </div>
                                 <div 
@@ -189,10 +190,10 @@ const FormulaBar: React.FC = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px',
-                                        backgroundColor: formulaType === 'prompt' ? '#f8f9fa' : 'transparent'
+                                        backgroundColor: darkModeState ? formulaType === 'traditional' ? '#f8f9fa' : 'transparent' : formulaType === 'traditional' ? '#070605' : 'transparent'
                                     }}
                                 >
-                                    <span style={{ fontWeight: 500, color: '#666' }}>🤖</span>
+                                    <span style={{ fontWeight: 500, color: darkModeState ? '#666' : "#999999" }}>🤖</span>
                                     <span>Prompt</span>
                                 </div>
                             </div>
@@ -204,11 +205,11 @@ const FormulaBar: React.FC = () => {
                     padding: '4px 8px',
                     border: '1px solid #ced4da',
                     borderRadius: '4px',
-                    backgroundColor: '#f8f9fa',
+                    backgroundColor: darkModeState ? '#f8f9fa' : "#070605",
                     fontSize: '14px',
                     minWidth: '60px',
                     textAlign: 'center',
-                    color: '#495057'
+                    color: darkModeState ? '#495057' : '#b6afa8'
                 }}>
                     {cellReference}
                 </div>
@@ -226,7 +227,8 @@ const FormulaBar: React.FC = () => {
                 style={{
                     flex: 1,
                     padding: '6px 12px',
-                    border: '1px solid ' + (isFocused ? '#86b7fe' : '#ced4da'),
+                    backgroundColor: darkModeState ? '#f8f9fa' : "#070605",
+                    border: darkModeState ? ('1px solid ' + (isFocused ? '#86b7fe' : '#ced4da')) : ('1px solid ' + (isFocused ? '#794801' : '#312b25')),
                     borderRadius: '4px',
                     fontSize: '14px',
                     height: '32px',

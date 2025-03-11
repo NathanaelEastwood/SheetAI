@@ -1,5 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Scalars } from "../../Entities/Table/Scalars";
+import {useSelector} from "react-redux";
+import {RootState} from "../../main";
 
 interface SidebarProps {
     startingNumber: number;
@@ -18,6 +20,8 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
     const [verticalScalarsState, setVerticalScalars] = useState<Scalars>(verticalScalars);
     const [draggingRowBorder, setDraggingRowBorder] = useState<boolean>(false);
     const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
+
+    const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
     let hoveringResize = useRef<boolean>(false);
     let dragStartLocation = useRef<number>(0);
 
@@ -31,14 +35,14 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 canvas.width = 100;
                 canvas.height = verticalScalarsState.pixelLength;
 
-                ctx.fillStyle = "#f8f9fa"; // Light gray background
+                ctx.fillStyle = darkModeState ? "#f8f9fa" : "#070605"; // Light gray background
                 ctx.fillRect(0, 0, 100, verticalScalarsState.pixelLength);
 
                 // Fixed font syntax
                 ctx.font = "14px Segoe UI, Roboto, sans-serif";
-                ctx.fillStyle = "#2c5282"; // Blue text
+                ctx.fillStyle = darkModeState ? "#2c5282" : "#d3ad7d"; // Blue text
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = "#e0e0e0"; // Soft gray borders
+                ctx.strokeStyle = darkModeState ? "#e0e0e0" : "#1f1f1f"; // Soft gray borders
 
                 // Draw left border
                 ctx.beginPath();
@@ -48,7 +52,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
 
                 // Stronger right separation
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = "#d1d5db"; // Slightly darker gray
+                ctx.strokeStyle = darkModeState ? "#d1d5db" : "#2e2a24"; // Slightly darker gray
                 ctx.beginPath();
                 ctx.moveTo(99.5, 0); // Slightly inset from edge
                 ctx.lineTo(99.5, verticalScalarsState.pixelLength);
@@ -56,7 +60,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
 
                 // Reset for row lines
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = "#e0e0e0";
+                ctx.strokeStyle = darkModeState ? "#e0e0e0" : "#1f1f1f";
 
                 let cumulativeYPosition = 0;
                 rowHeadings.forEach((value: number, index: number) => {
@@ -78,7 +82,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 });
             }
         }
-    }, [height, startingNumber, verticalScalars]);
+    }, [height, startingNumber, verticalScalars, darkModeState]);
 
     const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
         let absoluteY = event.clientY + scrollY - 230;
@@ -119,7 +123,7 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
             <div style={{
                 height: "2px",
                 width: "5000px",
-                backgroundColor: "#2c5282", // Blue drag indicator
+                backgroundColor: darkModeState ? "#2c5282" : "#d3ad7d", // Blue drag indicator
                 position: "absolute",
                 top: dragCurrentLocation,
                 left: 0,
@@ -135,8 +139,8 @@ const Sidebar = forwardRef<HTMLCanvasElement, SidebarProps>(({ style, height, st
                 ref={ref || localCanvasRef}
                 style={{
                     ...style,
-                    backgroundColor: "#f8f9fa",
-                    boxShadow: "2px 0 4px rgba(0, 0, 0, 0.15)", // Stronger shadow on right
+                    backgroundColor: darkModeState ? "#f8f9fa" : "#070605",
+                    boxShadow: darkModeState ? "2px 0 4px rgba(0, 0, 0, 0.15)" : "2px 0 4px rgba(255, 255, 255, 0.15)", // Stronger shadow on right
                 }}
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
