@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAIAgent } from '../../Services/AIService';
+import { useSelector } from 'react-redux';
+import {RootState} from "../../main";
 
 interface AIChatProps {}
 
@@ -8,6 +10,7 @@ const AgentChat: React.FC<AIChatProps> = () => {
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { queryAI } = useAIAgent();
+  const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
 
   useEffect(() => {
     console.log('AgentChat component mounted');
@@ -35,9 +38,10 @@ const AgentChat: React.FC<AIChatProps> = () => {
       right: '20px',
       width: '300px',
       padding: '15px',
-      backgroundColor: 'white',
+      backgroundColor: darkModeState ? '#f8f9fa' : '#070605',
+      color: darkModeState ? '#212529' : '#dedad6',
       borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      boxShadow: darkModeState ? '0 2px 10px rgba(0,0,0,0.1)' : '0 2px 10px rgba(255,255,255,0.1)',
       zIndex: 1000
     }}>
       <h4 style={{ marginBottom: '10px' }}>AI Assistant</h4>
@@ -52,7 +56,9 @@ const AgentChat: React.FC<AIChatProps> = () => {
             padding: '8px',
             marginBottom: '10px',
             borderRadius: '4px',
-            border: '1px solid #ddd'
+            border: darkModeState ? '1px solid #ced4da' : '1px solid #312b25',
+            backgroundColor: darkModeState ? '#ffffff' : '#000000',
+            color: darkModeState ? '#212529' : '#dedad6',
           }}
         />
         <button
@@ -61,11 +67,12 @@ const AgentChat: React.FC<AIChatProps> = () => {
           style={{
             width: '100%',
             padding: '8px',
-            backgroundColor: '#007bff',
+            backgroundColor: darkModeState ? '#2c5282' : '#d3ad7d',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: isLoading ? 'not-allowed' : 'pointer'
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.7 : 1,
           }}
         >
           {isLoading ? 'Thinking...' : 'Ask AI'}
@@ -75,7 +82,7 @@ const AgentChat: React.FC<AIChatProps> = () => {
         <div style={{
           marginTop: '15px',
           padding: '10px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: darkModeState ? '#e9ecef' : '#161310',
           borderRadius: '4px',
           maxHeight: '200px',
           overflowY: 'auto'
