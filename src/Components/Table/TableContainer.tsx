@@ -121,7 +121,7 @@ const TableContainer: React.FC = () => {
                 // TODO: remove hard coded width and height values.
                 position: "absolute",
                 width: "100vw",
-                height: "78vh", // Ensure full viewport height
+                height: "calc(100vh - 230px)", // Ensure full viewport height
                 margin: 0, // Remove any default margin
                 padding: 0, // Remove any padding
                 boxSizing: "border-box", // Include padding and border in dimensions
