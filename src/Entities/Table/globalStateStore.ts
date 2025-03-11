@@ -4,7 +4,7 @@ import generateEmptyTable from "./generateEmptyTable";
 const globalTableData = createSlice({
     name: 'globalTableData',
     initialState: {
-        value: generateEmptyTable(100, 40),
+        value: generateEmptyTable(200, 80),
         selectedCell: [0, 0]
     },
     reducers: {

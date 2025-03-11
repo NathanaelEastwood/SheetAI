@@ -18,10 +18,10 @@ abstract class FunctionNodeFactory {
                         label: "+",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["", ""],
                         outputLabels: [""],
-                        width: "60px"
+                        windowWidth: "60px"
                     }
                 }
             case 1:
@@ -38,10 +38,10 @@ abstract class FunctionNodeFactory {
                         label: "-",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["", ""],
                         outputLabels: [""],
-                        width: "60px"
+                        windowWidth: "60px"
                     }
                 }
             case 2:
@@ -58,10 +58,10 @@ abstract class FunctionNodeFactory {
                         label: "*",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["", ""],
                         outputLabels: [""],
-                        width: "60px"
+                        windowWidth: "60px"
                     }
                 }
             case 3:
@@ -78,10 +78,10 @@ abstract class FunctionNodeFactory {
                         label: "/",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["", ""],
                         outputLabels: [""],
-                        width: "60px"
+                        windowWidth: "60px"
                     }
                 }
             case 4:
@@ -98,10 +98,10 @@ abstract class FunctionNodeFactory {
                         label: "",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["X", "Y"],
                         outputLabels: ["X % Y = Z"],
-                        width: "140px"
+                        windowWidth: "140px"
                     }
                 }
             case 5:
@@ -118,10 +118,10 @@ abstract class FunctionNodeFactory {
                         label: "",
                         inputNodes: 2,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: ["X", "Y"],
                         outputLabels: ["Xʸ = Z"],
-                        width: "140px"
+                        windowWidth: "140px"
                     }
                 }
             case 6:
@@ -138,10 +138,10 @@ abstract class FunctionNodeFactory {
                         label: "",
                         inputNodes: 0,
                         outputNodes: 1,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: [],
                         outputLabels: [label],
-                        width: "50px"
+                        windowWidth: "50px"
                     }
                 }
             case 7:
@@ -158,10 +158,10 @@ abstract class FunctionNodeFactory {
                         label: "",
                         inputNodes: 1,
                         outputNodes: 0,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: [label],
                         outputLabels: [],
-                        width: "40px"
+                        windowWidth: "40px"
                     }
                 }
             default:
@@ -174,15 +174,15 @@ abstract class FunctionNodeFactory {
                     },
                     targetPosition: Position.Left,
                     sourcePosition: Position.Right,
-                    width: 100,
+                    windowWidth: 100,
                     data: {
                         label: "unknown",
                         inputNodes: 0,
                         outputNodes: 0,
-                        height: 20,
+                        windowHeight: 20,
                         inputLabels: [],
                         outputLabels: [],
-                        width: "140px"
+                        windowWidth: "140px"
                     }
                 }
             }

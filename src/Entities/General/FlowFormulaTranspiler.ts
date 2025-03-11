@@ -46,8 +46,8 @@ abstract class FlowFormulaTranspiler {
             type: 'straight-step-edge',
             markerEnd: {
                 type: MarkerType.Arrow,
-                width: 30,       // Increase arrow width (default is 20)
-                height: 30,      // Increase arrow height (default is 20)
+                windowWidth: 30,       // Increase arrow width (default is 20)
+                windowHeight: 30,      // Increase arrow height (default is 20)
                 strokeWidth: 1,  // Thicker outline (optional) }
             },
             label: `${resultant_value}`
@@ -161,8 +161,8 @@ abstract class FlowFormulaTranspiler {
                 type: 'straight-step-edge',
                 markerEnd: {
                     type: MarkerType.Arrow,
-                    width: 30,       // Increase arrow width (default is 20)
-                    height: 30,      // Increase arrow height (default is 20)
+                    windowWidth: 30,       // Increase arrow width (default is 20)
+                    windowHeight: 30,      // Increase arrow height (default is 20)
                     strokeWidth: 1,   // Thicker outline (optional)
                 },
                 label: `${resultant_value}`

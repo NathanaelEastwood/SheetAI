@@ -14,18 +14,28 @@ interface TopbarProps {
 
 const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLetter, width, horizontalScalars, scrollX, scrollY, adjustScalars }, ref) => {
     const localCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [columnHeadings, setColumnHeadings] = useState<string[]>(() =>
-        generateLetterList(width, startingLetter)
-    );
+    const [isReady, setIsReady] = useState<boolean>(false);
+    const [columnHeadings, setColumnHeadings] = useState<string[]>([]);
     const [horizontalScalarsState, setHorizontalScalarsState] = useState<Scalars>(horizontalScalars);
     const [draggingColumnBorder, setDraggingColumnBorder] = useState<boolean>(false);
     const [dragCurrentLocation, setDragCurrentLocation] = useState<number>(0);
     let hoveringResize = useRef<boolean>(false);
     let dragStartLocation = useRef<number>(0);
 
+    // Initialize column headings
     useEffect(() => {
-        setColumnHeadings(generateLetterList(width, startingLetter));
-        setHorizontalScalarsState(horizontalScalars);
+        if (width > 0 && horizontalScalars) {
+            const letters = generateLetterList(width, startingLetter);
+            setColumnHeadings(letters);
+            setHorizontalScalarsState(horizontalScalars);
+            setIsReady(true);
+        }
+    }, [width, startingLetter, horizontalScalars]);
+
+    // Render the topbar
+    useEffect(() => {
+        if (!isReady) return;
+
         const canvas = (ref as React.RefObject<HTMLCanvasElement>)?.current || localCanvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext("2d");
@@ -84,9 +94,11 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
                 });
             }
         }
-    }, [width, horizontalScalars]);
+    }, [isReady, columnHeadings, horizontalScalarsState, width]);
 
     const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+        if (!isReady) return;
+        
         let absoluteX = event.clientX + scrollX - 100;
         if (!draggingColumnBorder) {
             const canvas = event.currentTarget;
@@ -99,19 +111,16 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLElement>) => {
-        if (!hoveringResize.current) {
-            return;
-        } else {
-            setDraggingColumnBorder(true);
-            dragStartLocation.current = event.clientX + scrollX - 100;
-            setDragCurrentLocation(event.clientX);
-        }
+        if (!isReady || !hoveringResize.current) return;
+        
+        setDraggingColumnBorder(true);
+        dragStartLocation.current = event.clientX + scrollX - 100;
+        setDragCurrentLocation(event.clientX);
     };
 
     const handleMouseUp = (event: React.MouseEvent<HTMLElement>) => {
-        if (!draggingColumnBorder) {
-            return;
-        }
+        if (!isReady || !draggingColumnBorder) return;
+        
         let dragEnd = event.clientX + scrollX - 100;
         setDraggingColumnBorder(false);
         if (Math.abs(dragEnd - dragStartLocation.current) > 5) {
@@ -119,6 +128,10 @@ const Topbar = forwardRef<HTMLCanvasElement, TopbarProps>(({ style, startingLett
             adjustScalars(startIndex, dragEnd - dragStartLocation.current);
         }
     };
+
+    if (!isReady) {
+        return null; // Don't render anything until we're ready
+    }
 
     return (
         <>

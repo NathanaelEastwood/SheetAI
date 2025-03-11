@@ -2,14 +2,22 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import Table from "./Table";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import generateEmptyTable from "../../Entities/Table/generateEmptyTable";
 import {Scalars} from "../../Entities/Table/Scalars";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../main";
 import {updateGlobalTableData} from "../../Entities/Table/globalStateStore";
+import useWindowDimensions from "../../Entities/General/getWindowDimensions";
 
 const TableContainer: React.FC = () => {
+
+    // Window dimension hook
+    const { windowHeight, windowWidth } = useWindowDimensions();
+
     const dispatch = useDispatch();
+    // Redux store table data initialisation
+    const rows = Math.ceil(windowHeight / 30);
+    const cols = Math.ceil(windowWidth / 80);
+
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -20,13 +28,13 @@ const TableContainer: React.FC = () => {
 
     // top bar values
     const [startingLetter, setStartingLetter] = useState(0);
-    const [topBarWidth, setTopBarWidth] = useState(40);
-    const [horizontalScalars, setHorizontalScalars] = useState<Scalars>(() => new Scalars(Array.from({ length: 40 }, () => 80)));
+    const [topBarWidth, setTopBarWidth] = useState(cols);
+    const [horizontalScalars, setHorizontalScalars] = useState<Scalars>(() => new Scalars(Array.from({ length: cols }, () => 80)));
 
     // sidebar values
     const [startingNumber, setStartingNumber] = useState(1);
-    const [sideBarHeight, setSideBarHeight] = useState(100);
-    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: 100 }, () => 30)));
+    const [sideBarHeight, setSideBarHeight] = useState(rows);
+    const [verticalScalars, setVerticalScalars] = useState(() => new Scalars(Array.from({ length: rows }, () => 30)));
 
     const [scrollX, setScrollX] = useState(0);
     const [scrollY, setScrollY] = useState(0);
@@ -51,6 +59,24 @@ const TableContainer: React.FC = () => {
             }
         };
     }, [topBarWidth, sideBarHeight]);  // Add dependencies here to avoid stale closures
+
+    useEffect(() => {
+        if (windowWidth/80 > topBarWidth) {
+            const required_increase = Math.ceil(windowWidth/80) - topBarWidth;
+
+            setTopBarWidth(prevWidth => prevWidth + required_increase);
+            dispatch(updateGlobalTableData(tableData.extendXDirection(required_increase)));
+            setHorizontalScalars(new Scalars(horizontalScalars.extend(Array(required_increase).fill(80))));
+        }
+
+        if (windowHeight/30 > sideBarHeight) {
+            const required_increase = Math.ceil(windowHeight/30) - sideBarHeight;
+
+            setSideBarHeight(prevWidth => prevWidth + required_increase);
+            dispatch(updateGlobalTableData(tableData.extendYDirection(required_increase)))
+            setVerticalScalars(new Scalars(verticalScalars.extend(Array(required_increase).fill(30))));
+        }
+    }, [windowWidth, windowHeight]);
 
     const handleScroll = (event: Event) => {
         const target = event.target as HTMLDivElement;
@@ -158,7 +184,7 @@ const TableContainer: React.FC = () => {
                     position: "absolute",
                     overflow: "scroll",
                     height: "75vh",
-                    width: "94.5vw",
+                    width: "calc(100vw - 100px)",
                     top: "30px",
                     left: "100px"
                 }}
