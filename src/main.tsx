@@ -10,6 +10,7 @@ import Toolbar from './Components/Toolbar/Toolbar';
 import { Provider } from 'react-redux'
 import { configureStore } from "@reduxjs/toolkit";
 import globalTableDataReducer from './Entities/Table/globalStateStore';
+import AgentChat from './Components/Agent/AgentChat';
 
 const App: React.FC = () => {
     return (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
                         <InteractionSpace/>
                     </Col>*/}
                 </Row>
+                <AgentChat apiKey={import.meta.env.VITE_OPENAI_API_KEY} />  
             </div>
         </>
     );

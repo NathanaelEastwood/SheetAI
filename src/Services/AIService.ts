@@ -121,7 +121,7 @@ export class AIService {
     }
 }
 
-export const useAIAssistant = (apiKey: string) => {
+export const useAIAgent = (apiKey: string) => {
   const tableData = useSelector((state: RootState) => state.globalTableData.value);
   const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
   
