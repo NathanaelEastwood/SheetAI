@@ -183,7 +183,7 @@ const TableContainer: React.FC = () => {
                 style={{
                     position: "absolute",
                     overflow: "scroll",
-                    height: "75vh",
+                    height: "calc(100vh - 230px)",
                     width: "calc(100vw - 100px)",
                     top: "30px",
                     left: "100px"

@@ -84,6 +84,7 @@ const Toolbar: React.FC = () => {
 
     return (
         <div style={{
+            height: "200px",
             backgroundColor: '#f8f9fa',
             borderBottom: '1px solid #dee2e6',
             padding: '4px 8px',
