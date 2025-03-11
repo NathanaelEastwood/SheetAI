@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAIAgent } from '../../Services/AIService';
 
-interface AIChatProps {
-  apiKey: string;
-}
+interface AIChatProps {}
 
-const AgentChat: React.FC<AIChatProps> = ({ apiKey }) => {
+const AgentChat: React.FC<AIChatProps> = () => {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { queryAI } = useAIAgent(apiKey);
+  const { queryAI } = useAIAgent();
+
+  useEffect(() => {
+    console.log('AgentChat component mounted');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +37,10 @@ const AgentChat: React.FC<AIChatProps> = ({ apiKey }) => {
       padding: '15px',
       backgroundColor: 'white',
       borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      zIndex: 1000
     }}>
+      <h4 style={{ marginBottom: '10px' }}>AI Assistant</h4>
       <form onSubmit={handleSubmit}>
         <input
           type="text"

@@ -30,7 +30,7 @@ const App: React.FC = () => {
                         <InteractionSpace/>
                     </Col>*/}
                 </Row>
-                <AgentChat apiKey={import.meta.env.VITE_OPENAI_API_KEY} />  
+                <AgentChat/>  
             </div>
         </>
     );

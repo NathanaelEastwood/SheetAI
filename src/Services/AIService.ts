@@ -1,7 +1,9 @@
 import TableData from "../Entities/Table/TableData";
-import OpenAI from "openai";
 import { useSelector } from "react-redux";
 import { RootState } from "../main";
+
+// API URL
+const API_URL = "http://localhost:5000/agent"; 
 
 // Gather the context of the spreadsheet    
 interface SpreadsheetContext {
@@ -13,15 +15,10 @@ interface SpreadsheetContext {
     };
 }
 
-// Start OpenAI API connection
 export class AIService {
-    private openai: OpenAI;
-    
-    constructor(apiKey: string) {
-      this.openai = new OpenAI({
-        apiKey: apiKey,
-      });
+    constructor() {
     }
+    
     // Query the spreadsheet    
     async querySpreadsheet(
       query: string, 
@@ -30,31 +27,30 @@ export class AIService {
       try {
         // Convert the TableData to a more readable format for the Agent
         const cellData = this.formatTableDataForAgent(context.tableData, context.selectedCell, context.selectedRange);
-        // Query the OpenAI API with the context and query  
-        const response = await this.openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: `You are an AI assistant analyzing spreadsheet data. 
-                       Current selection: ${this.formatCellReference(context.selectedCell)}
-                       ${context.selectedRange ? 
-                         `Selected range: ${this.formatCellReference(context.selectedRange.start)} to ${this.formatCellReference(context.selectedRange.end)}` 
-                         : ''}
-                       The spreadsheet contains the following data: 
-                       ${cellData}`
-            },
-            {
-              role: "user",
-              content: query
-            }
-          ],
-          temperature: 0.7,
+        
+        // Create the request payload
+        const requestPayload = {
+          query: query,
+          selection: this.formatCellReference(context.selectedCell),
+          selectedRange: context.selectedRange ? 
+            `${this.formatCellReference(context.selectedRange.start)} to ${this.formatCellReference(context.selectedRange.end)}` 
+            : null,
+          spreadsheetData: cellData
+        };
+        
+        // Send request to backend server
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestPayload),
         });
-
-        return response.choices[0].message?.content || "No response generated";
+        
+        const result = await response.json();
+        return result.choices[0].message.content || "No response generated";
       } catch (error) {
-        console.error('Error querying OpenAI:', error);
+        console.error('Error querying AI service:', error);
         throw error;
       }
     }
@@ -121,12 +117,12 @@ export class AIService {
     }
 }
 
-export const useAIAgent = (apiKey: string) => {
+export const useAIAgent = () => {
   const tableData = useSelector((state: RootState) => state.globalTableData.value);
   const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
   
-  const aiService = new AIService(apiKey);
-  // Query the AI Agent with the context and query
+  const aiService = new AIService();
+  
   const queryAI = async (query: string, selectedRange?: { start: [number, number]; end: [number, number] }) => {
     const context = {
       tableData,
