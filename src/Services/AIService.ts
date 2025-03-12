@@ -34,6 +34,13 @@ interface ChatSession {
   updated_at: string;
 }
 
+// Interface for the conversation history
+interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+}
+
 export class AIService {
     constructor() {
     }
@@ -41,7 +48,7 @@ export class AIService {
     // Query the spreadsheet    
     async querySpreadsheet(
       query: string, 
-      context: SpreadsheetContext,
+      context: SpreadsheetContext & { conversationHistory?: ConversationMessage[] },
       userId?: string 
     ): Promise<string> {
       try {
@@ -55,7 +62,8 @@ export class AIService {
           selectedRange: context.selectedRange ? 
             `${this.formatCellReference(context.selectedRange.start)} to ${this.formatCellReference(context.selectedRange.end)}` 
             : null,
-          spreadsheetData: cellData
+          spreadsheetData: cellData,
+          conversationHistory: context.conversationHistory || [] 
         };
         
         // Send request to backend server
@@ -266,7 +274,44 @@ export const useAIAgent = () => {
       selectedRange
     };
 
-    const response = await aiService.querySpreadsheet(query, context, userId);
+    // Get previous messages for context
+    let conversationHistory: ConversationMessage[] = [];
+    if (userId && sessionId) {
+      const previousMessages = await aiService.getChatHistory(userId, sessionId);
+      
+      // Create an empty array with the correct type
+      const messages: ConversationMessage[] = [];
+
+      // Add user messages
+      previousMessages.forEach(msg => {
+        messages.push({
+          role: "user" as const,
+          content: msg.message,
+          timestamp: new Date(msg.created_at).toISOString()
+        });
+        
+        // Add corresponding assistant response
+        messages.push({
+          role: "assistant" as const,
+          content: msg.response,
+          timestamp: new Date(msg.created_at).toISOString()
+        });
+      });
+
+      // Sort by timestamp
+      conversationHistory = messages.sort((a, b) => 
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+    }
+
+    // Include conversation history in the request
+    const requestWithHistory = {
+      ...context,
+      query: query,
+      conversationHistory: conversationHistory
+    };
+
+    const response = await aiService.querySpreadsheet(query, requestWithHistory, userId);
     
     // Save to chat history if user is logged in
     if (userId && sessionId) {

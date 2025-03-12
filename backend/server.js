@@ -9,6 +9,9 @@ app.use(express.json()); // Parse JSON request bodies
 
 const openai = new OpenAI({ apiKey: process.env.API_KEY }); // Correct initialization
 
+// Conversation history debugging
+let lastMessages = [];
+
 // Proxy endpoint
 app.post("/data", async (req, res) => {
     try {
@@ -30,29 +33,43 @@ app.post("/data", async (req, res) => {
 
 app.post("/agent", async (req, res) => {
     try {
-        const { query, selection, selectedRange, spreadsheetData } = req.body;
+        const { query, selection, selectedRange, spreadsheetData, conversationHistory = [] } = req.body;
+        
+        const messages = [
+            { 
+                role: "system", 
+                content: `You are an AI assistant analyzing spreadsheet data. 
+                          Provide clear, concise insights based on the spreadsheet data provided.
+                          Focus on answering the user's query with relevant information from the data.`
+            }
+        ];
+        
+        // Add conversation history if it exists
+        if (conversationHistory && conversationHistory.length > 0) {
+            messages.push(...conversationHistory);
+            console.log("Conversation history received:", JSON.stringify(conversationHistory, null, 2));
+            console.log("Total messages being sent to OpenAI:", messages.length);
+        }
+        
+        // Add current user query with context
+        messages.push({ 
+            role: "user", 
+            content: `
+                Current selection: ${selection}
+                ${selectedRange ? `Selected range: ${selectedRange}` : ''}
+                The spreadsheet contains the following data: 
+                ${spreadsheetData}
+                
+                My question is: ${query}
+            `
+        });
+        
+        // Store messages for debugging
+        lastMessages = [...messages];
         
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            messages: [
-                { 
-                    role: "system", 
-                    content: `You are an AI assistant analyzing spreadsheet data. 
-                              Provide clear, concise insights based on the spreadsheet data provided.
-                              Focus on answering the user's query with relevant information from the data.`
-                },
-                { 
-                    role: "user", 
-                    content: `
-                        Current selection: ${selection}
-                        ${selectedRange ? `Selected range: ${selectedRange}` : ''}
-                        The spreadsheet contains the following data: 
-                        ${spreadsheetData}
-                        
-                        My question is: ${query}
-                    `
-                },
-            ],
+            messages: messages,
             temperature: 0.7,
         });
 
@@ -61,6 +78,11 @@ app.post("/agent", async (req, res) => {
         console.error("Error:", error);
         res.status(500).json({ error: "Error analyzing spreadsheet data" });
     }
+});
+
+// Conversation history debug endpoint
+app.get("/debug-last-request", (req, res) => {
+    res.json({ lastMessages });
 });
 
 // Start the server
