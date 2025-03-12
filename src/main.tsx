@@ -65,7 +65,7 @@ ReactDOM.createRoot(rootElement).render(
                 <Router>
                     <Routes>
                         <Route path="/" element={ <SupabaseAuth /> } />
-                        {/*<Route path="/login" element={<SupabaseAuth/>} />*/}
+                        <Route path="/login" element={ <SupabaseAuth/> } />
                         <Route element = {<PrivateRoute />} >
                             <Route path="/app" element={<App />} />
                         </Route>
