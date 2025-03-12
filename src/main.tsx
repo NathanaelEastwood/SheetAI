@@ -12,6 +12,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import globalTableDataReducer from './Entities/Table/globalStateStore';
 import globalDarkModeReducer from './Entities/Theme/themeStateStore';
 import AgentChat from './Components/Agent/AgentChat';
+import SupabaseAuth from './Auth';
 
 const App: React.FC = () => {
     const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
@@ -56,7 +57,9 @@ export type RootState = ReturnType<typeof store.getState>
 ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
         <Provider store={store}>
-            <App />
+            <SupabaseAuth>
+                <App />
+            </SupabaseAuth>
         </Provider>
     </React.StrictMode>
 );
