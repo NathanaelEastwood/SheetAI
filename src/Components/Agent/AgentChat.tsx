@@ -3,6 +3,8 @@ import { useAIAgent } from '../../Services/AIService';
 import { useSelector } from 'react-redux';
 import { RootState } from "../../main";
 import { supabase } from '../../Auth';
+import { Button } from "../../Components/ui/button";
+
 
 interface ChatMessage {
   id: string;
