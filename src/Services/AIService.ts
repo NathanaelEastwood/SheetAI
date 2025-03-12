@@ -100,12 +100,13 @@ export class AIService {
     }
 
     // Fetch chat history
-    async getChatHistory(userId: string): Promise<ChatMessage[]> {
+    async getChatHistory(userId: string, sessionId: string): Promise<ChatMessage[]> {
       try {
         const { data, error } = await supabase
           .from('chat_history')
           .select('*')
           .eq('user_id', userId)
+          .eq('session_id', sessionId)
           .order('created_at', { ascending: false });
           
         if (error) throw error;
@@ -210,6 +211,21 @@ export class AIService {
         return [];
       }
     }
+
+    async updateSessionName(sessionId: string, newName: string): Promise<boolean> {
+      try {
+        const { error } = await supabase
+          .from('chat_sessions')
+          .update({ session_name: newName })
+          .eq('id', sessionId);
+          
+        if (error) throw error;
+        return true;
+      } catch (error) {
+        console.error('Error updating session name:', error);
+        return false;
+      }
+    }
 }
 
 // Hook that provides agent
@@ -266,8 +282,12 @@ export const useAIAgent = () => {
     const userId = session?.user?.id;
     
     if (!userId || !sessionId) return [];
-    return await aiService.getChatHistory(userId);
+    return await aiService.getChatHistory(userId, sessionId);
   };
 
-  return { queryAI, getChatHistory, createNewSession, getUserSessions };
+  const updateSessionName = async (sessionId: string, newName: string) => {
+    return await aiService.updateSessionName(sessionId, newName);
+  };
+
+  return { queryAI, getChatHistory, createNewSession, getUserSessions, updateSessionName };
 };

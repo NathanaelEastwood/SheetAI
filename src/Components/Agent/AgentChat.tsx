@@ -39,7 +39,7 @@ const AgentChat: React.FC = () => {
   const [currentView, setCurrentView] = useState<ChatView>(ChatView.CURRENT_CHAT);
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const { queryAI, getChatHistory, createNewSession, getUserSessions } = useAIAgent();
+  const { queryAI, getChatHistory, createNewSession, getUserSessions, updateSessionName } = useAIAgent();
   const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
 
   // Load user sessions when component mounts
@@ -51,24 +51,35 @@ const AgentChat: React.FC = () => {
   useEffect(() => {
     if (currentSessionId) {
       loadChatHistory(currentSessionId);
+    } else {
+      setChatHistory([]);
     }
   }, [currentSessionId]);
 
   const loadUserSessions = async () => {
     try {
       const userSessions = await getUserSessions();
-      setSessions(userSessions);
+      
+      // Filter out sessions with no messages
+      const nonEmptySessions = await Promise.all(
+        userSessions.map(async (session) => {
+          const history = await getChatHistory(session.id);
+          return { session, hasMessages: history.length > 0 };
+        })
+      );
+      
+      const filteredSessions = nonEmptySessions
+        .filter(item => item.hasMessages)
+        .map(item => item.session);
+      
+      setSessions(filteredSessions);
       
       // If there are sessions, set the most recent one as current
-      if (userSessions.length > 0) {
-        setCurrentSessionId(userSessions[0].id);
+      if (filteredSessions.length > 0) {
+        setCurrentSessionId(filteredSessions[0].id);
       } else {
-        // If no sessions exist, create a new one
-        const newSessionId = await createNewSession("New Chat");
-        if (newSessionId) {
-          setCurrentSessionId(newSessionId);
-          loadUserSessions();
-        }
+        // Don't create a new session automatically
+        setCurrentSessionId(null);
       }
     } catch (error) {
       console.error('Error loading user sessions:', error);
@@ -76,7 +87,12 @@ const AgentChat: React.FC = () => {
   };
 
   // Fetches and sets chat history for a specific session
-  const loadChatHistory = async (sessionId: string) => {
+  const loadChatHistory = async (sessionId: string | null) => {
+    if (!sessionId) {
+      setChatHistory([]);
+      return;
+    }
+    
     try {
       const history = await getChatHistory(sessionId);
       setChatHistory(history);
@@ -94,7 +110,7 @@ const AgentChat: React.FC = () => {
         setChatHistory([]);
         setResponse('');
         setCurrentView(ChatView.CURRENT_CHAT);
-        await loadUserSessions();
+
       }
     } catch (error) {
       console.error('Error creating new session:', error);
@@ -124,15 +140,42 @@ const AgentChat: React.FC = () => {
   // Handles form submission to send a query to the agent
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim() || !currentSessionId) return;
+    if (!query.trim()) return;
 
     setIsLoading(true);
     try {
-      const result = await queryAI(query, currentSessionId);
-      setResponse(result);
+      // If no current session, create one before sending the query
+      let sessionId = currentSessionId;
+      let isNewSession = false;
       
-      await loadChatHistory(currentSessionId);
-      setQuery('');
+      if (!sessionId) {
+        // Create with temporary name - we'll update it after
+        sessionId = await createNewSession("New Chat");
+        setCurrentSessionId(sessionId);
+        isNewSession = true;
+      }
+
+      if (sessionId) {
+        const result = await queryAI(query, sessionId);
+        setResponse(result);
+        
+        // If this is a new session, update its name to the first prompt
+        if (isNewSession) {
+          // Truncate long queries for the session name
+          const sessionName = query.length > 50 ? query.substring(0, 47) + '...' : query;
+          await updateSessionName(sessionId, sessionName);
+        }
+        
+        // After getting a response, update the chat history
+        await loadChatHistory(sessionId);
+        
+        // Also refresh the sessions list to show the new session with updated name
+        await loadUserSessions();
+        
+        setQuery('');
+      } else {
+        setResponse('Error: Failed to create or retrieve chat session');
+      }
     } catch (error) {
       setResponse('Error: Failed to get response from AI');
       console.error(error);
@@ -154,7 +197,7 @@ const AgentChat: React.FC = () => {
         alignItems: 'center', 
         marginBottom: '10px' 
       }}>
-        <h4 style={{ margin: 0 }}>AI Assistant</h4>
+        <h4 style={{ margin: 0 }}>AI Agent</h4>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button 
             onClick={handleNewChat}
@@ -190,19 +233,39 @@ const AgentChat: React.FC = () => {
         </div>
       </div>
       
-      {response && (
-        <div style={{
-          marginTop: '10px',
-          marginBottom: '10px',
-          padding: '10px',
-          backgroundColor: darkModeState ? '#e9ecef' : '#161310',
-          borderRadius: '4px',
-          maxHeight: '200px',
-          overflowY: 'auto'
-        }}>
-          {response}
-        </div>
-      )}
+      {/* Chat history */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        marginBottom: '10px',
+        maxHeight: '300px'
+      }}>
+        {chatHistory.length === 0 ? (
+          <p style={{ textAlign: 'center', color: darkModeState ? '#6c757d' : '#9a9a9a' }}>
+            Start a new conversation
+          </p>
+        ) : (
+          chatHistory.map((chat) => (
+            <div key={chat.id} style={{ marginBottom: '15px' }}>
+              <div style={{ 
+                backgroundColor: darkModeState ? '#d1e7dd' : '#0f3a2d', 
+                padding: '8px', 
+                borderRadius: '4px',
+                marginBottom: '5px'
+              }}>
+                <strong>You:</strong> {chat.message}
+              </div>
+              <div style={{ 
+                backgroundColor: darkModeState ? '#cfe2ff' : '#0a2a4d', 
+                padding: '8px', 
+                borderRadius: '4px' 
+              }}>
+                <strong>AI:</strong> {chat.response}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
       
       <form onSubmit={handleSubmit} style={{ marginTop: 'auto' }}>
         <input
@@ -222,7 +285,7 @@ const AgentChat: React.FC = () => {
         />
         <button
           type="submit"
-          disabled={isLoading || !currentSessionId}
+          disabled={isLoading}
           style={{
             width: '100%',
             padding: '8px',
@@ -230,11 +293,11 @@ const AgentChat: React.FC = () => {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: isLoading || !currentSessionId ? 'not-allowed' : 'pointer',
-            opacity: isLoading || !currentSessionId ? 0.7 : 1,
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.7 : 1,
           }}
         >
-          {isLoading ? 'Thinking...' : 'Ask AI'}
+          {isLoading ? 'Thinking...' : 'Ask AI Agent'}
         </button>
       </form>
     </>
