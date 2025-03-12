@@ -13,6 +13,10 @@ import globalTableDataReducer from './Entities/Table/globalStateStore';
 import globalDarkModeReducer from './Entities/Theme/themeStateStore';
 import AgentChat from './Components/Agent/AgentChat';
 import SupabaseAuth from './Auth';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {AuthProvider} from "./Authorisation/AuthContext";
+import PrivateRoute from "./Authorisation/PrivateRouter";
+import Auth from "./Auth";
 
 const App: React.FC = () => {
     const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
@@ -57,9 +61,17 @@ export type RootState = ReturnType<typeof store.getState>
 ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
         <Provider store={store}>
-            <SupabaseAuth>
-                <App />
-            </SupabaseAuth>
+            <AuthProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/" element={ <SupabaseAuth /> } />
+                        <Route path="/login" element={ <SupabaseAuth/> } />
+                        <Route element = {<PrivateRoute />} >
+                            <Route path="/app" element={<App />} />
+                        </Route>
+                    </Routes>
+                </Router>
+            </AuthProvider>
         </Provider>
     </React.StrictMode>
 );

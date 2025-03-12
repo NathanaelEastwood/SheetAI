@@ -2,7 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 
 const globalDarkMode = createSlice({
     name: "themeState",
-    initialState: false,
+    initialState: true,
     reducers: {
             toggleDarkMode: (state) => !state
     }
