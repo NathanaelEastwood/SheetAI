@@ -78,11 +78,6 @@ export class AIService {
         const result = await response.json();
         const aiResponse = result.choices[0].message.content || "No response generated";
         
-        // Save chat history if userId is provided
-        if (userId) {
-          await this.saveChatHistory(userId, query, aiResponse);
-        }
-        
         return aiResponse;
       } catch (error) {
         console.error('Error querying AI service:', error);
