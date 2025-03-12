@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createClient, Session } from '@supabase/supabase-js'
 import styled from 'styled-components'
+import Signup from './Signup'
 
 const supabase = createClient('https://zjjwdvfawzxdyvwtpafp.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqandkdmZhd3p4ZHl2d3RwYWZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MjMyMzUsImV4cCI6MjA1NzI5OTIzNX0.i9vOaUB3k252qAsxMaCcV965GQ3ZcQl_4rQBrzsrWo8')
 
@@ -60,6 +61,13 @@ const SupabaseAuth: React.FC<SupabaseAuthProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin)
+    setErrorMessage(null)
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -75,19 +83,38 @@ const SupabaseAuth: React.FC<SupabaseAuthProps> = ({ children }) => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setErrorMessage(null)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) console.error('Error logging in:', error.message)
+    if (error) {
+      console.error('Error logging in:', error.message)
+      setErrorMessage(error.message)
+    }
   }
 
   if (!session) {
     return (
       <FormContainer>
-        <Form onSubmit={handleLogin}>
-          <h2>Login</h2>
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <Button type="submit">Login</Button>
-        </Form>
+        {isLogin ? (
+          <Form onSubmit={handleLogin}>
+            <h2>Login</h2>
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            <Input type="email" placeholder="Email" value={email} onChange={(e) => {
+              setEmail(e.target.value);
+              setErrorMessage(null);
+            }} required />
+            <Input type="password" placeholder="Password" value={password} onChange={(e) => {
+              setPassword(e.target.value);
+              setErrorMessage(null);
+            }} required />
+            <Button type="submit">Login</Button>
+            <p>Don't have an account? <a href="#" onClick={toggleAuthMode}>Sign Up</a></p>
+          </Form>
+        ) : (
+          <Signup onSignupSuccess={(session) => {
+            setSession(session);
+            setIsLogin(true);
+          }} />
+        )}
       </FormContainer>
     )
   }
