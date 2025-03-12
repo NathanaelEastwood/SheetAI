@@ -101,7 +101,7 @@ const FormulaBar: React.FC = () => {
 
     return (
         <div style={{
-            position: "fixed",
+            position: "absolute",
             top: "155px",
             padding: '8px 16px',
             backgroundColor: darkModeState ? '#ffffff' : "#000000",

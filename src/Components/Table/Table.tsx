@@ -24,7 +24,6 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
 
     const dispatch = useDispatch();
     const tableData = useSelector((state: RootState) => state.globalTableData.value);
-    const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
 
     const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);
 
