@@ -1,55 +1,6 @@
 import { useState } from 'react';
 import { supabase } from './Auth';
-import styled from 'styled-components';
 import { Session } from '@supabase/supabase-js';
-
-const FormContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #e9ecef;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  width: 320px;
-  padding: 30px;
-  background-color: #ffffff;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-`;
-
-const Input = styled.input`
-  margin-bottom: 15px;
-  padding: 12px;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-  &:focus {
-    border-color: #80bdff;
-    outline: none;
-  }
-`;
-
-const Button = styled.button`
-  padding: 12px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  &:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-  }
-`;
 
 interface SignupProps {
   onSignupSuccess: (session: Session | null) => void;
@@ -73,22 +24,61 @@ const Signup: React.FC<SignupProps> = ({ onSignupSuccess }) => {
   };
 
   return (
-    <FormContainer>
-      <Form onSubmit={handleSignup}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      backgroundColor: '#e9ecef',
+      fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
+    }}>
+      <form onSubmit={handleSignup} style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '320px',
+        padding: '30px',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
+        borderRadius: '10px'
+      }}>
         <h2>Sign Up</h2>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        <Input type="email" placeholder="Email" value={email} onChange={(e) => {
+        <input type="email" placeholder="Email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setEmail(e.target.value);
           setErrorMessage(null);
-        }} required />
-        <Input type="password" placeholder="Password" value={password} onChange={(e) => {
+        }} required style={{
+          marginBottom: '15px',
+          padding: '12px',
+          border: '1px solid #ced4da',
+          borderRadius: '5px',
+          fontSize: '16px',
+          transition: 'border-color 0.3s ease'
+        }} />
+        <input type="password" placeholder="Password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setPassword(e.target.value);
           setErrorMessage(null);
-        }} required />
-        <Button type="submit">Sign Up</Button>
+        }} required style={{
+          marginBottom: '15px',
+          padding: '12px',
+          border: '1px solid #ced4da',
+          borderRadius: '5px',
+          fontSize: '16px',
+          transition: 'border-color 0.3s ease'
+        }} />
+        <button type="submit" style={{
+          padding: '12px',
+          backgroundColor: '#28a745',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          fontSize: '16px',
+          cursor: 'pointer',
+          transition: 'background-color 0.3s ease, transform 0.2s ease'
+        }}>Sign Up</button>
         <p>Already have an account? <a href="#" onClick={() => onSignupSuccess(null)}>Login</a></p>
-      </Form>
-    </FormContainer>
+      </form>
+    </div>
   );
 };
 
