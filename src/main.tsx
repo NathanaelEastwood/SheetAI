@@ -16,7 +16,6 @@ import SupabaseAuth from './Auth';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {AuthProvider} from "./Authorisation/AuthContext";
 import PrivateRoute from "./Authorisation/PrivateRouter";
-import Auth from "./Auth";
 
 const App: React.FC = () => {
     const darkModeState: boolean = useSelector((state: RootState) => state.globalDarkMode);

@@ -7,7 +7,11 @@ import evaluateDependencies from "../../Entities/Table/DependencyEvaluator";
 import {Scalars} from "../../Entities/Table/Scalars";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../main";
-import {updateGlobalTableData, updateSelectedCell} from "../../Entities/Table/globalStateStore";
+import {
+    updateGlobalTableData,
+    updateSelectedCell,
+    updateSelectedCellsBottomRight
+} from "../../Entities/Table/globalStateStore";
 
 
 interface TableProperties {
@@ -148,7 +152,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const columnNumber = cellCoords[0];
         const rowNumber = cellCoords[1];
 
-        dispatch(updateSelectedCell([columnNumber, rowNumber]))
+        dispatch(updateSelectedCell([columnNumber, rowNumber]));
+        dispatch(updateSelectedCellsBottomRight([columnNumber, rowNumber]));
 
         selectionEndRowRef.current = rowNumber;
         selectionEndColumnRef.current = columnNumber;
@@ -193,7 +198,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
         const xSnappingCoordinate = horizontalScalar.getPositionFromIndex(columnNumber);
         const ySnappingCoordinate = verticalScalar.getPositionFromIndex(newRowNumber);
         setHighlightData({top: ySnappingCoordinate, left: xSnappingCoordinate, columnNumber: columnNumber, rowNumber: newRowNumber, bottom: ySnappingCoordinate + verticalScalarRef.current.scalars[newRowNumber], right: xSnappingCoordinate + horizontalScalarRef.current.scalars[columnNumber], isMultiSelect: false})
-        dispatch(updateSelectedCell([columnNumber, rowNumber]))
+        dispatch(updateSelectedCell([columnNumber, rowNumber]));
+        dispatch(updateSelectedCellsBottomRight([columnNumber, rowNumber]));
     }
 
     const handleGlobalKeypress = (event: KeyboardEvent) => {
@@ -295,21 +301,25 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
                     event.preventDefault();
                     newRow = Math.max(newRow + 1, 0);
                     dispatch(updateSelectedCell([newCol, newRow]))
+                    dispatch(updateSelectedCellsBottomRight([newCol, newRow]))
                     break;
                 case "ArrowUp":
                     event.preventDefault();
                     newRow = Math.max(newRow - 1, 0);
                     dispatch(updateSelectedCell([newCol, newRow]))
+                    dispatch(updateSelectedCellsBottomRight([newCol, newRow]))
                     break;
                 case "ArrowLeft":
                     event.preventDefault();
                     newCol = Math.max(newCol - 1, 0);
                     dispatch(updateSelectedCell([newCol, newRow]))
+                    dispatch(updateSelectedCellsBottomRight([newCol, newRow]))
                     break;
                 case "ArrowRight":
                     event.preventDefault();
                     newCol = Math.max(newCol + 1, 0);
                     dispatch(updateSelectedCell([newCol, newRow]))
+                    dispatch(updateSelectedCellsBottomRight([newCol, newRow]))
                     break;
                 default:
                     return prevData; // No change, exit early
@@ -342,6 +352,8 @@ const Table = forwardRef<HTMLCanvasElement, TableProperties>((tableProperties, r
             const dX = endingCellCoords[0] - dragStartCellCoordinates.current[0];
             const dY = endingCellCoords[1] - dragStartCellCoordinates.current[1];
             if (!isHighlightEditing && (Math.abs(dX) > 0 || Math.abs(dY) > 0)) {
+
+                dispatch(updateSelectedCellsBottomRight([selectionEndColumnRef.current, selectionEndRowRef.current]))
 
                 setHighlightData((prevData) => {
                     let topCell;

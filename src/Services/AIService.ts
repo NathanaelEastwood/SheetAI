@@ -235,6 +235,7 @@ export class AIService {
 export const useAIAgent = () => {
   const tableData = useSelector((state: RootState) => state.globalTableData.value);
   const selectedCell = useSelector((state: RootState) => state.globalTableData.selectedCell);
+  const selectedCellsBottomRight = useSelector((state: RootState) => state.globalTableData.selectedCellsBottomRight)
   
   // Create AI service instance
   const aiService = new AIService();
@@ -258,7 +259,7 @@ export const useAIAgent = () => {
   };
   
   // Sends a query to the agent and saves the interaction
-  const queryAI = async (query: string, sessionId: string, selectedRange?: { start: [number, number]; end: [number, number] }) => {
+  const queryAI = async (query: string, sessionId: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     
@@ -266,7 +267,7 @@ export const useAIAgent = () => {
     const context = {
       tableData,
       selectedCell: selectedCell as [number, number],
-      selectedRange
+      selectedRange: {start: selectedCell as [number, number], end: selectedCellsBottomRight as [number, number]}
     };
 
     // Get previous messages for context
