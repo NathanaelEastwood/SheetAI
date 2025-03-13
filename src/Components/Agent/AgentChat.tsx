@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAIAgent } from '../../Services/AIService';
 import { useSelector } from 'react-redux';
 import { RootState } from "../../main";
-import { supabase } from '../../Auth';
-import { Button } from "../../Components/ui/button";
+import { Button } from "../ui/button";
+import { cn } from "../../Lib/Utils";
 
 
 interface ChatMessage {
@@ -193,179 +193,122 @@ const AgentChat: React.FC = () => {
   // Render the current chat view
   const renderCurrentChat = () => (
     <>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '10px' 
-      }}>
-        <h4 style={{ margin: 0 }}>AI Agent</h4>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={handleNewChat}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: 'none',
-              border: 'none',
-              color: darkModeState ? '#212529' : '#dedad6',
-              cursor: 'pointer',
-              fontSize: '14px',
-              padding: '4px 8px'
-            }}
-          >
-            New Chat
-          </button>
-          <button 
-            onClick={() => setCurrentView(ChatView.SESSION_LIST)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              background: 'none',
-              border: 'none',
-              color: darkModeState ? '#212529' : '#dedad6',
-              cursor: 'pointer',
-              fontSize: '14px',
-              padding: '4px 8px'
-            }}
-          >
-            <span>Chat History</span>
-          </button>
+      <div className="border-b p-4">
+        <div className="flex justify-between items-center">
+          <h4 className="text-lg font-medium m-0">AI Agent</h4>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleNewChat}
+              variant="ghost" 
+              size="sm"
+            >
+              New Chat
+            </Button>
+            <Button 
+              onClick={() => setCurrentView(ChatView.SESSION_LIST)}
+              variant="ghost"
+              size="sm"
+            >
+              Chat History
+            </Button>
+          </div>
         </div>
       </div>
       
-      {/* Chat history */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        marginBottom: '10px',
-        maxHeight: '300px'
-      }}>
-        {chatHistory.length === 0 ? (
-          <p style={{ textAlign: 'center', color: darkModeState ? '#6c757d' : '#9a9a9a' }}>
-            Start a new conversation
-          </p>
-        ) : (
-          chatHistory.map((chat) => (
-            <div key={chat.id} style={{ marginBottom: '15px' }}>
-              <div style={{ 
-                backgroundColor: darkModeState ? '#d1e7dd' : '#0f3a2d', 
-                padding: '8px', 
-                borderRadius: '4px',
-                marginBottom: '5px'
-              }}>
-                <strong>You:</strong> {chat.message}
+      <div className="p-4 flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto pr-1 max-h-[300px]">
+          {chatHistory.length === 0 ? (
+            <p className="text-center text-gray-500">
+              Start a new conversation
+            </p>
+          ) : (
+            chatHistory.map((chat) => (
+              <div key={chat.id} className="mb-4">
+                <div className={cn(
+                  "p-2 rounded-md mb-2",
+                  darkModeState ? "bg-green-100" : "bg-green-900/30"
+                )}>
+                  <strong>You:</strong> {chat.message}
+                </div>
+                <div className={cn(
+                  "p-2 rounded-md",
+                  darkModeState ? "bg-blue-100" : "bg-blue-900/30"
+                )}>
+                  <strong>AI:</strong> {chat.response}
+                </div>
               </div>
-              <div style={{ 
-                backgroundColor: darkModeState ? '#cfe2ff' : '#0a2a4d', 
-                padding: '8px', 
-                borderRadius: '4px' 
-              }}>
-                <strong>AI:</strong> {chat.response}
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
       
-      <form onSubmit={handleSubmit} style={{ marginTop: 'auto' }}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask about your spreadsheet..."
-          style={{
-            width: '100%',
-            padding: '8px',
-            marginBottom: '10px',
-            borderRadius: '4px',
-            border: darkModeState ? '1px solid #ced4da' : '1px solid #312b25',
-            backgroundColor: darkModeState ? '#ffffff' : '#000000',
-            color: darkModeState ? '#212529' : '#dedad6',
-          }}
-        />
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '8px',
-            backgroundColor: darkModeState ? '#2c5282' : '#d3ad7d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            opacity: isLoading ? 0.7 : 1,
-          }}
-        >
-          {isLoading ? 'Thinking...' : 'Ask AI Agent'}
-        </button>
-      </form>
+      <div className="border-t p-4">
+        <form onSubmit={handleSubmit} className="w-full">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ask about your spreadsheet..."
+            className={cn(
+              "w-full p-2 mb-2 rounded-md border",
+              darkModeState 
+                ? "border-gray-300 bg-white text-gray-900" 
+                : "border-gray-700 bg-gray-950 text-gray-100"
+            )}
+          />
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full"
+            variant={darkModeState ? "default" : "secondary"}
+          >
+            {isLoading ? 'Thinking...' : 'Ask AI Agent'}
+          </Button>
+        </form>
+      </div>
     </>
   );
 
   // Render the session list view
   const renderSessionList = () => (
     <>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '15px' 
-      }}>
-        <h4 style={{ margin: 0 }}>Chat History</h4>
-        <button 
-          onClick={handleBackToCurrentChat}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: darkModeState ? '#212529' : '#dedad6',
-            cursor: 'pointer',
-            fontSize: '14px',
-            padding: '4px 8px'
-          }}
-        >
-          Back
-        </button>
+      <div className="border-b p-4">
+        <div className="flex justify-between items-center">
+          <h4 className="text-lg font-medium m-0">Chat History</h4>
+          <Button 
+            onClick={handleBackToCurrentChat}
+            variant="ghost"
+            size="sm"
+          >
+            Back
+          </Button>
+        </div>
       </div>
       
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        marginBottom: '10px'
-      }}>
-        {sessions.length === 0 ? (
-          <p style={{ textAlign: 'center', color: darkModeState ? '#6c757d' : '#9a9a9a' }}>
-            No chat sessions found
-          </p>
-        ) : (
-          sessions.map((session) => (
-            <div 
-              key={session.id}
-              onClick={() => handleViewSessionHistory(session.id)}
-              style={{
-                padding: '10px',
-                marginBottom: '8px',
-                backgroundColor: darkModeState ? '#e9ecef' : '#161310',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = darkModeState ? '#d1e7dd' : '#0f3a2d';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = darkModeState ? '#e9ecef' : '#161310';
-              }}
-            >
-              <div style={{ fontWeight: 'bold' }}>{session.session_name}</div>
-              <div style={{ fontSize: '12px', color: darkModeState ? '#6c757d' : '#9a9a9a' }}>
-                {new Date(session.updated_at).toLocaleString()}
+      <div className="p-4 flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto pr-1">
+          {sessions.length === 0 ? (
+            <p className="text-center text-gray-500">
+              No chat sessions found
+            </p>
+          ) : (
+            sessions.map((session) => (
+              <div 
+                key={session.id}
+                onClick={() => handleViewSessionHistory(session.id)}
+                className={cn(
+                  "p-3 mb-2 rounded-md cursor-pointer transition-colors",
+                  darkModeState ? "bg-gray-100 hover:bg-green-100" : "bg-gray-900 hover:bg-green-900/30"
+                )}
+              >
+                <div className="font-medium">{session.session_name}</div>
+                <div className="text-xs text-gray-500">
+                  {new Date(session.updated_at).toLocaleString()}
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </>
   );
@@ -373,60 +316,46 @@ const AgentChat: React.FC = () => {
   // Render the session history view
   const renderSessionHistory = () => (
     <>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '15px' 
-      }}>
-        <h4 style={{ margin: 0 }}>
-          {selectedHistorySessionId ? getSessionName(selectedHistorySessionId) : "Chat History"}
-        </h4>
-        <button 
-          onClick={handleBackToSessionList}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: darkModeState ? '#212529' : '#dedad6',
-            cursor: 'pointer',
-            fontSize: '14px',
-            padding: '4px 8px'
-          }}
-        >
-          Back
-        </button>
+      <div className="border-b p-4">
+        <div className="flex justify-between items-center">
+          <h4 className="text-lg font-medium m-0">
+            {selectedHistorySessionId ? getSessionName(selectedHistorySessionId) : "Chat History"}
+          </h4>
+          <Button 
+            onClick={handleBackToSessionList}
+            variant="ghost"
+            size="sm"
+          >
+            Back
+          </Button>
+        </div>
       </div>
       
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        marginBottom: '10px'
-      }}>
-        {chatHistory.length === 0 ? (
-          <p style={{ textAlign: 'center', color: darkModeState ? '#6c757d' : '#9a9a9a' }}>
-            No messages in this chat session
-          </p>
-        ) : (
-          chatHistory.map((chat) => (
-            <div key={chat.id} style={{ marginBottom: '15px' }}>
-              <div style={{ 
-                backgroundColor: darkModeState ? '#d1e7dd' : '#0f3a2d', 
-                padding: '8px', 
-                borderRadius: '4px',
-                marginBottom: '5px'
-              }}>
-                <strong>You:</strong> {chat.message}
+      <div className="p-4 flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto pr-1">
+          {chatHistory.length === 0 ? (
+            <p className="text-center text-gray-500">
+              No messages in this chat session
+            </p>
+          ) : (
+            chatHistory.map((chat) => (
+              <div key={chat.id} className="mb-4">
+                <div className={cn(
+                  "p-2 rounded-md mb-2",
+                  darkModeState ? "bg-green-100" : "bg-green-900/30"
+                )}>
+                  <strong>You:</strong> {chat.message}
+                </div>
+                <div className={cn(
+                  "p-2 rounded-md",
+                  darkModeState ? "bg-blue-100" : "bg-blue-900/30"
+                )}>
+                  <strong>AI:</strong> {chat.response}
+                </div>
               </div>
-              <div style={{ 
-                backgroundColor: darkModeState ? '#cfe2ff' : '#0a2a4d', 
-                padding: '8px', 
-                borderRadius: '4px' 
-              }}>
-                <strong>AI:</strong> {chat.response}
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </>
   );
@@ -438,15 +367,17 @@ const AgentChat: React.FC = () => {
       right: '20px',
       width: currentView !== ChatView.CURRENT_CHAT ? '400px' : '300px',
       height: currentView !== ChatView.CURRENT_CHAT ? '500px' : 'auto',
-      padding: '15px',
-      backgroundColor: darkModeState ? '#f8f9fa' : '#070605',
-      color: darkModeState ? '#212529' : '#dedad6',
+      minHeight: '200px',
+      backgroundColor: darkModeState ? '#ffffff' : '#1a1a1a',
+      color: darkModeState ? '#000000' : '#ffffff',
       borderRadius: '8px',
-      boxShadow: darkModeState ? '0 2px 10px rgba(0,0,0,0.1)' : '0 2px 10px rgba(255,255,255,0.1)',
-      zIndex: 1000,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      zIndex: 9999,
       display: 'flex',
       flexDirection: 'column',
-      transition: 'width 0.3s, height 0.3s'
+      overflow: 'hidden',
+      border: '1px solid',
+      borderColor: darkModeState ? '#e2e8f0' : '#2d3748'
     }}>
       {currentView === ChatView.CURRENT_CHAT && renderCurrentChat()}
       {currentView === ChatView.SESSION_LIST && renderSessionList()}
